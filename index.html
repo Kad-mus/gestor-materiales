@@ -353,7 +353,7 @@ tr.r-sel { border-left:3px solid #F59E0B !important; }
 <body>
 
 <!-- USER MODAL -->
-<div id="user-modal-overlay">
+<div id="user-modal-overlay" onclick="if(event.target===this)confirmUser()">
   <div id="user-modal">
     <div class="um-banner"></div>
     <div class="um-head">
@@ -543,13 +543,8 @@ function onUmInput(){document.getElementById('um-btn').disabled=document.getElem
 const _umCheck=setInterval(()=>{const inp=document.getElementById('um-input');if(inp&&inp.value.trim().length>=2){document.getElementById('um-btn').disabled=false;clearInterval(_umCheck);}},300);
 function confirmUser(){
   const v=document.getElementById('um-input').value.trim();
-  if(v.length<2){
-    document.getElementById('um-input').style.borderColor='var(--repsol-red)';
-    document.getElementById('um-input').placeholder='Escribe al menos 2 caracteres';
-    document.getElementById('um-input').focus();
-    return;
-  }
-  currentUser=v; localStorage.setItem(UNKEY,v);
+  currentUser = v || 'Usuario';
+  localStorage.setItem(UNKEY, currentUser);
   document.getElementById('user-modal-overlay').style.display='none';
   updateUserUI();
 }
@@ -831,14 +826,14 @@ function printView() {
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-if(currentUser){document.getElementById('user-modal-overlay').style.display='none';updateUserUI();}
-else{
-  setTimeout(()=>{
-    const inp=document.getElementById('um-input');
-    inp.focus();
-    // Activate button if browser autofilled the field
-    if(inp.value.trim().length>=2) document.getElementById('um-btn').disabled=false;
-  },200);
+// ── INIT ──────────────────────────────────────────────────────────────────────
+const _overlay = document.getElementById('user-modal-overlay');
+if(currentUser){
+  _overlay.style.display='none';
+  updateUserUI();
+} else {
+  _overlay.style.display='flex';
+  setTimeout(()=>document.getElementById('um-input').focus(), 100);
 }
 if(SURL){document.getElementById('setup-input').value=SURL;document.getElementById('setup').classList.add('closed');startSync();}
 populateFilters();applyF();
