@@ -539,6 +539,8 @@ function updateUserUI(){
   document.getElementById('u-name').textContent=currentUser||'—';
 }
 function onUmInput(){document.getElementById('um-btn').disabled=document.getElementById('um-input').value.trim().length<2;}
+// Check every 300ms in case browser autofill fires late
+const _umCheck=setInterval(()=>{const inp=document.getElementById('um-input');if(inp&&inp.value.trim().length>=2){document.getElementById('um-btn').disabled=false;clearInterval(_umCheck);}},300);
 function confirmUser(){
   const v=document.getElementById('um-input').value.trim();
   if(v.length<2)return;
@@ -825,7 +827,14 @@ function printView() {
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 if(currentUser){document.getElementById('user-modal-overlay').style.display='none';updateUserUI();}
-else{setTimeout(()=>document.getElementById('um-input').focus(),100);}
+else{
+  setTimeout(()=>{
+    const inp=document.getElementById('um-input');
+    inp.focus();
+    // Activate button if browser autofilled the field
+    if(inp.value.trim().length>=2) document.getElementById('um-btn').disabled=false;
+  },200);
+}
 if(SURL){document.getElementById('setup-input').value=SURL;document.getElementById('setup').classList.add('closed');startSync();}
 populateFilters();applyF();
 </script>
