@@ -375,7 +375,7 @@ tr.r-sel { border-left:3px solid #F59E0B !important; }
     </div>
     <div class="um-body">
       <label class="um-label">Tu nombre completo</label>
-      <input class="um-input" id="um-input" placeholder="Ej: María García" oninput="onUmInput()" onkeydown="if(event.key==='Enter')confirmUser()">
+      <input class="um-input" id="um-input" placeholder="Ej: María García" onkeydown="if(event.key==='Enter')confirmUser()">
       <div class="um-hint">Se guardará en este navegador. Puedes cambiarlo cuando quieras haciendo clic en tu nombre.</div>
       <button class="um-btn" id="um-btn" onclick="confirmUser()">Acceder →</button>
     </div>
@@ -538,9 +538,7 @@ function updateUserUI(){
   document.getElementById('u-avatar').style.background=userColor(currentUser);
   document.getElementById('u-name').textContent=currentUser||'—';
 }
-function onUmInput(){document.getElementById('um-btn').disabled=document.getElementById('um-input').value.trim().length<2;}
-// Check every 300ms in case browser autofill fires late
-const _umCheck=setInterval(()=>{const inp=document.getElementById('um-input');if(inp&&inp.value.trim().length>=2){document.getElementById('um-btn').disabled=false;clearInterval(_umCheck);}},300);
+function onUmInput(){}
 function confirmUser(){
   const v=document.getElementById('um-input').value.trim();
   currentUser = v || 'Usuario';
