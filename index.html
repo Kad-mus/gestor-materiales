@@ -571,51 +571,43 @@ function connect(){
   const url=document.getElementById('setup-input').value.trim();
   if(!url.startsWith('https://script.google.com')){setMsg('URL no válida','#FCA5A5');return;}
   document.getElementById('setup-btn').disabled=true; setMsg('Probando conexión…','#FF6900');
-  jsonp(url+'?action=ping',res=>{
-    if(res&&res.ok){SURL=url;localStorage.setItem(UK,url);document.getElementById('setup').classList.add('closed');setSY('ok','Conectado ✓');pushCloud(true);}
-    else{setMsg('Error de permisos.','#FCA5A5');document.getElementById('setup-btn').disabled=false;}
-  },()=>{setMsg('No se pudo conectar. ¿Publicaste con acceso "Cualquier usuario"?','#FCA5A5');document.getElementById('setup-btn').disabled=false;});
+  fetchGet(url+'?action=ping')
+    .then(res=>{
+      if(res&&res.ok){SURL=url;localStorage.setItem(UK,url);document.getElementById('setup').classList.add('closed');setSY('ok','Conectado ✓');pushCloud(true);}
+      else{setMsg('El script respondió con error.','#FCA5A5');document.getElementById('setup-btn').disabled=false;}
+    })
+    .catch(()=>{setMsg('No se pudo conectar. Comprueba que el acceso es "Cualquier usuario".','#FCA5A5');document.getElementById('setup-btn').disabled=false;});
 }
 function skipSetup(){document.getElementById('setup').classList.add('closed');setSY('idle','Solo local');}
 
-// ── JSONP ─────────────────────────────────────────────────────────────────────
-function jsonp(url,onOk,onErr){
-  const cb='_gcb'+(++_cbIdx);
-  const timer=setTimeout(()=>{cleanup();if(onErr)onErr('timeout');},10000);
-  window[cb]=data=>{cleanup();if(onOk)onOk(data);};
-  function cleanup(){clearTimeout(timer);delete window[cb];const s=document.getElementById('_s'+cb);if(s)s.remove();}
-  const sep=url.includes('?')?'&':'?';
-  const s=document.createElement('script');s.id='_s'+cb;s.src=url+sep+'callback='+cb+'&t='+Date.now();
-  s.onerror=()=>{cleanup();if(onErr)onErr('error');};
-  document.head.appendChild(s);
+// ── FETCH (reemplaza JSONP — funciona desde HTTPS/GitHub Pages) ───────────────
+function fetchGet(url){
+  return fetch(url, {method:'GET', redirect:'follow'})
+    .then(r=>r.json());
 }
 
 // ── CLOUD ─────────────────────────────────────────────────────────────────────
 function startSync(){setSY('syncing','Conectando…');pullCloud();if(syncTimer)clearInterval(syncTimer);syncTimer=setInterval(pullCloud,INTERVAL);}
 function pullCloud(){
   if(!SURL)return; setSY('syncing','Actualizando…');
-  jsonp(SURL+'?action=read',remote=>{
-    if(!remote||remote.error){setSY('error','Error al sync');return;}
-    if(remote.trabajos||remote.planificadores){
-      S.data={trabajos:remote.trabajos||S.data.trabajos,planificadores:remote.planificadores||S.data.planificadores,notes:Object.assign({},remote.notes||{},S.data.notes||{})};
-      saveLocal();populateFilters();applyF();if(S.selId)renderDetail();
-    }
-    document.getElementById('lsy').textContent='Sync: '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    setSY('ok','Sincronizado ✓');
-  },err=>{setSY('error','Error: '+err);});
+  fetchGet(SURL+'?action=read')
+    .then(remote=>{
+      if(!remote||remote.error){setSY('error','Error al sync');return;}
+      if(remote.trabajos||remote.planificadores){
+        S.data={trabajos:remote.trabajos||S.data.trabajos,planificadores:remote.planificadores||S.data.planificadores,notes:Object.assign({},remote.notes||{},S.data.notes||{})};
+        saveLocal();populateFilters();applyF();if(S.selId)renderDetail();
+      }
+      document.getElementById('lsy').textContent='Sync: '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      setSY('ok','Sincronizado ✓');
+    })
+    .catch(err=>{setSY('error','Error: '+err);});
 }
 function pushCloud(silent){
   if(!SURL)return; if(!silent)setSY('syncing','Guardando…');
   const body=JSON.stringify({action:'write',data:S.data});
-  fetch(SURL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body})
+  fetch(SURL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body})
     .then(()=>{setTimeout(()=>{if(silent)startSync();else pullCloud();},1500);})
-    .catch(()=>{
-      const ifr=document.createElement('iframe');ifr.name='_pf';ifr.style.display='none';document.body.appendChild(ifr);
-      const frm=document.createElement('form');frm.method='POST';frm.action=SURL;frm.target='_pf';
-      const inp=document.createElement('input');inp.type='hidden';inp.name='payload';inp.value=body;
-      frm.appendChild(inp);document.body.appendChild(frm);frm.submit();
-      setTimeout(()=>{ifr.remove();frm.remove();if(silent)startSync();else pullCloud();},2500);
-    });
+    .catch(err=>{console.error('pushCloud error',err);setSY('error','Error al guardar');});
 }
 function forcePull(){pullCloud();}
 function saveAndSync(){saveLocal();pushCloud(false);}
