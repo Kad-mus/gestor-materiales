@@ -746,7 +746,8 @@ function saveNote(id){
 // ── MODAL ─────────────────────────────────────────────────────────────────────
 function buildForm(rec){
   return gc().filter(c=>c.k!=='_createdBy').map(c=>{
-    const v=rec?(rec[c.k]||')':'';
+    const v=rec?(rec[c.k]||''):'';
+
     const span=(c.k==='texto'||c.k==='descripcion')?' span2':'';
     if(c.badge||c.k==='ok_sap')
       return`<div class="form-field${span}"><label>${c.l}</label><select id="f_${c.k}"><option value="">— Sin estado —</option>${['OK','EXISTENTE','ANULADO'].map(o=>`<option value="${o}"${v===o?' selected':''}>${o}</option>`).join('')}</select></div>`;
