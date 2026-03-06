@@ -666,12 +666,11 @@ const COLS={
   planificadores:[
     {k:'codigo_sap',l:'Código SAP',w:105,mono:1},
     {k:'descripcion',l:'Descripción',w:240},
-    {k:'stock_actual',l:'Stock Actual',w:100},
-    {k:'stock_nuevo',l:'Stock Nuevo',w:125},
-    {k:'seguimiento',l:'Seguimiento',w:135,mono:1},
+    {k:'stock_actual',l:'Stock Actual',w:120,stock:1},
+    {k:'stock_nuevo',l:'Stock Nuevo',w:120,stock:1},
     {k:'solicitante',l:'Solicitante',w:105},
     {k:'fecha',l:'Fecha',w:90,date:1},
-    {k:'ok',l:'OK',w:70,badge:1},
+    {k:'ok',l:'OK TAM4',w:90,badge:1},
     {k:'ok_sap',l:'OK SAP',w:70,badge:1},
     {k:'incluido_excel',l:'En Excel',w:80,check:1},
     {k:'_createdBy',l:'Codificado por',w:155,author:1},
@@ -733,7 +732,8 @@ function renderTable(){
     const cells=cols.map(c=>{
       const v=r[c.k]||'';
       let h;
-      if(c.check)h=r[c.k]==='si'?'<span class="check-yes">✅</span>':'<span style="color:#D1D5DB;font-size:16px">☐</span>';
+      if(c.stock&&r[c.k]){const parts=r[c.k].split('|');h=parts.map(p=>`<span style="display:inline-block;background:#EEF2FF;color:#3730A3;border:1px solid #C7D2FE;border-radius:5px;padding:1px 6px;font-size:12px;font-family:var(--mono);margin:1px">${p}</span>`).join(' ');}
+      else if(c.check)h=r[c.k]==='si'?'<span class="check-yes">✅</span>':'<span style="color:#D1D5DB;font-size:16px">☐</span>';
       else if(c.author)h=authorCell(r._createdBy,r._createdAt);
       else if(c.badge)h=badge(v);
       else if(c.date)h=`<span class="date-cell">${v}</span>`;
@@ -782,6 +782,18 @@ function buildForm(rec){
     const v=rec?(rec[c.k]||''):'';
 
     const span=(c.k==='texto'||c.k==='descripcion')?' span2':'';
+    if(c.stock){
+      const parts=v?v.split('|'):[];
+      const val=p=>parts.find(x=>x.startsWith(p))?parts.find(x=>x.startsWith(p)).replace(p,''):'';
+      return`<div class="form-field${span}"><label>${c.l}</label><div style="display:flex;flex-direction:column;gap:6px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)">
+        ${['P.P.','S.M.','S.S.'].map(tipo=>`<div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:13px;font-weight:700;color:#3730A3;width:38px;flex-shrink:0">${tipo}</span>
+          <input id="f_${c.k}_${tipo.replace(/\./g,'')}" type="number" min="0" max="9999" step="1"
+            style="width:80px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;font-family:var(--mono);font-size:14px"
+            placeholder="0" value="${val(tipo)}">
+        </div>`).join('')}
+      </div></div>`;
+    }
     if(c.badge||c.k==='ok_sap')
       return`<div class="form-field${span}"><label>${c.l}</label><select id="f_${c.k}"><option value="">— Sin estado —</option>${['Pendiente','OK','Anulado'].map(o=>`<option value="${o}"${v===o?' selected':''}>${o}</option>`).join('')}</select></div>`;
     return`<div class="form-field${span}"><label>${c.l}</label><input id="f_${c.k}" type="${c.date?'date':'text'}" value="${(v+'').replace(/"/g,'&quot;')}"></div>`;
@@ -792,7 +804,15 @@ function openEdit(id,e){if(e)e.stopPropagation();S.editId=id;const rec=gr().find
 function closeModal(){document.getElementById('modal-overlay').classList.remove('open');S.editId=null;}
 function saveRec(){
   const cols=gc().filter(c=>c.k!=='_createdBy'),obj={};
-  cols.forEach(c=>{const el=document.getElementById('f_'+c.k);obj[c.k]=el?el.value:'';});
+  cols.forEach(c=>{
+    if(c.stock){
+      const tipos=['PP','SM','SS'];const labels=['P.P.','S.M.','S.S.'];
+      const parts=tipos.map((t,i)=>{const el=document.getElementById('f_'+c.k+'_'+t);const v=el&&el.value!==''?el.value.slice(0,4):'';return v?labels[i]+v:null;}).filter(Boolean);
+      obj[c.k]=parts.join('|');
+    } else {
+      const el=document.getElementById('f_'+c.k);obj[c.k]=el?el.value:'';
+    }
+  });
   const cbEl=document.getElementById('f_incluido_excel');obj.incluido_excel=cbEl&&cbEl.checked?'si':'no';
   if(S.editId){S.data[S.tab]=S.data[S.tab].map(r=>r.id===S.editId?{...r,...obj}:r);}
   else{obj.id=gid();obj._createdBy=currentUser||'Desconocido';obj._createdAt=new Date().toISOString();S.data[S.tab]=[obj,...S.data[S.tab]];}
