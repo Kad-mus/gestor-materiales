@@ -749,7 +749,7 @@ function renderTable(){
   document.getElementById('rc').textContent=`${S.filtered.length} registro${S.filtered.length!==1?'s':''}`;
   if(!S.filtered.length){wrap.innerHTML='<div class="empty-state"><div class="ei">🔍</div><p>No se encontraron registros</p></div>';return;}
   const th=cols.map(c=>`<th onclick="sortBy('${c.k}')" style="min-width:${c.w}px">${c.l}${S.sc===c.k?(S.sd===1?' ↑':' ↓'):''}</th>`).join('')+'<th style="width:82px">Acc.</th>';
-  const tb=S.filtered.map(r=>{
+  const tb=S.filtered.map((r,ri)=>{
     const cls=r.id===S.selId?'r-sel':isAN(r.ok)?'r-an':isPE(r.ok)?'r-pend':'r-ok';
     const cells=cols.map(c=>{
       const v=r[c.k]||'';
