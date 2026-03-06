@@ -365,6 +365,7 @@ tr:hover .copy-btn { opacity:1; }
 }
 .print-header { display:none; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -835,35 +836,70 @@ function delRec(id,e){
 
 // ── EXPORT EXCEL ─────────────────────────────────────────────────────────────
 function exportExcel() {
-  const cols = gc().filter(c => c.k !== '_createdBy');
-  const headers = [...cols.map(c => c.l), 'En Excel', 'Codificado por', 'Fecha alta', 'Notas'];
-
-  // Build CSV with BOM for Excel UTF-8
-  const escape = v => {
-    const s = String(v || '').replace(/"/g, '""');
-    return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s}"` : s;
-  };
-
-  const rows = S.filtered.map(r => {
-    const cells = cols.map(c => escape(r[c.k] || ''));
-    cells.push(escape(r.incluido_excel==='si'?'Sí':'No'));
-    cells.push(escape(r._createdBy || ''));
-    cells.push(escape(r._createdAt ? fmtDate(r._createdAt) : ''));
-    cells.push(escape(S.data.notes[r.id] || ''));
-    return cells.join(',');
-  });
-
-  const csv = '\uFEFF' + headers.join(',') + '\n' + rows.join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  if(typeof XLSX==='undefined'){alert('Librería Excel no cargada. Comprueba la conexión.');return;}
   const date = new Date().toISOString().slice(0,10);
-  a.href = url;
-  a.download = `AltaMateriales_${S.tab}_${date}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  const wb = XLSX.utils.book_new();
+
+  // Colores Repsol
+  const HEAD_FILL = {patternType:'solid', fgColor:{rgb:'0F1923'}};
+  const HEAD_FONT = {bold:true, color:{rgb:'FFFFFF'}, name:'Arial', sz:11};
+  const OK_FILL   = {patternType:'solid', fgColor:{rgb:'DCFCE7'}};
+  const PEND_FILL = {patternType:'solid', fgColor:{rgb:'FFF7F0'}};
+  const AN_FILL   = {patternType:'solid', fgColor:{rgb:'FEF2F2'}};
+  const BORDER    = {top:{style:'thin',color:{rgb:'E2E8F0'}},bottom:{style:'thin',color:{rgb:'E2E8F0'}},left:{style:'thin',color:{rgb:'E2E8F0'}},right:{style:'thin',color:{rgb:'E2E8F0'}}};
+  const ALIGN_C   = {horizontal:'center',vertical:'center',wrapText:true};
+  const ALIGN_L   = {horizontal:'left',vertical:'center',wrapText:true};
+
+  function buildSheet(tab, data) {
+    const allCols = COLS[tab];
+    const cols = allCols.filter(c => c.k !== '_createdBy' && c.k !== 'incluido_excel');
+    const headers = [...cols.map(c=>c.l), 'En Excel', 'Estado', 'Codificado por', 'Fecha alta', 'Notas'];
+
+    const ws = {};
+    const colWidths = [...cols.map(c=>({wch:Math.max(c.l.length+2, 14)})), {wch:10},{wch:12},{wch:20},{wch:18},{wch:40}];
+
+    // Cabecera
+    headers.forEach((h,ci)=>{
+      const cell = XLSX.utils.encode_cell({r:0,c:ci});
+      ws[cell] = {v:h, t:'s', s:{fill:HEAD_FILL, font:HEAD_FONT, alignment:ALIGN_C, border:BORDER}};
+    });
+
+    // Filas de datos
+    data.forEach((r,ri)=>{
+      const rowFill = isAN(r.ok)?AN_FILL:isPE(r.ok)?PEND_FILL:OK_FILL;
+      const cells = [...cols.map(c=>{
+        let v = r[c.k]||'';
+        if(c.date&&v){const dp=v.split('-');v=dp.length===3?dp[2]+'/'+dp[1]+'/'+dp[0]:v;}
+        if(c.stock&&v){v=v.split('|').join('  ');}
+        return v;
+      }), r.incluido_excel==='si'?'Sí':'No', r.ok||'', r._createdBy||'', r._createdAt?fmtDate(r._createdAt):'', S.data.notes[r.id]||''];
+
+      cells.forEach((v,ci)=>{
+        const cell = XLSX.utils.encode_cell({r:ri+1,c:ci});
+        const isCheck = headers[ci]==='En Excel';
+        const align = (ci===0||ci===headers.length-1)?ALIGN_L:ALIGN_C;
+        ws[cell] = {v:String(v), t:'s', s:{fill:rowFill, font:{name:'Arial',sz:10,color:{rgb:'1E293B'}}, alignment:align, border:BORDER}};
+      });
+
+      // Ancho dinámico descripción
+      if(cols[0]&&(cols[0].k==='texto'||cols[0].k==='descripcion'))colWidths[0]={wch:55};
+    });
+
+    ws['!ref'] = XLSX.utils.encode_range({s:{r:0,c:0},e:{r:data.length,c:headers.length-1}});
+    ws['!cols'] = colWidths;
+    ws['!rows'] = [{hpt:22},...data.map(()=>({hpt:20}))];
+    ws['!freeze'] = {xSplit:0, ySplit:1};
+    return ws;
+  }
+
+  // Pestaña Trabajos (solo filtrados) + Planificadores (todos)
+  const wsT = buildSheet('trabajos', S.filtered.filter(()=>true));
+  const wsP = buildSheet('planificadores', S.data.planificadores||[]);
+
+  XLSX.utils.book_append_sheet(wb, wsT, 'Trabajos');
+  XLSX.utils.book_append_sheet(wb, wsP, 'Planificadores');
+
+  XLSX.writeFile(wb, `ControlAltaMateriales_${date}.xlsx`, {bookSST:false, type:'binary', cellStyles:true});
 }
 
 // ── PRINT ─────────────────────────────────────────────────────────────────────
