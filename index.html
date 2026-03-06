@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Alta Materiales · Repsol</title>
+<title>Control Alta Materiales · Repsol</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImcxIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6I0RBMjkxQyIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNGRjY5MDAiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImcyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6I0ZGNjkwMCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNEQTI5MUMiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDwhLS0gQmFja2dyb3VuZCAtLT4KICA8cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxMCIgZmlsbD0idXJsKCNnMSkiLz4KICA8IS0tIEdlb21ldHJpYyBhY2NlbnQgdG9wLXJpZ2h0IC0tPgogIDxwb2x5Z29uIHBvaW50cz0iNjQsMCA2NCwyMiA0MiwwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIi8+CiAgPCEtLSBHZW9tZXRyaWMgYWNjZW50IGJvdHRvbS1sZWZ0IC0tPgogIDxwb2x5Z29uIHBvaW50cz0iMCw2NCAyMiw2NCAwLDQyIiBmaWxsPSJyZ2JhKDAsMCwwLDAuMTUpIi8+CiAgPCEtLSAiQSIgbGV0dGVyZm9ybSAtLT4KICA8cGF0aCBkPSJNMTQgNDYgTDI0IDE4IEwzMiAxOCBMNDIgNDYgTDM2IDQ2IEwzNCA0MCBMMjIgNDAgTDIwIDQ2IFogTTI0IDM1IEwzNCAzNSBMMjkgMjAgWiIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuOTUiLz4KICA8IS0tICJNIiBsZXR0ZXJmb3JtIOKAlCBzbWFsbCwgYm90dG9tIHJpZ2h0IGFyZWEgYXMgYWNjZW50IC0tPgogIDxyZWN0IHg9IjEwIiB5PSI1MCIgd2lkdGg9IjQ0IiBoZWlnaHQ9IjIiIHJ4PSIxIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuNCkiLz4KPC9zdmc+">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -298,7 +298,7 @@ tr.r-sel { border-left:3px solid #F59E0B !important; }
   background: var(--grad);
 }
 .um-head { padding:32px 32px 0; text-align:center; }
-.um-icon-wrap { margin:0 auto 18px; width:64px; height:64px; display:flex; align-items:center; justify-content:center; }
+.um-icon-wrap { margin:0 auto 18px; width:72px; height:72px; display:flex; align-items:center; justify-content:center; }
 .um-title { font-family:var(--cond); font-size:24px; font-weight:700; color:var(--navy); margin-bottom:8px; letter-spacing:.02em; text-transform:uppercase; }
 .um-sub { font-size:14px; color:var(--muted); line-height:1.6; }
 .um-body { padding:28px 32px 32px; }
@@ -367,20 +367,39 @@ tr.r-sel { border-left:3px solid #F59E0B !important; }
   <div id="user-modal">
     <div class="um-banner"></div>
     <div class="um-head">
-      <div class="um-icon-wrap"><svg width="38" height="38" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+      <div class="um-icon-wrap"><svg width="56" height="56" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="tg1" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ig1" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#DA291C"/>
       <stop offset="100%" style="stop-color:#FF6900"/>
     </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.25)"/>
+    </filter>
   </defs>
-  <rect width="64" height="64" rx="10" fill="url(#tg1)"/>
-  <polygon points="64,0 64,22 42,0" fill="rgba(255,255,255,0.12)"/>
-  <polygon points="0,64 22,64 0,42" fill="rgba(0,0,0,0.15)"/>
-  <path d="M14 46 L24 18 L32 18 L42 46 L36 46 L34 40 L22 40 L20 46 Z M24 35 L34 35 L29 20 Z" fill="white" opacity="0.95"/>
-  <rect x="10" y="50" width="44" height="2" rx="1" fill="rgba(255,255,255,0.4)"/>
+  <!-- Fondo con esquinas redondeadas -->
+  <rect width="64" height="64" rx="14" fill="url(#ig1)"/>
+  <!-- Brillo esquina superior derecha -->
+  <polygon points="64,0 64,26 38,0" fill="rgba(255,255,255,0.15)"/>
+  <!-- Sombra esquina inferior izquierda -->
+  <polygon points="0,64 26,64 0,38" fill="rgba(0,0,0,0.12)"/>
+  <!-- Llave inglesa (wrench) -->
+  <g filter="url(#shadow)" transform="translate(6,8) rotate(-35,20,20)">
+    <!-- Cuerpo de la llave -->
+    <rect x="16" y="10" width="8" height="22" rx="2" fill="white" opacity="0.95"/>
+    <!-- Cabeza superior de la llave (boca) -->
+    <rect x="12" y="8" width="16" height="6" rx="2" fill="white" opacity="0.95"/>
+    <rect x="12" y="8" width="5" height="10" rx="1.5" fill="white" opacity="0.95"/>
+    <rect x="23" y="8" width="5" height="10" rx="1.5" fill="white" opacity="0.95"/>
+    <!-- Mango redondeado inferior -->
+    <ellipse cx="20" cy="33" rx="5" ry="4" fill="white" opacity="0.95"/>
+  </g>
+  <!-- Símbolo "+" en esquina inferior derecha -->
+  <circle cx="47" cy="47" r="11" fill="white" opacity="0.22"/>
+  <rect x="43" y="46" width="8" height="2.5" rx="1.2" fill="white" opacity="0.95"/>
+  <rect x="45.75" y="43" width="2.5" height="8" rx="1.2" fill="white" opacity="0.95"/>
 </svg></div>
-      <div class="um-title">Alta Materiales</div>
+      <div class="um-title">Control Alta Materiales</div>
       <div class="um-sub">Introduce tu nombre para que quede registrado en cada trabajo que añadas o edites.</div>
     </div>
     <div class="um-body">
@@ -397,20 +416,28 @@ tr.r-sel { border-left:3px solid #F59E0B !important; }
   <div class="app-brand">
     <svg class="app-icon" width="38" height="38" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="tg1" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ig2" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#DA291C"/>
       <stop offset="100%" style="stop-color:#FF6900"/>
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="10" fill="url(#tg1)"/>
-  <polygon points="64,0 64,22 42,0" fill="rgba(255,255,255,0.12)"/>
-  <polygon points="0,64 22,64 0,42" fill="rgba(0,0,0,0.15)"/>
-  <path d="M14 46 L24 18 L32 18 L42 46 L36 46 L34 40 L22 40 L20 46 Z M24 35 L34 35 L29 20 Z" fill="white" opacity="0.95"/>
-  <rect x="10" y="50" width="44" height="2" rx="1" fill="rgba(255,255,255,0.4)"/>
+  <rect width="64" height="64" rx="14" fill="url(#ig2)"/>
+  <polygon points="64,0 64,26 38,0" fill="rgba(255,255,255,0.15)"/>
+  <polygon points="0,64 26,64 0,38" fill="rgba(0,0,0,0.12)"/>
+  <g transform="translate(6,8) rotate(-35,20,20)">
+    <rect x="16" y="10" width="8" height="22" rx="2" fill="white" opacity="0.95"/>
+    <rect x="12" y="8" width="16" height="6" rx="2" fill="white" opacity="0.95"/>
+    <rect x="12" y="8" width="5" height="10" rx="1.5" fill="white" opacity="0.95"/>
+    <rect x="23" y="8" width="5" height="10" rx="1.5" fill="white" opacity="0.95"/>
+    <ellipse cx="20" cy="33" rx="5" ry="4" fill="white" opacity="0.95"/>
+  </g>
+  <circle cx="47" cy="47" r="11" fill="white" opacity="0.22"/>
+  <rect x="43" y="46" width="8" height="2.5" rx="1.2" fill="white" opacity="0.95"/>
+  <rect x="45.75" y="43" width="2.5" height="8" rx="1.2" fill="white" opacity="0.95"/>
 </svg>
     <div class="app-title">
-      <span class="app-name">Alta Materiales</span>
-      <span class="app-sub">Repsol · SAP</span>
+      <span class="app-name">Control Alta Materiales</span>
+      <span class="app-sub">Repsol · SAP · TAM4</span>
     </div>
   </div>
   <div class="topbar-divider"></div>
@@ -457,7 +484,7 @@ tr.r-sel { border-left:3px solid #F59E0B !important; }
 <div class="print-header" id="print-header" style="padding:0 0 12px 0; border-bottom:2px solid #DA291C; margin-bottom:14px;">
   <div style="display:flex;align-items:center;justify-content:space-between;">
     <div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#0F1923;">Alta Materiales · Repsol</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#0F1923;">Control Alta Materiales · Repsol</div>
       <div id="print-subtitle" style="font-size:12px;color:#64748B;margin-top:2px;"></div>
     </div>
     <div id="print-date" style="font-size:11px;color:#64748B;text-align:right;font-family:monospace;"></div>
