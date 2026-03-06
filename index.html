@@ -673,8 +673,8 @@ const COLS={
   planificadores:[
     {k:'codigo_sap',l:'Código SAP',w:105,mono:1},
     {k:'descripcion',l:'Descripción',w:240},
-    {k:'stock_actual',l:'Stock Actual',w:120,stock:1},
-    {k:'stock_nuevo',l:'Stock Nuevo',w:120,stock:1},
+    {k:'stock_actual',l:'Stock Actual',w:200,stock:1},
+    {k:'stock_nuevo',l:'Stock Nuevo',w:200,stock:1},
     {k:'codigo_seguimiento',l:'Seguimiento',w:130,mono:1},
     {k:'solicitante',l:'Solicitante',w:105},
     {k:'fecha',l:'Fecha',w:90,date:1},
@@ -740,7 +740,7 @@ function renderTable(){
     const cells=cols.map(c=>{
       const v=r[c.k]||'';
       let h;
-      if(c.stock&&r[c.k]){const parts=r[c.k].split('|');h=parts.map(p=>`<span style="display:inline-block;background:#EEF2FF;color:#3730A3;border:1px solid #C7D2FE;border-radius:5px;padding:1px 6px;font-size:12px;font-family:var(--mono);margin:1px">${p}</span>`).join(' ');}
+      if(c.stock&&r[c.k]){const parts=r[c.k].split('|');h='<span style="white-space:nowrap;display:inline-flex;gap:3px;flex-wrap:nowrap">'+parts.map(p=>`<span style="display:inline-block;background:#EEF2FF;color:#3730A3;border:1px solid #C7D2FE;border-radius:5px;padding:1px 6px;font-size:12px;font-family:var(--mono);white-space:nowrap">${p}</span>`).join('')+'</span>';}
       else if(c.check)h=r[c.k]==='si'?'<span class="check-yes">✅</span>':'<span style="color:#D1D5DB;font-size:16px">☐</span>';
       else if(c.author)h=authorCell(r._createdBy,r._createdAt);
       else if(c.badge)h=badge(v);
