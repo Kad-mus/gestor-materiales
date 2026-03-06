@@ -658,7 +658,6 @@ const COLS={
     {k:'solicitado',l:'Fecha',w:90,date:1},
     {k:'codigo_sap',l:'Cód. SAP',w:95,mono:1},
     {k:'extender_de',l:'Extender de',w:110,mono:1},
-    {k:'resuelto_sap',l:'Resuelto SAP',w:105,mono:1},
     {k:'ok',l:'Estado',w:85,badge:1},
     {k:'incluido_excel',l:'En Excel',w:80,check:1},
     {k:'_createdBy',l:'Codificado por',w:155,author:1},
@@ -736,7 +735,7 @@ function renderTable(){
       else if(c.check)h=r[c.k]==='si'?'<span class="check-yes">✅</span>':'<span style="color:#D1D5DB;font-size:16px">☐</span>';
       else if(c.author)h=authorCell(r._createdBy,r._createdAt);
       else if(c.badge)h=badge(v);
-      else if(c.date)h=`<span class="date-cell">${v}</span>`;
+      else if(c.date){const dp=v?v.split('-'):[];h=`<span class="date-cell">${dp.length===3?dp[2]+'/'+dp[1]+'/'+dp[0]:v}</span>`;}  
       else if(c.mono)h=`<span class="mono-cell">${v}</span>`;
       else h=`<span>${v}</span>`;
       if((c.k==='texto'||c.k==='descripcion')&&S.data.notes[r.id])h+='<span class="note-mark">💬</span>';
@@ -762,7 +761,7 @@ function renderDetail(){
   const r=gr().find(x=>x.id===S.selId);if(!r)return;
   document.getElementById('detail').style.display='flex';
   const cols=gc().filter(c=>c.k!=='_createdBy'&&c.k!=='incluido_excel');
-  const fields=cols.map(c=>`<div class="df-group"><div class="df-label">${c.l}</div><div class="df-val${c.mono?' mono':''}">${c.badge?badge(r[c.k]):(r[c.k]||'—')}</div></div>`).join('');
+  const fields=cols.map(c=>{let dv=r[c.k]||'—';if(c.date&&r[c.k]){const dp=r[c.k].split('-');dv=dp.length===3?dp[2]+'/'+dp[1]+'/'+dp[0]:r[c.k];}return`<div class="df-group"><div class="df-label">${c.l}</div><div class="df-val${c.mono?' mono':''}">${c.badge?badge(r[c.k]):dv}</div></div>`;}).join('');
   const note=S.data.notes[r.id]||'';
   const ie=`<div class="df-group"><div class="df-label">Incluido en Excel</div><div class="df-val">${r.incluido_excel==='si'?'✅ Sí':'☐ No'}</div></div>`;
   const ab=r._createdBy?`<div class="df-group"><div class="df-label">Codificado por</div><div class="author-box"><div class="author-dot" style="background:${userColor(r._createdBy)}">${userInitials(r._createdBy)}</div><div class="author-info"><span class="author-nm">${r._createdBy}</span>${r._createdAt?`<span class="author-dt">${fmtDate(r._createdAt)}</span>`:''}</div></div></div>`:'';
