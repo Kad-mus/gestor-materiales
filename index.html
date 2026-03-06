@@ -663,7 +663,7 @@ const COLS={
     {k:'texto',l:'Descripción',w:240},
     {k:'solicitante',l:'Solicitante',w:120},
     {k:'incluido_excel',l:'En Excel',w:80,check:1},
-    {k:'codigo_seguimiento',l:'Cód. Seguim.',w:130,mono:1},
+    {k:'codigo_seguimiento',l:'Código Seguimiento',w:160,mono:1},
     {k:'solicitado',l:'Fecha',w:90,date:1},
     {k:'codigo_sap',l:'Cód. SAP',w:95,mono:1},
     {k:'extender_de',l:'Extender de',w:110,mono:1},
@@ -675,6 +675,7 @@ const COLS={
     {k:'descripcion',l:'Descripción',w:240},
     {k:'stock_actual',l:'Stock Actual',w:120,stock:1},
     {k:'stock_nuevo',l:'Stock Nuevo',w:120,stock:1},
+    {k:'codigo_seguimiento',l:'Código Seguimiento',w:160,mono:1},
     {k:'solicitante',l:'Solicitante',w:105},
     {k:'fecha',l:'Fecha',w:90,date:1},
     {k:'ok',l:'OK TAM4',w:90,badge:1},
@@ -747,7 +748,7 @@ function renderTable(){
       else if(c.mono)h=`<span class="mono-cell">${v}</span>`;
       else h=`<span>${v}</span>`;
       if((c.k==='texto'||c.k==='descripcion')&&S.data.notes[r.id])h+='<span class="note-mark">💬</span>';
-      if(v&&(c.k==='texto'||c.k==='descripcion'||c.k==='codigo_sap'))h=`<span class="copy-wrap">${h}<button class="copy-btn" title="Copiar" onclick="event.stopPropagation();copyText('${v.replace(/'/g,"\'")}',this)">${copyIcon()}</button></span>`;
+      if(v&&(c.k==='texto'||c.k==='descripcion'||c.k==='codigo_sap'||c.k==='codigo_seguimiento'))h=`<span class="copy-wrap">${h}<button class="copy-btn" title="Copiar" onclick="event.stopPropagation();copyText('${v.replace(/'/g,"\'")}',this)">${copyIcon()}</button></span>`;
       return`<td>${h}</td>`;
     }).join('');
     return`<tr class="${cls}" onclick="selRow('${r.id}')">${cells}<td><button class="act-btn" onclick="openEdit('${r.id}',event)">✏️</button><button class="act-btn act-del" onclick="delRec('${r.id}',event)">🗑</button></td></tr>`;
