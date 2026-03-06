@@ -41,7 +41,7 @@
 }
 
 html, body { height:100%; overflow:hidden; }
-body { font-family:var(--sans); font-size:15px; background:var(--bg); color:var(--ink); display:flex; flex-direction:column; }
+body { font-family:var(--sans); font-size:16px; background:var(--bg); color:var(--ink); display:flex; flex-direction:column; }
 ::-webkit-scrollbar { width:5px; height:5px; }
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:#CBD5E1; border-radius:99px; }
@@ -147,7 +147,7 @@ body { font-family:var(--sans); font-size:15px; background:var(--bg); color:var(
 .sp-error .sp-dot   { background:#FCA5A5; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.15} }
 
-.btn { padding:6px 18px; border-radius:7px; font-family:var(--sans); font-size:13px; font-weight:600; cursor:pointer; border:none; transition:all .15s; white-space:nowrap; }
+.btn { padding:6px 18px; border-radius:7px; font-family:var(--sans); font-size:14px; font-weight:600; cursor:pointer; border:none; transition:all .15s; white-space:nowrap; }
 .btn-ghost { background:rgba(255,255,255,.08); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.12); }
 .btn-ghost:hover { background:rgba(255,255,255,.14); color:white; }
 .btn-primary { background:var(--grad); color:white; box-shadow:0 2px 8px rgba(218,41,28,.3); }
@@ -157,7 +157,7 @@ body { font-family:var(--sans); font-size:15px; background:var(--bg); color:var(
 .user-chip { display:flex; align-items:center; gap:8px; padding:4px 13px 4px 5px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.11); border-radius:99px; cursor:pointer; transition:all .15s; }
 .user-chip:hover { background:rgba(255,255,255,.13); }
 .user-avatar { width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-size:11px; font-weight:700; color:white; flex-shrink:0; }
-.user-name { font-size:13px; font-weight:600; color:rgba(255,255,255,.8); }
+.user-name { font-size:14px; font-weight:600; color:rgba(255,255,255,.8); }
 
 /* ── SETUP BANNER ────────────────────────────────── */
 #setup { background:var(--navy2); border-bottom:1px solid rgba(255,105,0,.2); overflow:hidden; max-height:220px; transition:max-height .4s cubic-bezier(.4,0,.2,1); flex-shrink:0; }
@@ -184,16 +184,16 @@ body { font-family:var(--sans); font-size:15px; background:var(--bg); color:var(
 #sidebar { width:248px; background:var(--white); border-right:1px solid var(--line); display:flex; flex-direction:column; flex-shrink:0; overflow:hidden; }
 .sb-block { padding:16px 18px; border-bottom:1px solid var(--line); }
 .sb-label { font-size:10px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
-.sb-input { width:100%; padding:8px 11px; border:1px solid var(--line); border-radius:7px; font-family:var(--sans); font-size:14px; color:var(--ink); background:var(--bg); outline:none; transition:border .15s; }
+.sb-input { width:100%; padding:8px 11px; border:1px solid var(--line); border-radius:7px; font-family:var(--sans); font-size:15px; color:var(--ink); background:var(--bg); outline:none; transition:border .15s; }
 .sb-input:focus { border-color:var(--repsol-orange); }
-.sb-select { width:100%; padding:7px 9px; border:1px solid var(--line); border-radius:7px; font-family:var(--sans); font-size:14px; color:var(--ink); background:var(--bg); margin-bottom:8px; outline:none; }
+.sb-select { width:100%; padding:7px 9px; border:1px solid var(--line); border-radius:7px; font-family:var(--sans); font-size:15px; color:var(--ink); background:var(--bg); margin-bottom:8px; outline:none; }
 
 .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 .stat-tile { background:var(--bg); border:1px solid var(--line); border-radius:9px; padding:10px 12px; }
-.stat-num { font-family:var(--mono); font-size:24px; font-weight:500; line-height:1; }
+.stat-num { font-family:var(--mono); font-size:26px; font-weight:500; line-height:1; }
 .stat-lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; margin-top:3px; }
 
-.leg-row { display:flex; align-items:center; gap:10px; font-size:13px; color:#4B5563; margin-bottom:7px; }
+.leg-row { display:flex; align-items:center; gap:10px; font-size:15px; color:#4B5563; margin-bottom:7px; }
 .leg-swatch { width:14px; height:14px; border-radius:3px; flex-shrink:0; }
 .ts-footer { padding:14px 18px; font-size:11px; color:#94A3B8; line-height:1.7; flex:1; display:flex; flex-direction:column; justify-content:flex-end; }
 
@@ -204,7 +204,7 @@ body { font-family:var(--sans); font-size:15px; background:var(--bg); color:var(
 #table-wrap { flex:1; overflow:auto; }
 
 /* TABLE */
-table { width:100%; border-collapse:collapse; font-size:14px; }
+table { width:100%; border-collapse:collapse; font-size:15px; }
 thead { position:sticky; top:0; z-index:10; }
 th {
   background: var(--navy);
@@ -237,19 +237,19 @@ tr.r-an:hover td { background:#FEE2E2; }
 tr.r-sel td { background:#FFFBEB !important; }
 tr.r-sel { border-left:3px solid #F59E0B !important; }
 
-.mono-cell { font-family:var(--mono); font-size:13px; color:#6D28D9; }
-.date-cell { font-family:var(--mono); font-size:13px; color:var(--muted); white-space:nowrap; }
+.mono-cell { font-family:var(--mono); font-size:14px; color:#6D28D9; }
+.date-cell { font-family:var(--mono); font-size:14px; color:var(--muted); white-space:nowrap; }
 .note-mark { margin-left:5px; font-size:11px; opacity:.65; }
 
 /* AUTHOR CELL */
 .author-cell { display:flex; align-items:center; gap:7px; }
 .author-dot { width:22px; height:22px; border-radius:50%; display:grid; place-items:center; font-size:9px; font-weight:700; color:white; flex-shrink:0; }
 .author-info { display:flex; flex-direction:column; line-height:1.2; }
-.author-nm { font-size:13px; font-weight:600; color:var(--ink); }
+.author-nm { font-size:14px; font-weight:600; color:var(--ink); }
 .author-dt { font-size:10px; color:var(--muted); font-family:var(--mono); }
 
 /* BADGES */
-.badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:99px; font-size:11px; font-weight:600; font-family:var(--mono); letter-spacing:.3px; white-space:nowrap; }
+.badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:99px; font-size:13px; font-weight:600; font-family:var(--mono); letter-spacing:.3px; white-space:nowrap; }
 .bOK { background:var(--green-bg);  color:var(--green); border:1px solid #86EFAC; }
 .bEX { background:var(--blue-bg);   color:var(--blue);  border:1px solid #93C5FD; }
 .bAN { background:#FEE2E2; color:#991B1B; border:1px solid #FCA5A5; }
@@ -269,16 +269,16 @@ tr.r-sel { border-left:3px solid #F59E0B !important; }
 #detail-body { flex:1; overflow-y:auto; padding:20px; }
 .df-group { margin-bottom:14px; }
 .df-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.9px; color:var(--muted); margin-bottom:5px; }
-.df-val { padding:8px 11px; background:var(--bg); border:1px solid var(--line); border-radius:7px; font-size:14px; line-height:1.45; }
+.df-val { padding:8px 11px; background:var(--bg); border:1px solid var(--line); border-radius:7px; font-size:15px; line-height:1.45; }
 .df-val.mono { font-family:var(--mono); font-size:12px; }
 .d-divider { height:1px; background:var(--line); margin:18px 0; }
-.note-textarea { width:100%; min-height:95px; padding:10px 11px; border:1px solid var(--line); border-radius:7px; font-family:var(--sans); font-size:14px; resize:vertical; outline:none; background:var(--bg); line-height:1.5; box-sizing:border-box; transition:border .15s; }
+.note-textarea { width:100%; min-height:95px; padding:10px 11px; border:1px solid var(--line); border-radius:7px; font-family:var(--sans); font-size:15px; resize:vertical; outline:none; background:var(--bg); line-height:1.5; box-sizing:border-box; transition:border .15s; }
 .note-textarea:focus { border-color:var(--repsol-orange); }
-.save-note-btn { width:100%; margin-top:8px; padding:9px; border:none; border-radius:7px; font-family:var(--sans); font-size:14px; font-weight:600; cursor:pointer; background:var(--grad); color:white; transition:filter .15s; }
+.save-note-btn { width:100%; margin-top:8px; padding:9px; border:none; border-radius:7px; font-family:var(--sans); font-size:15px; font-weight:600; cursor:pointer; background:var(--grad); color:white; transition:filter .15s; }
 .save-note-btn:hover { filter:brightness(1.08); }
 .save-note-btn.saved { background:linear-gradient(135deg,#166534,#15803D); }
 .d-actions { display:flex; gap:9px; margin-top:11px; }
-.d-actions button { flex:1; padding:9px; border-radius:7px; font-family:var(--sans); font-size:14px; cursor:pointer; font-weight:600; transition:all .15s; }
+.d-actions button { flex:1; padding:9px; border-radius:7px; font-family:var(--sans); font-size:15px; cursor:pointer; font-weight:600; transition:all .15s; }
 .d-edit { background:var(--bg); border:1px solid var(--line); }
 .d-edit:hover { background:var(--line); }
 .d-del  { background:#FEE2E2; border:1px solid #FCA5A5; color:var(--repsol-red); }
@@ -325,12 +325,15 @@ tr.r-sel { border-left:3px solid #F59E0B !important; }
 .form-field { display:flex; flex-direction:column; gap:6px; }
 .form-field.span2 { grid-column:1/-1; }
 .form-field label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.9px; color:var(--muted); }
-.form-field input, .form-field select { padding:9px 11px; border:1px solid var(--line); border-radius:8px; font-family:var(--sans); font-size:14px; color:var(--ink); background:var(--bg); outline:none; width:100%; transition:border .15s; }
+.form-field input, .form-field select { padding:9px 11px; border:1px solid var(--line); border-radius:8px; font-family:var(--sans); font-size:15px; color:var(--ink); background:var(--bg); outline:none; width:100%; transition:border .15s; }
 .form-field input:focus, .form-field select:focus { border-color:var(--repsol-orange); }
 #modal-foot { padding:16px 26px; border-top:1px solid var(--line); display:flex; gap:10px; justify-content:flex-end; position:sticky; bottom:0; background:var(--white); }
-.m-cancel { padding:8px 22px; background:var(--bg); border:1px solid var(--line); border-radius:8px; font-family:var(--sans); font-size:13px; cursor:pointer; font-weight:500; }
-.m-save   { padding:8px 22px; background:var(--grad); border:none; border-radius:8px; font-family:var(--sans); font-size:13px; font-weight:700; color:white; cursor:pointer; }
+.m-cancel { padding:8px 22px; background:var(--bg); border:1px solid var(--line); border-radius:8px; font-family:var(--sans); font-size:15px; cursor:pointer; font-weight:500; }
+.m-save   { padding:8px 22px; background:var(--grad); border:none; border-radius:8px; font-family:var(--sans); font-size:15px; font-weight:700; color:white; cursor:pointer; }
 
+.check-cell { display:flex; align-items:center; justify-content:center; }
+.check-cell input[type=checkbox] { width:18px; height:18px; cursor:pointer; accent-color:var(--green); }
+.check-yes { font-size:18px; }
 .empty-state { text-align:center; padding:80px 20px; color:var(--muted); }
 .empty-state .ei { font-size:40px; margin-bottom:14px; opacity:.35; }
 .empty-state p { font-size:14px; }
@@ -494,7 +497,6 @@ tr.r-sel { border-left:3px solid #F59E0B !important; }
       <div class="leg-row"><div class="leg-swatch" style="background:#FFF7F0;border:2px solid var(--repsol-orange)"></div>Pendiente</div>
       <div class="leg-row"><div class="leg-swatch" style="background:#F0FDF4;border:2px solid #86EFAC"></div>OK / Completado</div>
       <div class="leg-row"><div class="leg-swatch" style="background:#FEF2F2;border:2px solid #FCA5A5"></div>Anulado</div>
-      <div class="leg-row"><div class="leg-swatch" style="background:#FFFBEB;border:2px solid #F59E0B"></div>Seleccionado</div>
     </div>
     <div class="ts-footer"><div id="lsv"></div><div id="lsy"></div></div>
   </div>
@@ -533,7 +535,7 @@ const INIT_P=[{"id":"p1","codigo_sap":"80158544","descripcion":"JUNTA PLANA 5,5/
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 const LK='repsol_mat_v5', UK='repsol_sync_url_v2', UNKEY='repsol_username';
 const INTERVAL=30000;
-let SURL=localStorage.getItem(UK)||'';
+let SURL=localStorage.getItem(UK)||'https://script.google.com/macros/s/AKfycbyJj1Dqf2e0aW0_rbrLQcwG3QUuMkWOT5thSZ_LH2lVwt99ou8w41fed68raHRWRo3ncw/exec';
 let syncTimer=null, _cbIdx=0;
 
 // ── USER ──────────────────────────────────────────────────────────────────────
@@ -631,6 +633,7 @@ const COLS={
     {k:'extender_de',l:'Extender de',w:110,mono:1},
     {k:'resuelto_sap',l:'Resuelto SAP',w:105,mono:1},
     {k:'ok',l:'Estado',w:85,badge:1},
+    {k:'incluido_excel',l:'En Excel',w:80,check:1},
     {k:'_createdBy',l:'Codificado por',w:155,author:1},
   ],
   planificadores:[
@@ -643,6 +646,7 @@ const COLS={
     {k:'fecha',l:'Fecha',w:90,date:1},
     {k:'ok',l:'OK',w:70,badge:1},
     {k:'ok_sap',l:'OK SAP',w:70,badge:1},
+    {k:'incluido_excel',l:'En Excel',w:80,check:1},
     {k:'_createdBy',l:'Codificado por',w:155,author:1},
   ]
 };
@@ -702,7 +706,8 @@ function renderTable(){
     const cells=cols.map(c=>{
       const v=r[c.k]||'';
       let h;
-      if(c.author)h=authorCell(r._createdBy,r._createdAt);
+      if(c.check)h=r[c.k]==='si'?'<span class="check-yes">✅</span>':'<span style="color:#D1D5DB;font-size:16px">☐</span>';
+      else if(c.author)h=authorCell(r._createdBy,r._createdAt);
       else if(c.badge)h=badge(v);
       else if(c.date)h=`<span class="date-cell">${v}</span>`;
       else if(c.mono)h=`<span class="mono-cell">${v}</span>`;
@@ -729,11 +734,12 @@ function closeDetail(){S.selId=null;document.getElementById('detail').style.disp
 function renderDetail(){
   const r=gr().find(x=>x.id===S.selId);if(!r)return;
   document.getElementById('detail').style.display='flex';
-  const cols=gc().filter(c=>c.k!=='_createdBy');
+  const cols=gc().filter(c=>c.k!=='_createdBy'&&c.k!=='incluido_excel');
   const fields=cols.map(c=>`<div class="df-group"><div class="df-label">${c.l}</div><div class="df-val${c.mono?' mono':''}">${c.badge?badge(r[c.k]):(r[c.k]||'—')}</div></div>`).join('');
   const note=S.data.notes[r.id]||'';
+  const ie=`<div class="df-group"><div class="df-label">Incluido en Excel</div><div class="df-val">${r.incluido_excel==='si'?'✅ Sí':'☐ No'}</div></div>`;
   const ab=r._createdBy?`<div class="df-group"><div class="df-label">Codificado por</div><div class="author-box"><div class="author-dot" style="background:${userColor(r._createdBy)}">${userInitials(r._createdBy)}</div><div class="author-info"><span class="author-nm">${r._createdBy}</span>${r._createdAt?`<span class="author-dt">${fmtDate(r._createdAt)}</span>`:''}</div></div></div>`:'';
-  document.getElementById('detail-body').innerHTML=`${fields}${ab}<div class="d-divider"></div><div class="df-group"><div class="df-label">Anotaciones</div><textarea class="note-textarea" id="nota">${note}</textarea><button class="save-note-btn" id="snb" onclick="saveNote('${r.id}')">Guardar anotación</button></div><div class="d-divider"></div><div class="d-actions"><button class="d-edit" onclick="openEdit('${r.id}')">✏️ Editar</button><button class="d-del" onclick="delRec('${r.id}')">🗑 Eliminar</button></div>`;
+  document.getElementById('detail-body').innerHTML=`${fields}${ie}${ab}<div class="d-divider"></div><div class="df-group"><div class="df-label">Anotaciones</div><textarea class="note-textarea" id="nota">${note}</textarea><button class="save-note-btn" id="snb" onclick="saveNote('${r.id}')">Guardar anotación</button></div><div class="d-divider"></div><div class="d-actions"><button class="d-edit" onclick="openEdit('${r.id}')">✏️ Editar</button><button class="d-del" onclick="delRec('${r.id}')">🗑 Eliminar</button></div>`;
 }
 function saveNote(id){
   S.data.notes[id]=document.getElementById('nota').value;
@@ -745,7 +751,7 @@ function saveNote(id){
 
 // ── MODAL ─────────────────────────────────────────────────────────────────────
 function buildForm(rec){
-  return gc().filter(c=>c.k!=='_createdBy').map(c=>{
+  return gc().filter(c=>c.k!=='_createdBy'&&c.k!=='incluido_excel').map(c=>{
     const v=rec?(rec[c.k]||''):'';
 
     const span=(c.k==='texto'||c.k==='descripcion')?' span2':'';
@@ -754,12 +760,13 @@ function buildForm(rec){
     return`<div class="form-field${span}"><label>${c.l}</label><input id="f_${c.k}" type="${c.date?'date':'text'}" value="${(v+'').replace(/"/g,'&quot;')}"></div>`;
   }).join('');
 }
-function openNew(){S.editId=null;document.getElementById('modal-title').textContent='Nuevo — '+S.tab;document.getElementById('modal-body').innerHTML='<div class="form-grid">'+buildForm(null)+'</div>';document.getElementById('modal-overlay').classList.add('open');}
-function openEdit(id,e){if(e)e.stopPropagation();S.editId=id;const rec=gr().find(r=>r.id===id);document.getElementById('modal-title').textContent='Editar registro';document.getElementById('modal-body').innerHTML='<div class="form-grid">'+buildForm(rec)+'</div>';document.getElementById('modal-overlay').classList.add('open');}
+function openNew(){S.editId=null;document.getElementById('modal-title').textContent='Nuevo — '+S.tab;document.getElementById('modal-body').innerHTML='<div class="form-grid">'+buildForm(null)+'</div><div style="margin-top:16px;padding:12px 14px;background:var(--bg);border:1px solid var(--line);border-radius:9px;display:flex;align-items:center;gap:10px"><input type="checkbox" id="f_incluido_excel" style="width:20px;height:20px;cursor:pointer;accent-color:var(--green)"><label for="f_incluido_excel" style="font-size:15px;font-weight:600;color:var(--ink);cursor:pointer">Incluido en Excel</label></div>';document.getElementById('modal-overlay').classList.add('open');}
+function openEdit(id,e){if(e)e.stopPropagation();S.editId=id;const rec=gr().find(r=>r.id===id);document.getElementById('modal-title').textContent='Editar registro';const _ie=rec&&rec.incluido_excel==='si';document.getElementById('modal-body').innerHTML='<div class="form-grid">'+buildForm(rec)+'</div><div style="margin-top:16px;padding:12px 14px;background:var(--bg);border:1px solid var(--line);border-radius:9px;display:flex;align-items:center;gap:10px"><input type="checkbox" id="f_incluido_excel" style="width:20px;height:20px;cursor:pointer;accent-color:var(--green)"'+(_ie?' checked':'')+'>  <label for="f_incluido_excel" style="font-size:15px;font-weight:600;color:var(--ink);cursor:pointer">Incluido en Excel</label></div>';document.getElementById('modal-overlay').classList.add('open');}
 function closeModal(){document.getElementById('modal-overlay').classList.remove('open');S.editId=null;}
 function saveRec(){
   const cols=gc().filter(c=>c.k!=='_createdBy'),obj={};
   cols.forEach(c=>{const el=document.getElementById('f_'+c.k);obj[c.k]=el?el.value:'';});
+  const cbEl=document.getElementById('f_incluido_excel');obj.incluido_excel=cbEl&&cbEl.checked?'si':'no';
   if(S.editId){S.data[S.tab]=S.data[S.tab].map(r=>r.id===S.editId?{...r,...obj}:r);}
   else{obj.id=gid();obj._createdBy=currentUser||'Desconocido';obj._createdAt=new Date().toISOString();S.data[S.tab]=[obj,...S.data[S.tab]];}
   saveAndSync();closeModal();populateFilters();applyF();if(S.selId)renderDetail();
@@ -773,7 +780,7 @@ function delRec(id,e){
 // ── EXPORT EXCEL ─────────────────────────────────────────────────────────────
 function exportExcel() {
   const cols = gc().filter(c => c.k !== '_createdBy');
-  const headers = [...cols.map(c => c.l), 'Codificado por', 'Fecha alta', 'Notas'];
+  const headers = [...cols.map(c => c.l), 'En Excel', 'Codificado por', 'Fecha alta', 'Notas'];
 
   // Build CSV with BOM for Excel UTF-8
   const escape = v => {
@@ -783,6 +790,7 @@ function exportExcel() {
 
   const rows = S.filtered.map(r => {
     const cells = cols.map(c => escape(r[c.k] || ''));
+    cells.push(escape(r.incluido_excel==='si'?'Sí':'No'));
     cells.push(escape(r._createdBy || ''));
     cells.push(escape(r._createdAt ? fmtDate(r._createdAt) : ''));
     cells.push(escape(S.data.notes[r.id] || ''));
@@ -834,7 +842,7 @@ if(currentUser){
   _overlay.style.display='flex';
   setTimeout(()=>document.getElementById('um-input').focus(), 100);
 }
-if(SURL){document.getElementById('setup-input').value=SURL;document.getElementById('setup').classList.add('closed');startSync();}
+localStorage.setItem(UK,SURL);document.getElementById('setup-input').value=SURL;document.getElementById('setup').classList.add('closed');startSync();
 populateFilters();applyF();
 </script>
 </body>
