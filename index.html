@@ -376,6 +376,48 @@ tr:hover .copy-btn { opacity:1; }
    En PC/Mac (>900px) no se aplica ninguno de estos estilos
    ════════════════════════════════════════════════════════════════ */
 
+
+/* ── PANTALLA MEDIANA (1024px - 1280px) ─────────────────────────────
+   Para monitores más pequeños o con menos resolución
+   ─────────────────────────────────────────────────────────────────── */
+@media (max-width: 1280px) and (min-width: 901px) {
+  /* Sidebar más estrecho */
+  #sidebar { width:200px; }
+  .stat-num { font-size:22px; }
+
+  /* Panel detalle más estrecho */
+  #detail { width:300px; }
+
+  /* Fuentes ligeramente más pequeñas */
+  body { font-size:14px; }
+  table { font-size:13px; }
+  th { font-size:12px; }
+
+  /* Topbar más compacto */
+  .app-name { font-size:14px; }
+  .app-sub  { font-size:10px; }
+  .btn { padding:5px 12px; font-size:13px; }
+  .sync-pill { font-size:11px; padding:4px 10px; }
+
+  /* Columnas de tabla: reducir min-width via zoom suave */
+  #table-wrap { font-size:13px; }
+}
+
+/* ── PANTALLA PEQUEÑA PC (901px - 1024px) ───────────────────────── */
+@media (max-width: 1024px) and (min-width: 901px) {
+  #sidebar { width:180px; }
+  .stat-num { font-size:20px; }
+  .stat-lbl { font-size:9px; }
+  #detail { width:270px; }
+  .app-sub { display:none; }
+  .btn-ghost { padding:4px 10px; font-size:12px; }
+  #table-wrap { font-size:12px; }
+  th { font-size:11px; padding:8px 6px; }
+  td { padding:8px 6px; }
+  .df-label { font-size:11px; }
+  .df-val { font-size:13px; }
+}
+
 /* ── OCULTAR botón hamburguesa en PC ─── */
 @media (min-width: 901px) {
   #mob-menu-btn { display:none !important; }
@@ -884,7 +926,7 @@ function renderTable(){
   const cols=gc(),wrap=document.getElementById('table-wrap');
   document.getElementById('rc').textContent=`${S.filtered.length} registro${S.filtered.length!==1?'s':''}`;
   if(!S.filtered.length){wrap.innerHTML='<div class="empty-state"><div class="ei">🔍</div><p>No se encontraron registros</p></div>';return;}
-  const th=cols.map(c=>`<th onclick="sortBy('${c.k}')" style="min-width:${c.w}px">${c.l}${S.sc===c.k?(S.sd===1?' ↑':' ↓'):''}</th>`).join('')+'<th style="width:82px">Acc.</th>';
+  const vw=window.innerWidth;const scale=vw<1024?0.75:vw<1280?0.85:1;const th=cols.map(c=>`<th onclick="sortBy('${c.k}')" style="min-width:${Math.round(c.w*scale)}px">${c.l}${S.sc===c.k?(S.sd===1?' ↑':' ↓'):''}</th>`).join('')+'<th style="width:72px">Acc.</th>';
   const tb=S.filtered.map((r,ri)=>{
     const cls=r.id===S.selId?'r-sel':isAN(r.ok)?'r-an':isPE(r.ok)?'r-pend':'r-ok';
     const cells=cols.map(c=>{
