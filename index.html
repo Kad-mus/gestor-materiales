@@ -209,7 +209,7 @@ body { font-family:var(--sans); font-size:16px; background:var(--bg); color:var(
 .ts-footer { padding:14px 18px; font-size:11px; color:#94A3B8; line-height:1.7; flex:1; display:flex; flex-direction:column; justify-content:flex-end; }
 
 /* ── CONTENT ──────────────────────────────────────── */
-#content { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+#content { flex:1; display:flex; flex-direction:column; overflow:hidden; min-width:0; }
 #content-bar { padding:10px 22px; border-bottom:1px solid var(--line); display:flex; align-items:center; background:var(--white); flex-shrink:0; }
 .rec-count { font-family:var(--mono); font-size:12px; color:var(--muted); }
 #table-wrap { flex:1; overflow:auto; }
@@ -366,16 +366,21 @@ tr:hover .copy-btn { opacity:1; }
    En PC/Mac (>900px) no se aplica ninguno de estos estilos
    ════════════════════════════════════════════════════════════════ */
 
+/* ── OCULTAR botón hamburguesa en PC ─── */
+@media (min-width: 901px) {
+  #mob-menu-btn { display:none !important; }
+}
+
 /* ── TABLET ──────────────────────────────────────────────────── */
 @media (max-width: 900px) {
   /* Sidebar se oculta por defecto, se abre con botón */
-  #sidebar { position:fixed; left:-260px; top:0; bottom:0; z-index:300; width:260px; transition:left .3s cubic-bezier(.4,0,.2,1); box-shadow:4px 0 24px rgba(0,0,0,.15); }
+  #sidebar { position:fixed; left:-260px; top:0; bottom:0; z-index:300; width:260px; transition:left .3s cubic-bezier(.4,0,.2,1); box-shadow:4px 0 24px rgba(0,0,0,.15); overflow-y:auto; }
   #sidebar.mob-open { left:0; }
   #sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:299; }
   #sidebar-overlay.visible { display:block; animation:overlayIn .2s ease; }
 
   /* Botón hamburguesa para abrir sidebar */
-  #mob-menu-btn { display:flex; align-items:center; justify-content:center; width:36px; height:36px; background:rgba(255,255,255,.1); border:none; border-radius:8px; cursor:pointer; color:white; font-size:18px; flex-shrink:0; }
+  #mob-menu-btn { display:none; align-items:center; justify-content:center; width:36px; height:36px; background:rgba(255,255,255,.1); border:none; border-radius:8px; cursor:pointer; color:white; font-size:20px; flex-shrink:0; }
 
   /* Panel detalle: pantalla completa en tablet */
   #detail { position:fixed; right:0; top:0; bottom:0; width:100% !important; max-width:420px; z-index:200; transform:translateX(100%); transition:transform .3s cubic-bezier(.4,0,.2,1); display:flex !important; }
@@ -528,7 +533,7 @@ tr:hover .copy-btn { opacity:1; }
 
 <!-- TOPBAR -->
 <div id="topbar">
-  <button id="mob-menu-btn" onclick="toggleSidebar()" style="display:none">☰</button>
+  <button id="mob-menu-btn" onclick="toggleSidebar()">☰</button>
   <div id="sidebar-overlay" onclick="closeSidebar()"></div>
   <div class="app-brand">
     <svg class="app-icon" width="38" height="38" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
