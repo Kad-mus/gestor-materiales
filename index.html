@@ -713,7 +713,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">2.7</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">2.8</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -907,7 +907,7 @@ function pullCloud(){
         S.data={
           trabajos:      filterDel(remote.trabajos      ||S.data.trabajos),
           planificadores:filterDel(remote.planificadores||S.data.planificadores),
-          notes:  Object.assign({},remote.notes||{},S.data.notes||{}),
+          notes:  mergeNotes(remote.notes||{}, S.data.notes||{}),
           deleted:deleted
         };
         saveLocal();populateFilters();applyF();
@@ -936,6 +936,21 @@ function pushCloud(silent){
 }
 function forcePull(){pullCloud();}
 
+
+// ── MERGE NOTAS: gana la nota más larga (más completa) ────────────────────────
+function mergeNotes(remoteNotes, localNotes){
+  const merged = Object.assign({}, remoteNotes);
+  Object.keys(localNotes).forEach(id => {
+    const rem = (remoteNotes[id]||'').trim();
+    const loc = (localNotes[id]||'').trim();
+    // Gana la nota más larga; si son iguales de largas, gana la remota
+    merged[id] = loc.length > rem.length ? loc : rem;
+    // Si la nota local está vacía, no borrar la remota
+    if(!loc && rem) merged[id] = rem;
+  });
+  return merged;
+}
+
 // ── MERGE-SAFE SAVE: lee remoto, fusiona, luego escribe ───────────────────────
 function mergeData(local, remote){
   // Fusionar por ID: el registro más reciente (_updatedAt) gana
@@ -961,7 +976,7 @@ function mergeData(local, remote){
   return {
     trabajos:      mergeTab(local.trabajos,      remote.trabajos),
     planificadores:mergeTab(local.planificadores, remote.planificadores),
-    notes:   Object.assign({}, remote.notes||{},   local.notes||{}),
+    notes:   mergeNotes(remote.notes||{}, local.notes||{}),
     deleted: deleted
   };
 }
