@@ -223,6 +223,12 @@ body { font-family:var(--sans); font-size:16px; background:var(--bg); color:var(
 #content-bar { padding:10px 22px; border-bottom:1px solid var(--line); display:flex; align-items:center; background:var(--white); flex-shrink:0; }
 .rec-count { font-family:var(--mono); font-size:12px; color:var(--muted); }
 #table-wrap { flex:1; overflow:auto; }
+#pagination { display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px; border-top:1px solid var(--line); background:var(--white); flex-shrink:0; }
+.pg-btn { padding:5px 14px; border:1px solid var(--line); border-radius:7px; background:var(--bg); font-family:var(--sans); font-size:13px; font-weight:600; cursor:pointer; color:var(--ink); transition:all .15s; }
+.pg-btn:hover:not(:disabled) { background:var(--navy); color:white; border-color:var(--navy); }
+.pg-btn:disabled { opacity:.35; cursor:default; }
+.pg-btn.active { background:var(--grad); color:white; border-color:transparent; }
+.pg-info { font-size:13px; color:var(--muted); font-family:var(--mono); padding:0 8px; }
 table { width:100%; table-layout:auto; }
 td { overflow:hidden; text-overflow:ellipsis; max-width:0; }
 th { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -693,7 +699,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">2.9</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">3.0</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -756,6 +762,7 @@ tr:hover .copy-btn { opacity:1; }
   <div id="content">
     <div id="content-bar"><span class="rec-count" id="rc">0 registros</span></div>
     <div id="table-wrap"></div>
+<div id="pagination"></div>
   </div>
 
   <div id="detail" style="display:none">
@@ -835,7 +842,7 @@ function changeUser(){
 }
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
-let S={tab:'trabajos',data:loadLocal(),filtered:[],selId:null,editId:null,sc:null,sd:1};
+let S={tab:'trabajos',data:loadLocal(),filtered:[],selId:null,editId:null,sc:null,sd:1,page:0,pageSize:16};
 function loadLocal(){try{const r=localStorage.getItem(LK);if(r)return JSON.parse(r);}catch(e){}return{trabajos:INIT_T,planificadores:INIT_P,notes:{},deleted:{}};}
 function saveLocal(){try{localStorage.setItem(LK,JSON.stringify(S.data));}catch(e){}document.getElementById('lsv').textContent='Local: '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});}
 let _seq=Date.now();
@@ -871,6 +878,44 @@ function fetchGet(url){
 
 // ── CLOUD ─────────────────────────────────────────────────────────────────────
 function startSync(){setSY('syncing','Conectando…');pullCloud();if(syncTimer)clearInterval(syncTimer);syncTimer=setInterval(pullCloud,INTERVAL);}
+
+// ── MERGE NOTAS: gana la nota más larga ──────────────────────────────────────
+function mergeNotes(remoteNotes, localNotes){
+  const merged = Object.assign({}, remoteNotes||{});
+  Object.keys(localNotes||{}).forEach(id => {
+    const rem = (merged[id]||'').trim();
+    const loc = (localNotes[id]||'').trim();
+    merged[id] = loc.length > rem.length ? loc : (rem || loc);
+  });
+  return merged;
+}
+
+// ── MERGE DATA: combina local+remoto sin perder registros ────────────────────
+function mergeData(local, remote){
+  const deleted = Object.assign({}, remote.deleted||{}, local.deleted||{});
+  function mergeTab(localArr, remoteArr){
+    const map = {};
+    (remoteArr||[]).forEach(r => { if(r&&r.id) map[r.id]=r; });
+    (localArr||[]).forEach(r => {
+      if(!r||!r.id) return;
+      if(!map[r.id]){
+        map[r.id]=r; // nuevo local, no existe en remoto → conservar siempre
+      } else {
+        const lTs = r._updatedAt||r._createdAt||'';
+        const rTs = map[r.id]._updatedAt||map[r.id]._createdAt||'';
+        if(lTs>=rTs) map[r.id]=r; // local más reciente gana
+      }
+    });
+    return Object.values(map).filter(r => !deleted[r.id]);
+  }
+  return {
+    trabajos:      mergeTab(local.trabajos,      remote.trabajos),
+    planificadores:mergeTab(local.planificadores, remote.planificadores),
+    notes:         mergeNotes(remote.notes||{},   local.notes||{}),
+    deleted:       deleted
+  };
+}
+
 function pullCloud(){
   if(!SURL)return; setSY('syncing','Actualizando…');
   fetchGet(SURL+'?action=read')
@@ -882,15 +927,9 @@ function pullCloud(){
         if(notaEl&&S.selId&&document.activeElement===notaEl){
           S.data.notes[S.selId]=notaEl.value;
         }
-        const deleted=Object.assign({},remote.deleted||{},S.data.deleted||{});
-        const filterDel=arr=>(arr||[]).filter(r=>!deleted[r.id]);
-        S.data={
-          trabajos:      filterDel(remote.trabajos      ||S.data.trabajos),
-          planificadores:filterDel(remote.planificadores||S.data.planificadores),
-          notes:  mergeNotes(remote.notes||{}, S.data.notes||{}),
-          deleted:deleted
-        };
-        saveLocal();populateFilters();applyF();
+        // MERGE completo: nunca pierde registros locales no subidos aún
+        S.data=mergeData(S.data, remote);
+        saveLocal();populateFilters();applyF(false);
         // Restaurar nota si el usuario sigue escribiendo
         if(S.selId){
           const wasEditing=notaEl&&document.activeElement===notaEl;
@@ -902,84 +941,29 @@ function pullCloud(){
           }
         }
       }
-      document.getElementById('lsy').textContent='Sync: '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
       setSY('ok','Sincronizado ✓');
     })
-    .catch(err=>{setSY('error','Error: '+err);});
+    .catch(()=>setSY('error','Sin conexión'));
 }
-function pushCloud(silent){
-  if(!SURL)return; if(!silent)setSY('syncing','Guardando…');
-  const body=JSON.stringify({action:'write',data:S.data});
-  fetch(SURL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body})
-    .then(()=>{setTimeout(()=>{if(silent)startSync();else pullCloud();},1500);})
-    .catch(err=>{console.error('pushCloud error',err);setSY('error','Error al guardar');});
-}
-function forcePull(){pullCloud();}
-
-
-// ── MERGE NOTAS: gana la nota más larga (más completa) ────────────────────────
-function mergeNotes(remoteNotes, localNotes){
-  const merged = Object.assign({}, remoteNotes);
-  Object.keys(localNotes).forEach(id => {
-    const rem = (remoteNotes[id]||'').trim();
-    const loc = (localNotes[id]||'').trim();
-    // Gana la nota más larga; si son iguales de largas, gana la remota
-    merged[id] = loc.length > rem.length ? loc : rem;
-    // Si la nota local está vacía, no borrar la remota
-    if(!loc && rem) merged[id] = rem;
-  });
-  return merged;
-}
-
-// ── MERGE-SAFE SAVE: lee remoto, fusiona, luego escribe ───────────────────────
-function mergeData(local, remote){
-  // Fusionar por ID: el registro más reciente (_updatedAt) gana
-  // Los IDs que solo están en uno de los dos se conservan siempre
-  // Combinar tombstones de ambos lados
-  const deleted = Object.assign({}, remote.deleted||{}, local.deleted||{});
-
-  function mergeTab(localArr, remoteArr){
-    const map = {};
-    (remoteArr||[]).forEach(r => map[r.id] = r);
-    (localArr||[]).forEach(r => {
-      if(!map[r.id]){
-        map[r.id] = r;
-      } else {
-        const localTs  = r._updatedAt || r._createdAt || '';
-        const remoteTs = map[r.id]._updatedAt || map[r.id]._createdAt || '';
-        if(localTs >= remoteTs) map[r.id] = r;
-      }
-    });
-    // Eliminar cualquier registro que esté en el tombstone
-    return Object.values(map).filter(r => !deleted[r.id]);
-  }
-  return {
-    trabajos:      mergeTab(local.trabajos,      remote.trabajos),
-    planificadores:mergeTab(local.planificadores, remote.planificadores),
-    notes:   mergeNotes(remote.notes||{}, local.notes||{}),
-    deleted: deleted
-  };
-}
-
+let _saving=false;
 function saveAndSync(){
   saveLocal();
-  if(!SURL){ return; }
+  if(!SURL){ applyF(false); return; }
+  if(_saving){ setTimeout(saveAndSync,600); return; }
+  _saving=true;
   setSY('syncing','Guardando…');
-  // 1. Leer estado actual del servidor
   fetchGet(SURL+'?action=read')
-    .then(remote => {
-      // 2. Fusionar local + remoto
-      const merged = (remote && (remote.trabajos||remote.planificadores))
-        ? mergeData(S.data, remote)
-        : S.data;
-      S.data = merged;
-      saveLocal();
-      // 3. Escribir el merge al servidor
-      const body = JSON.stringify({action:'write', data:S.data});
+    .then(remote=>{
+      if(remote&&(remote.trabajos||remote.planificadores)){
+        S.data=mergeData(S.data,remote);
+        saveLocal();
+      }
+      applyF(false);
+      const body=JSON.stringify({action:'write',data:S.data});
       return fetch(SURL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body});
     })
-    .then(()=>{ setTimeout(()=>pullCloud(), 1000); })
-    .catch(err=>{ console.error('saveAndSync error',err); setSY('error','Error al guardar'); });
+    .then(()=>{ _saving=false; setSY('ok','Guardado ✓'); })
+    .catch(err=>{ _saving=false; console.error('saveAndSync error',err); setSY('error','Error al guardar'); });
 }
 
 // ── COLUMNS ───────────────────────────────────────────────────────────────────
@@ -1039,7 +1023,8 @@ function populateFilters(){
   sy.innerHTML='<option value="">Todos los años</option>'+yrs.map(y=>`<option value="${y}">${y}</option>`).join('');sy.value=py;
   sa.innerHTML='<option value="">Todos los autores</option>'+auths.map(a=>`<option value="${a}">${a}</option>`).join('');sa.value=pa;
 }
-function applyF(){
+function applyF(resetPage=true){
+  if(resetPage)S.page=0;
   const q=document.getElementById('qInput').value.toLowerCase();
   const sf=document.getElementById('fSol').value,st=document.getElementById('fStat').value;
   const yf=document.getElementById('fYear').value,af=document.getElementById('fAuthor').value;
@@ -1059,30 +1044,67 @@ function applyF(){
 function renderTable(){
   const cols=gc(),wrap=document.getElementById('table-wrap');
   document.getElementById('rc').textContent=`${S.filtered.length} registro${S.filtered.length!==1?'s':''}`;
-  if(!S.filtered.length){wrap.innerHTML='<div class="empty-state"><div class="ei">🔍</div><p>No se encontraron registros</p></div>';return;}
-  const vw=window.innerWidth;const scale=vw<1024?0.75:vw<1280?0.85:1;const th=cols.map(c=>`<th onclick="sortBy('${c.k}')" style="width:${Math.round(c.w*scale)}px;min-width:${Math.round(c.w*scale*0.7)}px">${c.l}${S.sc===c.k?(S.sd===1?' ↑':' ↓'):''}</th>`).join('')+'<th style="width:90px;min-width:80px;text-align:center">Acc.</th>';
-  const tb=S.filtered.map((r,ri)=>{
+  if(!S.filtered.length){
+    wrap.innerHTML='<div class="empty-state"><div class="ei">\U0001f50d</div><p>No se encontraron registros</p></div>';
+    renderPagination(); return;
+  }
+  const vw=window.innerWidth;
+  const scale=vw<1024?0.75:vw<1280?0.85:1;
+  const th=cols.map(c=>`<th onclick="sortBy('${c.k}')" style="width:${Math.round(c.w*scale)}px;min-width:${Math.round(c.w*scale*0.7)}px">${c.l}${S.sc===c.k?(S.sd===1?' \u2191':' \u2193'):''}</th>`).join('')+'<th style="width:90px;min-width:80px;text-align:center">Acc.</th>';
+  // Paginaci\u00f3n
+  const pages=Math.max(1,Math.ceil(S.filtered.length/S.pageSize));
+  if(S.page>=pages)S.page=pages-1;
+  const start=S.page*S.pageSize;
+  const pageRows=S.filtered.slice(start,start+S.pageSize);
+  const tb=pageRows.map((r,ri)=>{
     const cls=r.id===S.selId?'r-sel':(r.anulacion_codigo==='si')?'r-an':isAN(r.ok)?'r-an':isPE(r.ok)?'r-pend':'r-ok';
     const cells=cols.map(c=>{
       const v=r[c.k]||'';
       let h;
-      if(c.anulcod)h=r[c.k]==='si'?'<span style="display:inline-flex;align-items:center;gap:4px;background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700">✕ Anulado</span>':'<span style="color:#D1D5DB;font-size:15px">—</span>';
+      if(c.anulcod)h=r[c.k]==='si'?'<span style="display:inline-flex;align-items:center;gap:4px;background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700">\u2715 Anulado</span>':'<span style="color:#D1D5DB;font-size:15px">\u2014</span>';
       else if(c.stock&&r[c.k]){const parts=r[c.k].split('|');h='<span style="display:inline-flex;flex-direction:column;gap:2px;align-items:flex-start">'+parts.map(p=>`<span style="display:inline-block;background:#EEF2FF;color:#3730A3;border:1px solid #C7D2FE;border-radius:5px;padding:1px 7px;font-size:11px;font-family:var(--mono);white-space:nowrap">${p}</span>`).join('')+'</span>';}
-      else if(c.check)h=r[c.k]==='si'?'<span class="check-yes">✅</span>':'<span style="color:#D1D5DB;font-size:16px">☐</span>';
+      else if(c.check)h=r[c.k]==='si'?'<span class="check-yes">\u2705</span>':'<span style="color:#D1D5DB;font-size:16px">\u2610</span>';
       else if(c.author)h=authorCell(r._createdBy,r._createdAt);
       else if(c.badge)h=badge(v);
-      else if(c.date){const dp=v?v.split('-'):[];h=`<span class="date-cell">${dp.length===3?dp[2]+'/'+dp[1]+'/'+dp[0]:v}</span>`;}  
+      else if(c.date){const dp=v?v.split('-'):[];h=`<span class="date-cell">${dp.length===3?dp[2]+'/'+dp[1]+'/'+dp[0]:v}</span>`;}
       else if(c.mono)h=`<span class="mono-cell">${v}</span>`;
       else h=`<span title="${v.replace(/"/g,'&quot;')}">${v}</span>`;
-      if((c.k==='texto'||c.k==='descripcion')&&S.data.notes[r.id])h+='<span class="note-mark">💬</span>';
-      if(v&&(c.k==='texto'||c.k==='descripcion'||c.k==='codigo_sap'||c.k==='codigo_seguimiento'))h=`<span class="copy-wrap">${h}<button class="copy-btn" title="Copiar" onclick="event.stopPropagation();copyText('${v.replace(/'/g,"\'")}',this)">${copyIcon()}</button></span>`;
+      if((c.k==='texto'||c.k==='descripcion')&&S.data.notes[r.id])h+='<span class="note-mark">\U0001f4ac</span>';
+      if(v&&(c.k==='texto'||c.k==='descripcion'||c.k==='codigo_sap'||c.k==='codigo_seguimiento'))h=`<span class="copy-wrap">${h}<button class="copy-btn" title="Copiar" onclick="event.stopPropagation();copyText('${v.replace(/'/g,"\\'")}',this)">${copyIcon()}</button></span>`;
       const mobHide=isMobile()&&(c.k==='codigo_seguimiento'||c.k==='extender_de'||c.k==='enlace'||c.k==='ok_sap'||c.k==='incluido_excel');
       return`<td data-label="${c.l}"${mobHide?' class="hide-mobile"':''}>${h}</td>`;
     }).join('');
-    return`<tr class="${cls} row-anim" style="animation-delay:${Math.min(ri*18,300)}ms" onclick="selRow('${r.id}')">${cells}<td class="mob-actions" style="white-space:nowrap;text-align:center;padding:4px 6px"><button class="act-btn act-edit" onclick="openEdit('${r.id}',event)">✏️</button><button class="act-btn act-del" onclick="delRec('${r.id}',event)">🗑</button></td></tr>`;
+    return`<tr class="${cls} row-anim" style="animation-delay:${Math.min(ri*18,300)}ms" onclick="selRow('${r.id}')">${cells}<td class="mob-actions" style="white-space:nowrap;text-align:center;padding:4px 6px"><button class="act-btn act-edit" onclick="openEdit('${r.id}',event)">\u270f\ufe0f</button><button class="act-btn act-del" onclick="delRec('${r.id}',event)">\U0001f5d1</button></td></tr>`;
   }).join('');
   wrap.innerHTML=`<table><thead><tr>${th}</tr></thead><tbody>${tb}</tbody></table>`;
+  renderPagination();
 }
+function renderPagination(){
+  const pg=document.getElementById('pagination');
+  if(!pg)return;
+  const total=S.filtered.length;
+  const pages=Math.ceil(total/S.pageSize);
+  if(pages<=1){pg.innerHTML='';return;}
+  let html='';
+  html+=`<button class="pg-btn" onclick="goPage(${S.page-1})" ${S.page===0?'disabled':''}>&#8592; Ant.</button>`;
+  for(let i=0;i<pages;i++){
+    if(pages>7&&i>1&&i<pages-2&&Math.abs(i-S.page)>1){
+      if(i===2||i===pages-3)html+=`<span style="color:var(--muted);padding:0 2px">\u2026</span>`;
+      continue;
+    }
+    html+=`<button class="pg-btn${i===S.page?' active':''}" onclick="goPage(${i})">${i+1}</button>`;
+  }
+  html+=`<button class="pg-btn" onclick="goPage(${S.page+1})" ${S.page>=pages-1?'disabled':''}>Sig. &#8594;</button>`;
+  html+=`<span style="font-size:12px;color:var(--muted);font-family:var(--mono);padding-left:6px">${S.page*S.pageSize+1}\u2013${Math.min((S.page+1)*S.pageSize,total)} / ${total}</span>`;
+  pg.innerHTML=html;
+}
+function goPage(p){
+  const pages=Math.max(1,Math.ceil(S.filtered.length/S.pageSize));
+  S.page=Math.max(0,Math.min(p,pages-1));
+  renderTable();
+  const tw=document.getElementById('table-wrap');if(tw)tw.scrollTop=0;
+}
+
 function updateStats(){
   const f=S.filtered;
   document.getElementById('s0').textContent=f.length;
