@@ -713,7 +713,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">2.3</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">2.4</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -928,7 +928,54 @@ function pushCloud(silent){
     .catch(err=>{console.error('pushCloud error',err);setSY('error','Error al guardar');});
 }
 function forcePull(){pullCloud();}
-function saveAndSync(){saveLocal();pushCloud(false);}
+
+// ── MERGE-SAFE SAVE: lee remoto, fusiona, luego escribe ───────────────────────
+function mergeData(local, remote){
+  // Fusionar por ID: el registro más reciente (_updatedAt) gana
+  // Los IDs que solo están en uno de los dos se conservan siempre
+  function mergeTab(localArr, remoteArr){
+    const map = {};
+    // Primero añadir todos los remotos
+    (remoteArr||[]).forEach(r => map[r.id] = r);
+    // Luego los locales: si el local es más reciente o no existe en remoto, gana el local
+    (localArr||[]).forEach(r => {
+      if(!map[r.id]){
+        map[r.id] = r; // nuevo local, no existe en remoto → añadir siempre
+      } else {
+        const localTs  = r._updatedAt || r._createdAt || '';
+        const remoteTs = map[r.id]._updatedAt || map[r.id]._createdAt || '';
+        if(localTs >= remoteTs) map[r.id] = r; // local más nuevo → gana
+      }
+    });
+    return Object.values(map);
+  }
+  return {
+    trabajos:      mergeTab(local.trabajos,      remote.trabajos),
+    planificadores:mergeTab(local.planificadores, remote.planificadores),
+    notes: Object.assign({}, remote.notes||{}, local.notes||{})
+  };
+}
+
+function saveAndSync(){
+  saveLocal();
+  if(!SURL){ return; }
+  setSY('syncing','Guardando…');
+  // 1. Leer estado actual del servidor
+  fetchGet(SURL+'?action=read')
+    .then(remote => {
+      // 2. Fusionar local + remoto
+      const merged = (remote && (remote.trabajos||remote.planificadores))
+        ? mergeData(S.data, remote)
+        : S.data;
+      S.data = merged;
+      saveLocal();
+      // 3. Escribir el merge al servidor
+      const body = JSON.stringify({action:'write', data:S.data});
+      return fetch(SURL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body});
+    })
+    .then(()=>{ setTimeout(()=>pullCloud(), 1000); })
+    .catch(err=>{ console.error('saveAndSync error',err); setSY('error','Error al guardar'); });
+}
 
 // ── COLUMNS ───────────────────────────────────────────────────────────────────
 const COLS={
@@ -1104,8 +1151,9 @@ function saveRec(){
   });
   const cbEl=document.getElementById('f_incluido_excel');obj.incluido_excel=cbEl&&cbEl.checked?'si':'no';
   const acEl=document.getElementById('f_anulacion_codigo');obj.anulacion_codigo=acEl&&acEl.checked?'si':'no';
-  if(S.editId){S.data[S.tab]=S.data[S.tab].map(r=>r.id===S.editId?{...r,...obj}:r);}
-  else{obj.id=gid();obj._createdBy=currentUser||'Desconocido';obj._createdAt=new Date().toISOString();S.data[S.tab]=[obj,...S.data[S.tab]];}
+  const now=new Date().toISOString();
+  if(S.editId){S.data[S.tab]=S.data[S.tab].map(r=>r.id===S.editId?{...r,...obj,_updatedAt:now}:r);}
+  else{obj.id=gid();obj._createdBy=currentUser||'Desconocido';obj._createdAt=now;obj._updatedAt=now;S.data[S.tab]=[obj,...S.data[S.tab]];}
   saveAndSync();closeModal();populateFilters();applyF();if(S.selId)renderDetail();
 }
 function delRec(id,e){
