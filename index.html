@@ -399,13 +399,13 @@ tr:hover .copy-btn { opacity:1; }
 /* ── MÓVIL ───────────────────────────────────────────────────── */
 @media (max-width: 600px) {
   /* Topbar compacto */
-  #topbar { padding:0 10px; min-height:52px; flex-wrap:wrap; gap:0; }
+  #topbar { padding:0 10px; min-height:52px; flex-wrap:wrap; gap:0; overflow:visible; }
   .app-brand { gap:8px; }
   .app-name { font-size:14px; }
   .app-icon { width:30px; height:30px; }
   .topbar-divider { display:none; }
-  .topbar-tabs { order:3; width:100%; border-top:1px solid rgba(255,255,255,.08); padding:0; }
-  .ttab { flex:1; padding:8px 6px; font-size:13px; text-align:center; border-radius:0; }
+  .topbar-tabs { order:3; width:100%; border-top:1px solid rgba(255,255,255,.08); padding:3px; border-radius:0; display:flex; box-sizing:border-box; }
+  .ttab { flex:1; padding:8px 4px; font-size:12px; text-align:center; border-radius:6px; white-space:normal; min-width:0; }
   .topbar-right { gap:6px; }
 
   /* Ocultar botones extra, dejar solo + Nuevo */
