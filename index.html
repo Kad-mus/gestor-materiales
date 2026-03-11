@@ -633,7 +633,10 @@ tr:hover .copy-btn { opacity:1; }
   <rect x="45.75" y="43" width="2.5" height="8" rx="1.2" fill="white" opacity="0.95"/>
 </svg>
     <div class="app-title">
-      <span class="app-name">Control Alta Materiales</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="app-name">Control Alta Materiales</span>
+        <button onclick="showAbout()" title="Acerca de la aplicación" style="width:22px;height:22px;border-radius:50%;border:none;cursor:pointer;background:rgba(255,255,255,0.18);color:white;font-size:12px;font-weight:700;font-family:Georgia,serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,transform .15s;line-height:1;" onmouseover="this.style.background='rgba(255,255,255,0.35)';this.style.transform='scale(1.15)'" onmouseout="this.style.background='rgba(255,255,255,0.18)';this.style.transform='scale(1)'">i</button>
+      </div>
       <span class="app-sub">Repsol · SAP · TAM4</span>
     </div>
   </div>
@@ -643,7 +646,6 @@ tr:hover .copy-btn { opacity:1; }
     <button class="btn btn-ghost" onclick="exportExcel()" title="Exportar listado actual a Excel">⬇ Excel</button>
     <button class="btn btn-ghost hide-tablet" onclick="printView()" title="Imprimir listado actual">🖨 Imprimir</button>
     <button class="btn btn-ghost hide-tablet" onclick="backupLocal()" title="Copia de seguridad local">💾 Backup</button>
-    <button class="btn btn-ghost hide-tablet" onclick="showAbout()" title="Acerca de">ℹ️</button>
     <div class="user-chip" onclick="changeUser()" title="Cambiar nombre">
       <div class="user-avatar" id="u-avatar">?</div>
       <span class="user-name" id="u-name">—</span>
@@ -711,11 +713,11 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">1.0</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">2.1</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">HTML · Google Sheets</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">HTML · CSS · Google Sheets</span>
         </div>
       </div>
       <button onclick="closeAbout()" style="width:100%;margin-top:20px;padding:12px;background:linear-gradient(135deg,#DA291C,#FF6900);border:none;border-radius:10px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:white;cursor:pointer;">Cerrar</button>
