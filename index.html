@@ -699,7 +699,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">3.0</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">3.2</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -818,7 +818,8 @@ window.addEventListener('resize',initResponsive);
 // ── USER ──────────────────────────────────────────────────────────────────────
 let currentUser=localStorage.getItem(UNKEY)||'';
 const USER_COLORS=['#DA291C','#1450A3','#166534','#7C3AED','#B45309','#0E7490','#BE185D','#4D7C0F'];
-function userColor(n){let h=0;for(let c of(n||'?'))h=(h*31+c.charCodeAt(0))%USER_COLORS.length;return USER_COLORS[Math.abs(h)];}
+const USER_COLOR_OVERRIDE={'Rubén':'#D97706','Ruben':'#D97706'};
+function userColor(n){if(USER_COLOR_OVERRIDE[n])return USER_COLOR_OVERRIDE[n];let h=0;for(let c of(n||'?'))h=(h*31+c.charCodeAt(0))%USER_COLORS.length;return USER_COLORS[Math.abs(h)];}
 function userInitials(n){if(!n)return'?';const p=n.trim().split(/\s+/);return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():n.slice(0,2).toUpperCase();}
 function updateUserUI(){
   document.getElementById('u-avatar').textContent=userInitials(currentUser);
