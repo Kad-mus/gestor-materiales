@@ -1063,7 +1063,7 @@ function saveNote(id){
 
 // ── MODAL ─────────────────────────────────────────────────────────────────────
 function buildForm(rec){
-  return gc().filter(c=>c.k!=='_createdBy'&&c.k!=='incluido_excel').map(c=>{
+  return gc().filter(c=>c.k!=='_createdBy'&&c.k!=='incluido_excel'&&c.k!=='anulacion_codigo').map(c=>{
     const v=rec?(rec[c.k]||''):'';
 
     const span=(c.k==='texto'||c.k==='descripcion')?' span2':'';
