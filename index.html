@@ -369,7 +369,7 @@ tr.r-sel { border-left:3px solid #F59E0B !important; }
 tr:hover .copy-btn { opacity:1; }
 .copy-btn.copied { color:#16A34A !important; opacity:1; }
 .check-cell input[type=checkbox] { width:18px; height:18px; cursor:pointer; accent-color:var(--green); }
-.check-yes { font-size:18px; }
+.check-yes { font-size:16px; }
 .empty-state { text-align:center; padding:80px 20px; color:var(--muted); }
 .empty-state .ei { font-size:40px; margin-bottom:14px; opacity:.35; }
 .empty-state p { font-size:14px; }
@@ -713,7 +713,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">2.4</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">2.5</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -981,8 +981,8 @@ function saveAndSync(){
 const COLS={
   trabajos:[
     {k:'texto',l:'Descripción',w:380},
+    {k:'incluido_excel',l:'Excel',w:46,check:1},
     {k:'solicitante',l:'Solicitante',w:120},
-    {k:'incluido_excel',l:'Excel',w:55,check:1},
     {k:'codigo_seguimiento',l:'Código Seguimiento',w:160,mono:1},
     {k:'solicitado',l:'Fecha',w:90,date:1},
     {k:'codigo_sap',l:'Cód. SAP',w:95,mono:1},
@@ -993,6 +993,7 @@ const COLS={
   planificadores:[
     {k:'codigo_sap',l:'Código SAP',w:90,mono:1},
     {k:'descripcion',l:'Descripción',w:200},
+    {k:'incluido_excel',l:'Excel',w:46,check:1},
     {k:'stock_actual',l:'Stock Actual',w:90,stock:1},
     {k:'stock_nuevo',l:'Stock Nuevo',w:90,stock:1},
     {k:'codigo_seguimiento',l:'Seguimiento',w:110,mono:1},
@@ -1001,7 +1002,6 @@ const COLS={
     {k:'ok',l:'OK TAM4',w:80,badge:1},
     {k:'ok_sap',l:'OK SAP',w:65,badge:1},
     {k:'anulacion_codigo',l:'Anul. Código',w:85,anulcod:1},
-    {k:'incluido_excel',l:'Excel',w:55,check:1},
     {k:'_createdBy',l:'Codificado por',w:140,author:1},
   ]
 };
