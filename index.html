@@ -274,7 +274,7 @@ tr.r-sel { border-left:3px solid #F59E0B !important; }
 .author-dt { font-size:10px; color:var(--muted); font-family:var(--mono); }
 
 /* BADGES */
-.badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:99px; font-size:13px; font-weight:600; font-family:var(--mono); letter-spacing:.3px; white-space:nowrap; animation:badgePop .25s cubic-bezier(.34,1.56,.64,1) both; transition:transform .15s; }
+.badge { display:inline-flex; align-items:center; padding:2px 7px; border-radius:99px; font-size:11px; font-weight:600; font-family:var(--mono); letter-spacing:.2px; white-space:nowrap; animation:badgePop .25s cubic-bezier(.34,1.56,.64,1) both; transition:transform .15s; }
 .bOK { background:var(--green-bg);  color:var(--green); border:1px solid #86EFAC; }
 .bEX { background:var(--blue-bg);   color:var(--blue);  border:1px solid #93C5FD; }
 .bAN { background:#FEE2E2; color:#991B1B; border:1px solid #FCA5A5; }
@@ -713,7 +713,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">2.5</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">2.6</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -987,7 +987,7 @@ const COLS={
     {k:'solicitado',l:'Fecha',w:90,date:1},
     {k:'codigo_sap',l:'Cód. SAP',w:95,mono:1},
     {k:'extender_de',l:'Extender de',w:110,mono:1},
-    {k:'ok',l:'Estado',w:85,badge:1},
+    {k:'ok',l:'Estado',w:72,badge:1},
     {k:'_createdBy',l:'Codificado por',w:155,author:1},
   ],
   planificadores:[
@@ -999,8 +999,8 @@ const COLS={
     {k:'codigo_seguimiento',l:'Seguimiento',w:110,mono:1},
     {k:'solicitante',l:'Solicitante',w:90},
     {k:'fecha',l:'Fecha',w:85,date:1},
-    {k:'ok',l:'OK TAM4',w:80,badge:1},
-    {k:'ok_sap',l:'OK SAP',w:65,badge:1},
+    {k:'ok',l:'OK TAM4',w:70,badge:1},
+    {k:'ok_sap',l:'OK SAP',w:55,badge:1},
     {k:'anulacion_codigo',l:'Anul. Código',w:85,anulcod:1},
     {k:'_createdBy',l:'Codificado por',w:140,author:1},
   ]
