@@ -277,11 +277,11 @@ tr.r-sel { border-left:3px solid #F59E0B !important; }
 .bAN { background:#FEE2E2; color:#991B1B; border:1px solid #FCA5A5; }
 .bPE { background:#FFF4EE; color:#C2410C; border:1px solid #FED7AA; }
 
-.act-btn { padding:4px 8px; background:transparent; border:1px solid var(--line); border-radius:6px; cursor:pointer; font-size:12px; margin-right:3px; transition:all .12s; }
+.act-btn { width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; background:transparent; border:1px solid var(--line); border-radius:8px; cursor:pointer; font-size:16px; margin-right:3px; transition:all .15s; padding:0; flex-shrink:0; }
 .act-btn:hover { background:var(--bg); }
-.act-del { color:white; background:#EF4444; border-color:#DC2626; font-size:16px; padding:5px 10px; }
+.act-del { color:white; background:#EF4444; border-color:#DC2626; }
 .act-del:hover { background:#DC2626; border-color:#B91C1C; transform:scale(1.08); }
-.act-edit { color:white; background:#3B82F6; border-color:#2563EB; font-size:16px; padding:5px 10px; }
+.act-edit { color:white; background:#3B82F6; border-color:#2563EB; }
 .act-edit:hover { background:#2563EB; border-color:#1D4ED8; transform:scale(1.08); }
 
 /* ── DETAIL ──────────────────────────────────────── */
@@ -378,6 +378,20 @@ tr:hover .copy-btn { opacity:1; }
    En PC/Mac (>900px) no se aplica ninguno de estos estilos
    ════════════════════════════════════════════════════════════════ */
 
+
+
+/* ── PANTALLA 1920x1080 AL 125% (viewport ~1536px) ─────────────────
+   El 125% de zoom reduce el viewport efectivo a ~1536px
+   ─────────────────────────────────────────────────────────────────── */
+@media (max-width: 1600px) and (min-width: 1281px) {
+  #sidebar { width:220px; }
+  #detail { width:320px; }
+  body { font-size:15px; }
+  table { font-size:14px; }
+  th { font-size:13px; }
+  .btn { padding:5px 14px; font-size:13px; }
+  .app-name { font-size:15px; }
+}
 
 /* ── PANTALLA MEDIANA (1024px - 1280px) ─────────────────────────────
    Para monitores más pequeños o con menos resolución
