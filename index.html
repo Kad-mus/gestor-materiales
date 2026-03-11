@@ -842,7 +842,7 @@ function changeUser(){
 }
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
-let S={tab:'trabajos',data:loadLocal(),filtered:[],selId:null,editId:null,sc:null,sd:1,page:0,pageSize:16};
+let S={tab:'trabajos',data:loadLocal(),filtered:[],selId:null,editId:null,sc:'_createdAt',sd:-1,page:0,pageSize:16};
 function loadLocal(){try{const r=localStorage.getItem(LK);if(r)return JSON.parse(r);}catch(e){}return{trabajos:INIT_T,planificadores:INIT_P,notes:{},deleted:{}};}
 function saveLocal(){try{localStorage.setItem(LK,JSON.stringify(S.data));}catch(e){}document.getElementById('lsv').textContent='Local: '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});}
 let _seq=Date.now();
@@ -1007,7 +1007,7 @@ function authorCell(name,iso){
 
 // ── FILTERS ───────────────────────────────────────────────────────────────────
 function switchTab(tab){if(isTablet())closeSidebar();
-  S.tab=tab;S.selId=null;S.sc=null;
+  S.tab=tab;S.selId=null;S.sc='_createdAt';S.sd=-1;
   document.querySelectorAll('.ttab').forEach(b=>b.classList.toggle('on',b.getAttribute('onclick').includes(tab)));
   document.getElementById('detail').style.display='none';
   populateFilters();applyF();
