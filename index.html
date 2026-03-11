@@ -106,6 +106,16 @@ body { font-family:var(--sans); font-size:16px; background:var(--bg); color:var(
 
 .topbar-divider { width:1px; height:30px; background:rgba(255,255,255,.1); margin:0 6px; flex-shrink:0; }
 
+
+#tabs-bar {
+  display: flex;
+  background: var(--navy);
+  border-bottom: 2px solid rgba(255,105,0,.25);
+  padding: 4px 16px;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
 .topbar-tabs {
   display: flex;
   gap: 3px;
@@ -404,8 +414,7 @@ tr:hover .copy-btn { opacity:1; }
   .app-name { font-size:14px; }
   .app-icon { width:30px; height:30px; }
   .topbar-divider { display:none; }
-  .topbar-tabs { order:3; width:100%; border-top:1px solid rgba(255,255,255,.08); padding:3px; border-radius:0; display:flex; box-sizing:border-box; }
-  .ttab { flex:1; padding:8px 4px; font-size:12px; text-align:center; border-radius:6px; white-space:normal; min-width:0; }
+  /* tabs-bar ocupa todo el ancho automáticamente */
   .topbar-right { gap:6px; }
 
   /* Ocultar botones extra, dejar solo + Nuevo */
@@ -452,6 +461,11 @@ tr:hover .copy-btn { opacity:1; }
 
   /* Detail panel pantalla completa */
   #detail { max-width:100%; }
+
+
+  /* Barra de tabs en móvil */
+  #tabs-bar { padding: 4px 8px; }
+  #tabs-bar .ttab { flex: 1; text-align: center; padding: 9px 4px; font-size: 13px; }
 
   /* Stats más compactos */
   .stat-tile { padding:8px 10px; }
@@ -562,11 +576,6 @@ tr:hover .copy-btn { opacity:1; }
       <span class="app-sub">Repsol · SAP · TAM4</span>
     </div>
   </div>
-  <div class="topbar-divider"></div>
-  <div class="topbar-tabs">
-    <button class="ttab on" onclick="switchTab('trabajos')">Trabajos</button>
-    <button class="ttab" onclick="switchTab('planificadores')">Planificadores</button>
-  </div>
   <div class="topbar-right">
     <div class="sync-pill sp-idle" id="spill"><div class="sp-dot"></div><span id="stxt">Sin sync</span></div>
     <button class="btn btn-ghost hide-tablet" onclick="forcePull()">⟳ Actualizar</button>
@@ -578,6 +587,12 @@ tr:hover .copy-btn { opacity:1; }
     </div>
     <button class="btn btn-primary" onclick="openNew()">+ Nuevo</button>
   </div>
+</div>
+
+<!-- TABS BAR -->
+<div id="tabs-bar">
+  <button class="ttab on" onclick="switchTab('trabajos')">Trabajos</button>
+  <button class="ttab" onclick="switchTab('planificadores')">Planificadores</button>
 </div>
 
 <!-- SETUP BANNER -->
@@ -833,7 +848,7 @@ function authorCell(name,iso){
 // ── FILTERS ───────────────────────────────────────────────────────────────────
 function switchTab(tab){if(isTablet())closeSidebar();
   S.tab=tab;S.selId=null;S.sc=null;
-  document.querySelectorAll('.ttab').forEach((b,i)=>b.classList.toggle('on',(i===0&&tab==='trabajos')||(i===1&&tab==='planificadores')));
+  document.querySelectorAll('.ttab').forEach(b=>b.classList.toggle('on',b.getAttribute('onclick').includes(tab)));
   document.getElementById('detail').style.display='none';
   populateFilters();applyF();
 }
