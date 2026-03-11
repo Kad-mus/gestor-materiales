@@ -360,6 +360,99 @@ tr:hover .copy-btn { opacity:1; }
 .empty-state p { font-size:14px; }
 
 /* ── PRINT ───────────────────────────────────────── */
+
+/* ════════════════════════════════════════════════════════════════
+   RESPONSIVE — TABLET (≤900px) y MÓVIL (≤600px)
+   En PC/Mac (>900px) no se aplica ninguno de estos estilos
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── TABLET ──────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  /* Sidebar se oculta por defecto, se abre con botón */
+  #sidebar { position:fixed; left:-260px; top:0; bottom:0; z-index:300; width:260px; transition:left .3s cubic-bezier(.4,0,.2,1); box-shadow:4px 0 24px rgba(0,0,0,.15); }
+  #sidebar.mob-open { left:0; }
+  #sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:299; }
+  #sidebar-overlay.visible { display:block; animation:overlayIn .2s ease; }
+
+  /* Botón hamburguesa para abrir sidebar */
+  #mob-menu-btn { display:flex; align-items:center; justify-content:center; width:36px; height:36px; background:rgba(255,255,255,.1); border:none; border-radius:8px; cursor:pointer; color:white; font-size:18px; flex-shrink:0; }
+
+  /* Panel detalle: pantalla completa en tablet */
+  #detail { position:fixed; right:0; top:0; bottom:0; width:100% !important; max-width:420px; z-index:200; transform:translateX(100%); transition:transform .3s cubic-bezier(.4,0,.2,1); display:flex !important; }
+  #detail.open { transform:translateX(0); animation:none; }
+
+  /* Ocultar algunos botones de topbar para ahorrar espacio */
+  .btn-ghost.hide-tablet { display:none; }
+
+  /* Tabs más compactos */
+  .ttab { padding:6px 14px; font-size:13px; }
+
+  /* App name más corto */
+  .app-sub { display:none; }
+}
+
+/* ── MÓVIL ───────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  /* Topbar compacto */
+  #topbar { padding:0 10px; min-height:52px; flex-wrap:wrap; gap:0; }
+  .app-brand { gap:8px; }
+  .app-name { font-size:14px; }
+  .app-icon { width:30px; height:30px; }
+  .topbar-divider { display:none; }
+  .topbar-tabs { order:3; width:100%; border-top:1px solid rgba(255,255,255,.08); padding:0; }
+  .ttab { flex:1; padding:8px 6px; font-size:13px; text-align:center; border-radius:0; }
+  .topbar-right { gap:6px; }
+
+  /* Ocultar botones extra, dejar solo + Nuevo */
+  .btn-ghost { display:none; }
+  .btn-primary { padding:7px 14px; font-size:13px; }
+
+  /* Usuario: solo avatar */
+  .user-name { display:none; }
+  .user-chip { padding:4px; }
+
+  /* Tabla → tarjetas en móvil */
+  #table-wrap { padding:10px; }
+  table, thead, tbody, th, td, tr { display:block; }
+  thead { display:none; }
+  tr.row-anim {
+    background:white;
+    border:1px solid var(--line);
+    border-radius:12px;
+    margin-bottom:10px;
+    padding:12px 14px;
+    box-shadow:0 2px 8px rgba(0,0,0,.06);
+    animation:fadeInRow .22s ease both;
+    cursor:pointer;
+  }
+  tr.r-ok  { border-left:4px solid #86EFAC !important; background:#F0FDF4 !important; }
+  tr.r-pend{ border-left:4px solid var(--repsol-orange) !important; background:#FFF7F0 !important; }
+  tr.r-an  { border-left:4px solid #FCA5A5 !important; background:#FEF2F2 !important; }
+  tr.r-sel { border-left:4px solid var(--repsol-red) !important; background:#FFF1F0 !important; }
+  td { border:none; padding:3px 0; font-size:14px; display:flex; align-items:flex-start; gap:6px; }
+  td::before { content:attr(data-label); font-size:11px; font-weight:700; text-transform:uppercase; color:var(--muted); letter-spacing:.7px; min-width:90px; flex-shrink:0; padding-top:2px; }
+  /* Ocultar columnas menos importantes en móvil */
+  td.hide-mobile { display:none; }
+  /* Columna acciones: botones grandes */
+  td:last-child { justify-content:flex-end; padding-top:8px; border-top:1px solid var(--line); margin-top:6px; }
+  td:last-child::before { display:none; }
+  .act-btn { padding:8px 12px; font-size:15px; }
+
+  /* Sidebar más ancho en móvil */
+  #sidebar { width:85vw; max-width:300px; }
+
+  /* Modal pantalla completa */
+  #modal { width:100% !important; max-width:100%; max-height:100vh; border-radius:0; margin:0; }
+  #modal-overlay { align-items:flex-end; }
+
+  /* Detail panel pantalla completa */
+  #detail { max-width:100%; }
+
+  /* Stats más compactos */
+  .stat-tile { padding:8px 10px; }
+  .stat-num { font-size:20px; }
+}
+
 @media print {
   @page { size: A4 landscape; margin: 12mm 10mm; }
   body { overflow:visible !important; height:auto !important; font-size:11px; background:white; }
@@ -435,6 +528,8 @@ tr:hover .copy-btn { opacity:1; }
 
 <!-- TOPBAR -->
 <div id="topbar">
+  <button id="mob-menu-btn" onclick="toggleSidebar()" style="display:none">☰</button>
+  <div id="sidebar-overlay" onclick="closeSidebar()"></div>
   <div class="app-brand">
     <svg class="app-icon" width="38" height="38" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -469,9 +564,9 @@ tr:hover .copy-btn { opacity:1; }
   </div>
   <div class="topbar-right">
     <div class="sync-pill sp-idle" id="spill"><div class="sp-dot"></div><span id="stxt">Sin sync</span></div>
-    <button class="btn btn-ghost" onclick="forcePull()">⟳ Actualizar</button>
+    <button class="btn btn-ghost hide-tablet" onclick="forcePull()">⟳ Actualizar</button>
     <button class="btn btn-ghost" onclick="exportExcel()" title="Exportar listado actual a Excel">⬇ Excel</button>
-    <button class="btn btn-ghost" onclick="printView()" title="Imprimir listado actual">🖨 Imprimir</button>
+    <button class="btn btn-ghost hide-tablet" onclick="printView()" title="Imprimir listado actual">🖨 Imprimir</button>
     <div class="user-chip" onclick="changeUser()" title="Cambiar nombre">
       <div class="user-avatar" id="u-avatar">?</div>
       <span class="user-name" id="u-name">—</span>
@@ -587,6 +682,24 @@ const INTERVAL=30000;
 let SURL=localStorage.getItem(UK)||'https://script.google.com/macros/s/AKfycbyJj1Dqf2e0aW0_rbrLQcwG3QUuMkWOT5thSZ_LH2lVwt99ou8w41fed68raHRWRo3ncw/exec';
 let syncTimer=null, _cbIdx=0;
 
+
+// ── MOBILE SIDEBAR ────────────────────────────────────────────────────────────
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('mob-open');
+  document.getElementById('sidebar-overlay').classList.toggle('visible');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('mob-open');
+  document.getElementById('sidebar-overlay').classList.remove('visible');
+}
+function isMobile(){return window.innerWidth<=600;}
+function isTablet(){return window.innerWidth<=900;}
+function initResponsive(){
+  const btn=document.getElementById('mob-menu-btn');
+  if(btn)btn.style.display=isTablet()?'flex':'none';
+}
+window.addEventListener('resize',initResponsive);
+
 // ── USER ──────────────────────────────────────────────────────────────────────
 let currentUser=localStorage.getItem(UNKEY)||'';
 const USER_COLORS=['#DA291C','#1450A3','#166534','#7C3AED','#B45309','#0E7490','#BE185D','#4D7C0F'];
@@ -604,6 +717,7 @@ function confirmUser(){
   localStorage.setItem(UNKEY, currentUser);
   document.getElementById('user-modal-overlay').style.display='none';
   updateUserUI();
+  initResponsive();
 }
 function changeUser(){
   document.getElementById('um-input').value=currentUser;
@@ -712,7 +826,7 @@ function authorCell(name,iso){
 }
 
 // ── FILTERS ───────────────────────────────────────────────────────────────────
-function switchTab(tab){
+function switchTab(tab){if(isTablet())closeSidebar();
   S.tab=tab;S.selId=null;S.sc=null;
   document.querySelectorAll('.ttab').forEach((b,i)=>b.classList.toggle('on',(i===0&&tab==='trabajos')||(i===1&&tab==='planificadores')));
   document.getElementById('detail').style.display='none';
@@ -765,9 +879,10 @@ function renderTable(){
       else h=`<span title="${v.replace(/"/g,'&quot;')}">${v}</span>`;
       if((c.k==='texto'||c.k==='descripcion')&&S.data.notes[r.id])h+='<span class="note-mark">💬</span>';
       if(v&&(c.k==='texto'||c.k==='descripcion'||c.k==='codigo_sap'||c.k==='codigo_seguimiento'))h=`<span class="copy-wrap">${h}<button class="copy-btn" title="Copiar" onclick="event.stopPropagation();copyText('${v.replace(/'/g,"\'")}',this)">${copyIcon()}</button></span>`;
-      return`<td>${h}</td>`;
+      const mobHide=isMobile()&&(c.k==='codigo_seguimiento'||c.k==='extender_de'||c.k==='enlace'||c.k==='ok_sap'||c.k==='incluido_excel');
+      return`<td data-label="${c.l}"${mobHide?' class="hide-mobile"':''}>${h}</td>`;
     }).join('');
-    return`<tr class="${cls} row-anim" style="animation-delay:${Math.min(ri*18,300)}ms" onclick="selRow('${r.id}')">${cells}<td><button class="act-btn" onclick="openEdit('${r.id}',event)">✏️</button><button class="act-btn act-del" onclick="delRec('${r.id}',event)">🗑</button></td></tr>`;
+    return`<tr class="${cls} row-anim" style="animation-delay:${Math.min(ri*18,300)}ms" onclick="selRow('${r.id}')">${cells}<td class="mob-actions"><button class="act-btn" onclick="openEdit('${r.id}',event)">✏️</button><button class="act-btn act-del" onclick="delRec('${r.id}',event)">🗑</button></td></tr>`;
   }).join('');
   wrap.innerHTML=`<table><thead><tr>${th}</tr></thead><tbody>${tb}</tbody></table>`;
 }
@@ -945,6 +1060,7 @@ const _overlay = document.getElementById('user-modal-overlay');
 if(currentUser){
   _overlay.style.display='none';
   updateUserUI();
+  initResponsive();
 } else {
   _overlay.style.display='flex';
   setTimeout(()=>document.getElementById('um-input').focus(), 100);
