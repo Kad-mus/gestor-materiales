@@ -281,6 +281,8 @@ tr.r-sel { border-left:3px solid #F59E0B !important; }
 .act-btn:hover { background:var(--bg); }
 .act-del { color:white; background:#EF4444; border-color:#DC2626; font-size:16px; padding:5px 10px; }
 .act-del:hover { background:#DC2626; border-color:#B91C1C; transform:scale(1.08); }
+.act-edit { color:white; background:#3B82F6; border-color:#2563EB; font-size:16px; padding:5px 10px; }
+.act-edit:hover { background:#2563EB; border-color:#1D4ED8; transform:scale(1.08); }
 
 /* ── DETAIL ──────────────────────────────────────── */
 #detail { width:350px; background:var(--white); border-left:1px solid var(--line); display:flex; flex-direction:column; flex-shrink:0; overflow:hidden; box-shadow:-4px 0 24px rgba(0,0,0,.06); transition:width .25s cubic-bezier(.4,0,.2,1); }
@@ -989,7 +991,7 @@ function renderTable(){
       const mobHide=isMobile()&&(c.k==='codigo_seguimiento'||c.k==='extender_de'||c.k==='enlace'||c.k==='ok_sap'||c.k==='incluido_excel');
       return`<td data-label="${c.l}"${mobHide?' class="hide-mobile"':''}>${h}</td>`;
     }).join('');
-    return`<tr class="${cls} row-anim" style="animation-delay:${Math.min(ri*18,300)}ms" onclick="selRow('${r.id}')">${cells}<td class="mob-actions"><button class="act-btn" onclick="openEdit('${r.id}',event)">✏️</button><button class="act-btn act-del" onclick="delRec('${r.id}',event)">🗑</button></td></tr>`;
+    return`<tr class="${cls} row-anim" style="animation-delay:${Math.min(ri*18,300)}ms" onclick="selRow('${r.id}')">${cells}<td class="mob-actions"><button class="act-btn act-edit" onclick="openEdit('${r.id}',event)">✏️</button><button class="act-btn act-del" onclick="delRec('${r.id}',event)">🗑</button></td></tr>`;
   }).join('');
   wrap.innerHTML=`<table><thead><tr>${th}</tr></thead><tbody>${tb}</tbody></table>`;
 }
