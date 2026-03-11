@@ -713,7 +713,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">2.6</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">2.7</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -856,7 +856,7 @@ function changeUser(){
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let S={tab:'trabajos',data:loadLocal(),filtered:[],selId:null,editId:null,sc:null,sd:1};
-function loadLocal(){try{const r=localStorage.getItem(LK);if(r)return JSON.parse(r);}catch(e){}return{trabajos:INIT_T,planificadores:INIT_P,notes:{}};}
+function loadLocal(){try{const r=localStorage.getItem(LK);if(r)return JSON.parse(r);}catch(e){}return{trabajos:INIT_T,planificadores:INIT_P,notes:{},deleted:{}};}
 function saveLocal(){try{localStorage.setItem(LK,JSON.stringify(S.data));}catch(e){}document.getElementById('lsv').textContent='Local: '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});}
 let _seq=Date.now();
 const gid=()=>String(++_seq);
@@ -902,7 +902,14 @@ function pullCloud(){
         if(notaEl&&S.selId&&document.activeElement===notaEl){
           S.data.notes[S.selId]=notaEl.value;
         }
-        S.data={trabajos:remote.trabajos||S.data.trabajos,planificadores:remote.planificadores||S.data.planificadores,notes:Object.assign({},remote.notes||{},S.data.notes||{})};
+        const deleted=Object.assign({},remote.deleted||{},S.data.deleted||{});
+        const filterDel=arr=>(arr||[]).filter(r=>!deleted[r.id]);
+        S.data={
+          trabajos:      filterDel(remote.trabajos      ||S.data.trabajos),
+          planificadores:filterDel(remote.planificadores||S.data.planificadores),
+          notes:  Object.assign({},remote.notes||{},S.data.notes||{}),
+          deleted:deleted
+        };
         saveLocal();populateFilters();applyF();
         // Restaurar nota si el usuario sigue escribiendo
         if(S.selId){
@@ -933,26 +940,29 @@ function forcePull(){pullCloud();}
 function mergeData(local, remote){
   // Fusionar por ID: el registro más reciente (_updatedAt) gana
   // Los IDs que solo están en uno de los dos se conservan siempre
+  // Combinar tombstones de ambos lados
+  const deleted = Object.assign({}, remote.deleted||{}, local.deleted||{});
+
   function mergeTab(localArr, remoteArr){
     const map = {};
-    // Primero añadir todos los remotos
     (remoteArr||[]).forEach(r => map[r.id] = r);
-    // Luego los locales: si el local es más reciente o no existe en remoto, gana el local
     (localArr||[]).forEach(r => {
       if(!map[r.id]){
-        map[r.id] = r; // nuevo local, no existe en remoto → añadir siempre
+        map[r.id] = r;
       } else {
         const localTs  = r._updatedAt || r._createdAt || '';
         const remoteTs = map[r.id]._updatedAt || map[r.id]._createdAt || '';
-        if(localTs >= remoteTs) map[r.id] = r; // local más nuevo → gana
+        if(localTs >= remoteTs) map[r.id] = r;
       }
     });
-    return Object.values(map);
+    // Eliminar cualquier registro que esté en el tombstone
+    return Object.values(map).filter(r => !deleted[r.id]);
   }
   return {
     trabajos:      mergeTab(local.trabajos,      remote.trabajos),
     planificadores:mergeTab(local.planificadores, remote.planificadores),
-    notes: Object.assign({}, remote.notes||{}, local.notes||{})
+    notes:   Object.assign({}, remote.notes||{},   local.notes||{}),
+    deleted: deleted
   };
 }
 
@@ -1159,6 +1169,8 @@ function saveRec(){
 function delRec(id,e){
   if(e)e.stopPropagation();if(!confirm('¿Eliminar este registro?'))return;
   S.data[S.tab]=S.data[S.tab].filter(r=>r.id!==id);delete S.data.notes[id];
+  if(!S.data.deleted)S.data.deleted={};
+  S.data.deleted[id]=new Date().toISOString();
   saveAndSync();if(S.selId===id)closeDetail();populateFilters();applyF();
 }
 
