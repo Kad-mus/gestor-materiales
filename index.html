@@ -1036,7 +1036,7 @@ function applyF(resetPage=true){
     if(af&&r._createdBy!==af)return false;
     return true;
   });
-  if(S.sc){list=[...list].sort((a,b)=>((a[S.sc]||'').localeCompare(b[S.sc]||''))*S.sd);}
+  if(S.sc){list=[...list].sort((a,b)=>{const av=a[S.sc]||'',bv=b[S.sc]||'';if(!av&&!bv)return 0;if(!av)return 1*S.sd;if(!bv)return -1*S.sd;return(av<bv?-1:av>bv?1:0)*S.sd;});}
   S.filtered=list;renderTable();updateStats();
 }
 
@@ -1065,9 +1065,9 @@ function renderTable(){
       else if(c.stock&&r[c.k]){const parts=r[c.k].split('|');h='<span style="display:inline-flex;flex-direction:column;gap:2px;align-items:flex-start">'+parts.map(p=>`<span style="display:inline-block;background:#EEF2FF;color:#3730A3;border:1px solid #C7D2FE;border-radius:5px;padding:1px 7px;font-size:11px;font-family:var(--mono);white-space:nowrap">${p}</span>`).join('')+'</span>';}
       else if(c.check)h=r[c.k]==='si'?'<span class="check-yes">\u2705</span>':'<span style="color:#D1D5DB;font-size:16px">\u2610</span>';
       else if(c.author)h=authorCell(r._createdBy,r._createdAt);
-      else if(c.badge)h=badge(v);
-      else if(c.date){const dp=v?v.split('-'):[];h=`<span class="date-cell">${dp.length===3?dp[2]+'/'+dp[1]+'/'+dp[0]:v}</span>`;}
-      else if(c.mono)h=`<span class="mono-cell">${v}</span>`;
+      else if(c.badge)h=`<span title="${v}">`+badge(v)+'</span>';
+      else if(c.date){const dp=v?v.split('-'):[];const df=dp.length===3?dp[2]+'/'+dp[1]+'/'+dp[0]:v;h=`<span class="date-cell" title="${df}">${df}</span>`;}
+      else if(c.mono)h=`<span class="mono-cell" title="${v}">${v}</span>`;
       else h=`<span title="${v.replace(/"/g,'&quot;')}">${v}</span>`;
       if((c.k==='texto'||c.k==='descripcion')&&S.data.notes[r.id])h+='<span class="note-mark">💬</span>';
       if(v&&(c.k==='texto'||c.k==='descripcion'||c.k==='codigo_sap'||c.k==='codigo_seguimiento'))h=`<span class="copy-wrap">${h}<button class="copy-btn" title="Copiar" onclick="event.stopPropagation();copyText('${v.replace(/'/g,"\\'")}',this)">${copyIcon()}</button></span>`;
