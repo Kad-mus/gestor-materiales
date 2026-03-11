@@ -374,7 +374,7 @@ tr:hover .copy-btn { opacity:1; }
 /* ── TABLET ──────────────────────────────────────────────────── */
 @media (max-width: 900px) {
   /* Sidebar se oculta por defecto, se abre con botón */
-  #sidebar { position:fixed; left:-260px; top:0; bottom:0; z-index:300; width:260px; transition:left .3s cubic-bezier(.4,0,.2,1); box-shadow:4px 0 24px rgba(0,0,0,.15); overflow-y:auto; }
+  #sidebar { position:fixed; left:-110%; top:0; bottom:0; z-index:300; width:82vw; max-width:300px; transition:left .3s cubic-bezier(.4,0,.2,1); box-shadow:4px 0 24px rgba(0,0,0,.18); overflow-y:auto; border-right:none; }
   #sidebar.mob-open { left:0; }
   #sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:299; }
   #sidebar-overlay.visible { display:block; animation:overlayIn .2s ease; }
