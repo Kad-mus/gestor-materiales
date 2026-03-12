@@ -699,7 +699,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">3.3</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">3.4</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -843,7 +843,7 @@ function changeUser(){
 }
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
-let S={tab:'trabajos',data:loadLocal(),filtered:[],selId:null,editId:null,sc:'_createdAt',sd:-1,page:0,pageSize:16};
+let S={tab:'trabajos',data:loadLocal(),filtered:[],selId:null,editId:null,sc:'solicitado',sd:-1,page:0,pageSize:16};
 function loadLocal(){try{const r=localStorage.getItem(LK);if(r)return JSON.parse(r);}catch(e){}return{trabajos:INIT_T,planificadores:INIT_P,notes:{},deleted:{}};}
 function saveLocal(){try{localStorage.setItem(LK,JSON.stringify(S.data));}catch(e){}document.getElementById('lsv').textContent='Local: '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});}
 let _seq=Date.now();
@@ -1008,7 +1008,7 @@ function authorCell(name,iso){
 
 // ── FILTERS ───────────────────────────────────────────────────────────────────
 function switchTab(tab){if(isTablet())closeSidebar();
-  S.tab=tab;S.selId=null;S.sc='_createdAt';S.sd=-1;
+  S.tab=tab;S.selId=null;S.sc=(tab==='planificadores'?'fecha':'solicitado');S.sd=-1;
   document.querySelectorAll('.ttab').forEach(b=>b.classList.toggle('on',b.getAttribute('onclick').includes(tab)));
   document.getElementById('detail').style.display='none';
   populateFilters();applyF();
@@ -1040,7 +1040,7 @@ function applyF(resetPage=true){
     if(af&&r._createdBy!==af)return false;
     return true;
   });
-  if(S.sc){list=[...list].sort((a,b)=>{const fallback=r=>r[S.sc]||r._createdAt||r.solicitado||r.fecha||'';const av=fallback(a),bv=fallback(b);if(!av&&!bv)return 0;if(!av)return 1;if(!bv)return -1;return(av<bv?-1:av>bv?1:0)*S.sd;});}
+  if(S.sc){list=[...list].sort((a,b)=>{const av=a[S.sc]||'',bv=b[S.sc]||'';if(!av&&!bv)return 0;if(!av)return 1;if(!bv)return -1;return(av<bv?-1:av>bv?1:0)*S.sd;});}
   // Solo redibujar si los datos han cambiado realmente
   const sig=dataSignature(list);
   if(sig===S._lastSig && !resetPage){updateStats();return;}
