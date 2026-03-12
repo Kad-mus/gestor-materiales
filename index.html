@@ -643,6 +643,7 @@ tr:hover .copy-btn { opacity:1; }
     <button class="btn btn-ghost" onclick="exportExcel()" title="Exportar listado actual a Excel">⬇ Excel</button>
     <button class="btn btn-ghost hide-tablet" onclick="printView()" title="Imprimir listado actual">🖨 Imprimir</button>
     <button class="btn btn-ghost hide-tablet" onclick="backupLocal()" title="Copia de seguridad local">💾 Backup</button>
+    <button class="btn btn-ghost hide-tablet" onclick="restoreBackup()" title="Restaurar copia de seguridad">📂 Restaurar</button>
     <div class="user-chip" onclick="changeUser()" title="Cambiar nombre">
       <div class="user-avatar" id="u-avatar">?</div>
       <span class="user-name" id="u-name">—</span>
@@ -699,7 +700,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">3.6</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">3.7</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -1286,6 +1287,37 @@ function backupLocal(){
   a.href=url;a.download=`backup_AltaMateriales_${date}.json`;
   document.body.appendChild(a);a.click();
   document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+
+function restoreBackup(){
+  if(!confirm('⚠ Restaurar un backup reemplazará TODOS los datos actuales de la app y los sincronizará al servidor.\n\n¿Estás seguro?'))return;
+  const input=document.createElement('input');
+  input.type='file';input.accept='.json,application/json';
+  input.onchange=function(e){
+    const file=e.target.files[0];
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=function(ev){
+      try{
+        const restored=JSON.parse(ev.target.result);
+        // Validar que el backup tiene la estructura correcta
+        if(!restored.trabajos||!restored.planificadores){
+          alert('❌ El archivo no parece un backup válido de la aplicación.');return;
+        }
+        S.data=restored;
+        saveLocal();
+        populateFilters();applyF();
+        if(S.selId)closeDetail();
+        // Sincronizar con el servidor
+        saveAndSync();
+        alert('✅ Backup restaurado correctamente.\n\nSe han cargado:\n• '+restored.trabajos.length+' registros en Trabajos\n• '+restored.planificadores.length+' registros en Planificadores');
+      }catch(err){
+        alert('❌ Error al leer el archivo: '+err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  document.body.appendChild(input);input.click();document.body.removeChild(input);
 }
 
 // ── ABOUT ─────────────────────────────────────────────────────────────────────
