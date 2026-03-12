@@ -700,7 +700,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">3.7</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">3.8</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -1041,7 +1041,7 @@ function applyF(resetPage=true){
     if(af&&r._createdBy!==af)return false;
     return true;
   });
-  if(S.sc){list=[...list].sort((a,b)=>{const av=a[S.sc]||'',bv=b[S.sc]||'';if(!av&&!bv)return 0;if(!av)return 1;if(!bv)return -1;return(av<bv?-1:av>bv?1:0)*S.sd;});}
+  if(S.sc){list=[...list].sort((a,b)=>{const av=a[S.sc]||'',bv=b[S.sc]||'';if(!av&&!bv)return 0;if(!av)return 1;if(!bv)return -1;const primary=(av<bv?-1:av>bv?1:0)*S.sd;if(primary!==0)return primary;const at=a._createdAt||'',bt=b._createdAt||'';return at<bt?1:at>bt?-1:0;});}
   // Solo redibujar si los datos han cambiado realmente
   const sig=dataSignature(list);
   if(sig===S._lastSig && !resetPage){updateStats();return;}
