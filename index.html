@@ -558,6 +558,11 @@ tr:hover .copy-btn { opacity:1; }
   .author-dt { display:none; }
 }
 .print-header { display:none; }
+
+.link-btn { display:inline-flex; align-items:center; gap:8px; padding:9px 16px; background:linear-gradient(135deg,#1D4ED8,#2563EB); color:white; border-radius:8px; font-size:13px; font-weight:600; font-family:var(--sans); text-decoration:none; border:none; cursor:pointer; transition:all .15s; margin-top:4px; }
+.link-btn:hover { background:linear-gradient(135deg,#1E40AF,#1D4ED8); transform:translateY(-1px); box-shadow:0 4px 12px rgba(29,78,216,.35); }
+.link-btn svg { flex-shrink:0; }
+.link-input-hint { font-size:11px; color:var(--muted); margin-top:4px; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -700,7 +705,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">3.8</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">3.9</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -1143,7 +1148,11 @@ function renderDetail(){
   const note=S.data.notes[r.id]||'';
   const ac=S.tab==='planificadores'?`<div class="df-group"><div class="df-label">Anulación Código</div><div class="df-val">${r.anulacion_codigo==='si'?'<span style="color:#DC2626;font-weight:700">✕ Sí, anulado</span>':'No'}</div></div>`:'';  const ie=`<div class="df-group"><div class="df-label">Incluido en Excel</div><div class="df-val">${r.incluido_excel==='si'?'✅ Sí':'☐ No'}</div></div>`;
   const ab=r._createdBy?`<div class="df-group"><div class="df-label">Codificado por</div><div class="author-box"><div class="author-dot" style="background:${userColor(r._createdBy)}">${userInitials(r._createdBy)}</div><div class="author-info"><span class="author-nm">${r._createdBy}</span>${r._createdAt?`<span class="author-dt">${fmtDate(r._createdAt)}</span>`:''}</div></div></div>`:'';
-  document.getElementById('detail-body').innerHTML=`${fields}${ac}${ie}${ab}<div class="d-divider"></div><div class="df-group"><div class="df-label">Anotaciones</div><textarea class="note-textarea" id="nota">${note}</textarea><button class="save-note-btn" id="snb" onclick="saveNote('${r.id}')">Guardar anotación</button></div><div class="d-divider"></div><div class="d-actions"><button class="d-edit" onclick="openEdit('${r.id}')">✏️ Editar</button><button class="d-del" onclick="delRec('${r.id}')">🗑 Eliminar</button></div>`;
+  const enlace=r.enlace||'';
+  const enlaceHtml=enlace
+    ?`<div class="df-group"><div class="df-label">Enlace adjunto</div><a class="link-btn" href="${enlace}" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Abrir enlace</a></div>`
+    :'';
+  document.getElementById('detail-body').innerHTML=`${fields}${ac}${ie}${ab}${enlaceHtml}<div class="d-divider"></div><div class="df-group"><div class="df-label">Anotaciones</div><textarea class="note-textarea" id="nota">${note}</textarea><button class="save-note-btn" id="snb" onclick="saveNote('${r.id}')">Guardar anotación</button></div><div class="d-divider"></div><div class="d-actions"><button class="d-edit" onclick="openEdit('${r.id}')">✏️ Editar</button><button class="d-del" onclick="delRec('${r.id}')">🗑 Eliminar</button></div>`;
 }
 function saveNote(id){
   S.data.notes[id]=document.getElementById('nota').value;
@@ -1174,7 +1183,7 @@ function buildForm(rec){
     if(c.badge||c.k==='ok_sap')
       return`<div class="form-field${span}"><label>${c.l}</label><select id="f_${c.k}"><option value="">— Sin estado —</option>${['Pendiente','OK','Anulado'].map(o=>`<option value="${o}"${v===o?' selected':''}>${o}</option>`).join('')}</select></div>`;
     return`<div class="form-field${span}"><label>${c.l}</label><input id="f_${c.k}" type="${c.date?'date':'text'}" value="${(v+'').replace(/"/g,'&quot;')}"></div>`;
-  }).join('');
+  }).join('')+`<div class="form-field span2"><label>Enlace adjunto <span style="font-weight:400;color:var(--muted)">(OneDrive, Google Drive…)</span></label><input id="f_enlace" type="url" placeholder="https://…" value="${((rec&&rec.enlace)||'').replace(/"/g,'&quot;')}" style="font-family:var(--mono);font-size:13px"></div>`;
 }
 function openNew(){S.editId=null;document.getElementById('modal-title').textContent='Nuevo — '+S.tab;
   const acCheck=S.tab==='planificadores'?'<div style="margin-top:12px;padding:12px 14px;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:9px;display:flex;align-items:center;gap:10px"><input type="checkbox" id="f_anulacion_codigo" style="width:20px;height:20px;cursor:pointer;accent-color:#DC2626"><label for="f_anulacion_codigo" style="font-size:15px;font-weight:600;color:#DC2626;cursor:pointer">⚠️ Anulación Código</label></div>':'';
@@ -1196,6 +1205,7 @@ function saveRec(){
   });
   const cbEl=document.getElementById('f_incluido_excel');obj.incluido_excel=cbEl&&cbEl.checked?'si':'no';
   const acEl=document.getElementById('f_anulacion_codigo');obj.anulacion_codigo=acEl&&acEl.checked?'si':'no';
+  const enEl=document.getElementById('f_enlace');obj.enlace=(enEl?enEl.value:'').trim();
   const now=new Date().toISOString();
   if(S.editId){S.data[S.tab]=S.data[S.tab].map(r=>r.id===S.editId?{...r,...obj,_updatedAt:now}:r);}
   else{obj.id=gid();obj._createdBy=currentUser||'Desconocido';obj._createdAt=now;obj._updatedAt=now;S.data[S.tab]=[obj,...S.data[S.tab]];}
