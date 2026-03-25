@@ -2,7 +2,15 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#FF6900">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <script>
+    if('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(()=>{});
+    }
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Control Alta Materiales · Repsol</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImcxIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6I0RBMjkxQyIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNGRjY5MDAiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImcyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6I0ZGNjkwMCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNEQTI5MUMiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDwhLS0gQmFja2dyb3VuZCAtLT4KICA8cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxMCIgZmlsbD0idXJsKCNnMSkiLz4KICA8IS0tIEdlb21ldHJpYyBhY2NlbnQgdG9wLXJpZ2h0IC0tPgogIDxwb2x5Z29uIHBvaW50cz0iNjQsMCA2NCwyMiA0MiwwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIi8+CiAgPCEtLSBHZW9tZXRyaWMgYWNjZW50IGJvdHRvbS1sZWZ0IC0tPgogIDxwb2x5Z29uIHBvaW50cz0iMCw2NCAyMiw2NCAwLDQyIiBmaWxsPSJyZ2JhKDAsMCwwLDAuMTUpIi8+CiAgPCEtLSAiQSIgbGV0dGVyZm9ybSAtLT4KICA8cGF0aCBkPSJNMTQgNDYgTDI0IDE4IEwzMiAxOCBMNDIgNDYgTDM2IDQ2IEwzNCA0MCBMMjIgNDAgTDIwIDQ2IFogTTI0IDM1IEwzNCAzNSBMMjkgMjAgWiIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuOTUiLz4KICA8IS0tICJNIiBsZXR0ZXJmb3JtIOKAlCBzbWFsbCwgYm90dG9tIHJpZ2h0IGFyZWEgYXMgYWNjZW50IC0tPgogIDxyZWN0IHg9IjEwIiB5PSI1MCIgd2lkdGg9IjQ0IiBoZWlnaHQ9IjIiIHJ4PSIxIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuNCkiLz4KPC9zdmc+">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
