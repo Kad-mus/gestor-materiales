@@ -694,7 +694,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">4.4</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">4.5</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -1134,12 +1134,22 @@ function renderDetail(){
   const fields=cols.map(c=>{let dv=r[c.k]||'—';if(c.date&&r[c.k]){const dp=r[c.k].split('-');dv=dp.length===3?dp[2]+'/'+dp[1]+'/'+dp[0]:r[c.k];}return`<div class="df-group"><div class="df-label">${c.l}</div><div class="df-val${c.mono?' mono':''}">${c.badge?badge(r[c.k]):dv}</div></div>`;}).join('');
   const note=S.data.notes[r.id]||'';
   const ac=S.tab==='planificadores'?`<div class="df-group"><div class="df-label">Anulación Código</div><div class="df-val">${r.anulacion_codigo==='si'?'<span style="color:#DC2626;font-weight:700">✕ Sí, anulado</span>':'No'}</div></div>`:'';  const ie='';
-  const ab=r._createdBy?`<div class="df-group"><div class="df-label">Codificado por</div><div class="author-box"><div class="author-dot" style="background:${userColor(r._createdBy)}">${userInitials(r._createdBy)}</div><div class="author-info"><span class="author-nm">${r._createdBy}</span>${r._createdAt?`<span class="author-dt">${fmtDate(r._createdAt)}</span>`:''}</div></div></div>`:'';
+  const isRuben=(currentUser||'').toLowerCase().includes('rub');
+  const editAuthorBtn=isRuben?`<button onclick="editAuthor('${r.id}')" title="Corregir nombre" style="margin-left:auto;background:none;border:1px solid var(--line);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--muted);cursor:pointer;transition:all .15s;font-family:var(--sans)" onmouseover="this.style.borderColor='#F59E0B';this.style.color='#D97706'" onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--muted)'">✏ Corregir</button>`:'';
+  const ab=r._createdBy?`<div class="df-group"><div class="df-label">Codificado por</div><div class="author-box" style="display:flex;align-items:center"><div class="author-dot" style="background:${userColor(r._createdBy)}">${userInitials(r._createdBy)}</div><div class="author-info"><span class="author-nm">${r._createdBy}</span>${r._createdAt?`<span class="author-dt">${fmtDate(r._createdAt)}</span>`:''}</div>${editAuthorBtn}</div></div>`:'';
   const enlace=r.enlace||'';
   const enlaceHtml=enlace
     ?`<div class="df-group"><div class="df-label">Enlace adjunto</div><a class="link-btn" href="${enlace}" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Abrir enlace</a></div>`
     :'';
   document.getElementById('detail-body').innerHTML=`${fields}${ac}${ie}${ab}${enlaceHtml}<div class="d-divider"></div><div class="df-group"><div class="df-label">Anotaciones</div><textarea class="note-textarea" id="nota">${note}</textarea><button class="save-note-btn" id="snb" onclick="saveNote('${r.id}')">Guardar anotación</button></div><div class="d-divider"></div><div class="d-actions"><button class="d-edit" onclick="openEdit('${r.id}')">✏️ Editar</button><button class="d-del" onclick="delRec('${r.id}')">🗑 Eliminar</button></div>`;
+}
+function editAuthor(id){
+  const r=gr().find(x=>x.id===id);if(!r)return;
+  const current=r._createdBy||'';
+  const nuevo=prompt('Corregir nombre del codificador:',current);
+  if(nuevo===null||nuevo.trim()===''||nuevo.trim()===current)return;
+  S.data[S.tab]=S.data[S.tab].map(x=>x.id===id?{...x,_createdBy:nuevo.trim(),_updatedAt:new Date().toISOString()}:x);
+  saveAndSync();renderDetail();renderTable();
 }
 function saveNote(id){
   S.data.notes[id]=document.getElementById('nota').value;
