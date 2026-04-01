@@ -572,6 +572,14 @@ tr:hover .copy-btn { opacity:1; }
 .link-btn:hover { background:linear-gradient(135deg,#1E40AF,#1D4ED8); transform:translateY(-1px); box-shadow:0 4px 12px rgba(29,78,216,.35); }
 .link-btn svg { flex-shrink:0; }
 .link-input-hint { font-size:11px; color:var(--muted); margin-top:4px; }
+
+.editext-cell { display:inline-flex; flex-direction:column; gap:0; border:1.5px solid var(--line); border-radius:7px; overflow:hidden; max-width:100%; }
+.editext-actual { font-size:14px; color:var(--muted); text-decoration:line-through; padding:5px 10px 4px; background:#F8F9FA; border-bottom:1px dashed var(--line); }
+.editext-nuevo { font-size:14px; color:var(--navy); font-weight:600; padding:5px 10px 5px; background:#FFF7ED; }
+.editext-arrow { display:none; }
+
+.anumark-si { display:inline-flex;align-items:center;gap:5px;background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:700; }
+.anumark-no { color:#D1D5DB;font-size:15px; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -650,6 +658,8 @@ tr:hover .copy-btn { opacity:1; }
 <div id="tabs-bar">
   <button class="ttab on" onclick="switchTab('trabajos')">Trabajos</button>
   <button class="ttab" onclick="switchTab('planificadores')">Planificadores</button>
+  <button class="ttab" onclick="switchTab('ediciones')">Ediciones</button>
+  <button class="ttab" onclick="switchTab('anulaciones')">Anulaciones</button>
 </div>
 
 <!-- SETUP BANNER -->
@@ -694,7 +704,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">4.5</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">4.7</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -839,7 +849,7 @@ function changeUser(){
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let S={tab:'trabajos',data:loadLocal(),filtered:[],selId:null,editId:null,sc:'solicitado',sd:-1,page:0,pageSize:16};
-function loadLocal(){try{const r=localStorage.getItem(LK);if(r)return JSON.parse(r);}catch(e){}return{trabajos:INIT_T,planificadores:INIT_P,notes:{},deleted:{}};}
+function loadLocal(){try{const r=localStorage.getItem(LK);if(r)return JSON.parse(r);}catch(e){}return{trabajos:INIT_T,planificadores:INIT_P,ediciones:[],anulaciones:[],notes:{},deleted:{}};}
 function saveLocal(){try{localStorage.setItem(LK,JSON.stringify(S.data));}catch(e){}document.getElementById('lsv').textContent='Local: '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});}
 let _seq=Date.now();
 const gid=()=>String(++_seq);
@@ -907,6 +917,8 @@ function mergeData(local, remote){
   return {
     trabajos:      mergeTab(local.trabajos,      remote.trabajos),
     planificadores:mergeTab(local.planificadores, remote.planificadores),
+    ediciones:     mergeTab(local.ediciones,     remote.ediciones),
+    anulaciones:   mergeTab(local.anulaciones,   remote.anulaciones),
     notes:         mergeNotes(remote.notes||{},   local.notes||{}),
     deleted:       deleted
   };
@@ -917,7 +929,7 @@ function pullCloud(){
   fetchGet(SURL+'?action=read')
     .then(remote=>{
       if(!remote||remote.error){setSY('error','Error al sync');return;}
-      if(remote.trabajos||remote.planificadores){
+      if(remote.trabajos||remote.planificadores||remote.ediciones||remote.anulaciones){
         // Preservar nota en edición antes de sync
         const notaEl=document.getElementById('nota');
         if(notaEl&&S.selId&&document.activeElement===notaEl){
@@ -950,7 +962,7 @@ function saveAndSync(){
   setSY('syncing','Guardando…');
   fetchGet(SURL+'?action=read')
     .then(remote=>{
-      if(remote&&(remote.trabajos||remote.planificadores)){
+      if(remote&&(remote.trabajos||remote.planificadores||remote.ediciones||remote.anulaciones)){
         S.data=mergeData(S.data,remote);
         saveLocal();
       }
@@ -971,6 +983,24 @@ const COLS={
     {k:'solicitado',l:'Fecha',w:105,date:1},
     {k:'codigo_sap',l:'Cód. SAP',w:95,mono:1},
     {k:'extender_de',l:'Extender',w:72,mono:1},
+    {k:'ok',l:'Estado',w:72,badge:1},
+    {k:'_createdBy',l:'Codificado por',w:155,author:1},
+  ],
+  anulaciones:[
+    {k:'texto',l:'Descripción de código a anular',w:340},
+    {k:'codigo_sap',l:'Cód. SAP',w:95,mono:1},
+    {k:'solicitante',l:'Solicitante',w:120},
+    {k:'codigo_seguimiento',l:'Código Seguimiento',w:160,mono:1},
+    {k:'solicitado',l:'Fecha',w:105,date:1},
+    {k:'ok',l:'Estado',w:72,badge:1},
+    {k:'_createdBy',l:'Codificado por',w:155,author:1},
+  ],
+  ediciones:[
+    {k:'texto_actual',l:'Descripción',w:420,editext:1},
+    {k:'solicitante',l:'Solicitante',w:120},
+    {k:'codigo_seguimiento',l:'Código Seguimiento',w:160,mono:1},
+    {k:'solicitado',l:'Fecha',w:105,date:1},
+    {k:'codigo_sap',l:'Cód. SAP',w:95,mono:1},
     {k:'ok',l:'Estado',w:72,badge:1},
     {k:'_createdBy',l:'Codificado por',w:155,author:1},
   ],
@@ -1046,7 +1076,7 @@ function renderTable(){
   const cols=gc(),wrap=document.getElementById('table-wrap');
   document.getElementById('rc').textContent=`${S.filtered.length} registro${S.filtered.length!==1?'s':''}`;
   if(!S.filtered.length){
-    wrap.innerHTML='<div class="empty-state"><div class="ei">\U0001f50d</div><p>No se encontraron registros</p></div>';
+    wrap.innerHTML='<div class="empty-state"><div class="ei">🔍</div><p>No se encontraron registros</p></div>';
     renderPagination(); return;
   }
   const vw=window.innerWidth;
@@ -1058,10 +1088,25 @@ function renderTable(){
   const start=S.page*S.pageSize;
   const pageRows=S.filtered.slice(start,start+S.pageSize);
   const tb=pageRows.map((r,ri)=>{
-    const cls=r.id===S.selId?'r-sel':(r.anulacion_codigo==='si')?'r-an':isAN(r.ok)?'r-an':isPE(r.ok)?'r-pend':'r-ok';
+    const cls=r.id===S.selId?'r-sel':(r.anulacion_codigo==='si')?'r-an':isAN(r.ok)?'r-an':(S.tab==='anulaciones')?'r-an':isPE(r.ok)?'r-pend':'r-ok';
     const cells=cols.map(c=>{
       const v=r[c.k]||'';
       let h;
+      if(c.editext){
+        const actual=r['texto_actual']||'';
+        const nuevo=r['texto_nuevo']||'';
+        if(c.k==='texto_actual'){
+          h=actual
+            ?`<div class="editext-cell"><span class="editext-actual" title="${actual}">${actual}</span><span class="editext-nuevo" title="${nuevo||'Sin texto nuevo'}">${nuevo||'—'}</span></div>`
+            :'<span style="color:#CBD5E1">—</span>';
+        } else {
+          h='';
+        }
+      } else
+      if(c.anumark)h=r[c.k]==='si'
+        ?'<span class="anumark-si">✕ Marcar anulación</span>'
+        :'<span class="anumark-no">—</span>';
+      else
       if(c.anulcod)h=r[c.k]==='si'?'<span style="display:inline-flex;align-items:center;gap:4px;background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700">\u2715 Anulado</span>':'<span style="color:#D1D5DB;font-size:15px">\u2014</span>';
       else if(c.stock&&r[c.k]){const parts=r[c.k].split('|');h='<span style="display:inline-flex;flex-direction:column;gap:2px;align-items:flex-start">'+parts.map(p=>`<span style="display:inline-block;background:#EEF2FF;color:#3730A3;border:1px solid #C7D2FE;border-radius:5px;padding:1px 7px;font-size:11px;font-family:var(--mono);white-space:nowrap">${p}</span>`).join('')+'</span>';}
       else if(c.check)h=r[c.k]==='si'?'<span class="check-yes">\u2705</span>':'<span style="color:#D1D5DB;font-size:16px">\u2610</span>';
@@ -1071,7 +1116,7 @@ function renderTable(){
       else if(c.mono)h=`<span class="mono-cell" title="${v}">${v}</span>`;
       else h=`<span title="${v.replace(/"/g,'&quot;')}">${v}</span>`;
       if((c.k==='texto'||c.k==='descripcion')&&S.data.notes[r.id])h+='<span class="note-mark">💬</span>';
-      if(v&&(c.k==='texto'||c.k==='descripcion'||c.k==='codigo_sap'||c.k==='codigo_seguimiento')){const safeV=v.replace(/&/g,'&amp;').replace(/"/g,'&quot;');h=`<span class="copy-wrap">${h}<button class="copy-btn" title="Copiar" data-copy="${safeV}" onclick="event.stopPropagation();copyText(this.dataset.copy,this)">${copyIcon()}</button></span>`;}
+      if(v&&(c.k==='texto'||c.k==='descripcion'||c.k==='codigo_sap'||c.k==='codigo_seguimiento')){const safeV=v.replace(/&/g,'&amp;').replace(/"/g,'&quot;');h=`<span class="copy-wrap">${S.tab==='anulaciones'&&c.k==='texto'?'<span style="color:#DC2626;font-size:24px;margin-right:8px;flex-shrink:0;line-height:1" title="Pendiente de anulación">⚠️</span>':''}${h}<button class="copy-btn" title="Copiar" data-copy="${safeV}" onclick="event.stopPropagation();copyText(this.dataset.copy,this)">${copyIcon()}</button></span>`;}
       const mobHide=isMobile()&&(c.k==='codigo_seguimiento'||c.k==='extender_de'||c.k==='enlace'||c.k==='ok_sap'||c.k==='incluido_excel');
       return`<td data-label="${c.l}"${mobHide?' class="hide-mobile"':''}>${h}</td>`;
     }).join('');
@@ -1131,9 +1176,19 @@ function renderDetail(){
   const r=gr().find(x=>x.id===S.selId);if(!r)return;
   const detEl=document.getElementById('detail');detEl.style.display='flex';detEl.classList.add('open');
   const cols=gc().filter(c=>c.k!=='_createdBy'&&c.k!=='incluido_excel');
-  const fields=cols.map(c=>{let dv=r[c.k]||'—';if(c.date&&r[c.k]){const dp=r[c.k].split('-');dv=dp.length===3?dp[2]+'/'+dp[1]+'/'+dp[0]:r[c.k];}return`<div class="df-group"><div class="df-label">${c.l}</div><div class="df-val${c.mono?' mono':''}">${c.badge?badge(r[c.k]):dv}</div></div>`;}).join('');
+  const fields=cols.filter(c=>c.k!=='texto_nuevo').map(c=>{
+    let dv=r[c.k]||'—';
+    if(c.date&&r[c.k]){const dp=r[c.k].split('-');dv=dp.length===3?dp[2]+'/'+dp[1]+'/'+dp[0]:r[c.k];}
+    if(c.editext&&c.k==='texto_actual'){
+      return`<div class="df-group"><div class="df-label">Texto actual</div><div class="df-val">${r.texto_actual||'—'}</div></div><div class="df-group"><div class="df-label">Texto nuevo</div><div class="df-val" style="color:var(--navy);font-weight:600">${r.texto_nuevo||'—'}</div></div>`;
+    }
+    return`<div class="df-group"><div class="df-label">${c.l}</div><div class="df-val${c.mono?' mono':''}${c.editext?' editext-val':''}">${c.badge?badge(r[c.k]):dv}</div></div>`;
+  }).join('');
   const note=S.data.notes[r.id]||'';
-  const ac=S.tab==='planificadores'?`<div class="df-group"><div class="df-label">Anulación Código</div><div class="df-val">${r.anulacion_codigo==='si'?'<span style="color:#DC2626;font-weight:700">✕ Sí, anulado</span>':'No'}</div></div>`:'';  const ie='';
+  const ac=S.tab==='planificadores'
+    ?`<div class="df-group"><div class="df-label">Anulación Código</div><div class="df-val">${r.anulacion_codigo==='si'?'<span style="color:#DC2626;font-weight:700">✕ Sí, anulado</span>':'No'}</div></div>`
+:'';
+  const ie='';
   const isRuben=(currentUser||'').toLowerCase().includes('rub');
   const editAuthorBtn=isRuben?`<button onclick="editAuthor('${r.id}')" title="Corregir nombre" style="margin-left:auto;background:none;border:1px solid var(--line);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--muted);cursor:pointer;transition:all .15s;font-family:var(--sans)" onmouseover="this.style.borderColor='#F59E0B';this.style.color='#D97706'" onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--muted)'">✏ Corregir</button>`:'';
   const ab=r._createdBy?`<div class="df-group"><div class="df-label">Codificado por</div><div class="author-box" style="display:flex;align-items:center"><div class="author-dot" style="background:${userColor(r._createdBy)}">${userInitials(r._createdBy)}</div><div class="author-info"><span class="author-nm">${r._createdBy}</span>${r._createdAt?`<span class="author-dt">${fmtDate(r._createdAt)}</span>`:''}</div>${editAuthorBtn}</div></div>`:'';
@@ -1161,7 +1216,8 @@ function saveNote(id){
 
 // ── MODAL ─────────────────────────────────────────────────────────────────────
 function buildForm(rec){
-  return gc().filter(c=>c.k!=='_createdBy'&&c.k!=='incluido_excel'&&c.k!=='anulacion_codigo').map(c=>{
+  // Para ediciones, texto_nuevo se muestra como campo separado
+  return gc().filter(c=>c.k!=='_createdBy'&&c.k!=='incluido_excel'&&c.k!=='anulacion_codigo'&&c.k!=='texto_nuevo').map(c=>{
     const v=rec?(rec[c.k]||''):'';
 
     const span=(c.k==='texto'||c.k==='descripcion')?' span2':'';
@@ -1179,14 +1235,22 @@ function buildForm(rec){
     }
     if(c.badge||c.k==='ok_sap')
       return`<div class="form-field${span}"><label>${c.l}</label><select id="f_${c.k}"><option value="">— Sin estado —</option>${['Pendiente','OK','Anulado'].map(o=>`<option value="${o}"${v===o?' selected':''}>${o}</option>`).join('')}</select></div>`;
+    if(c.editext&&c.k==='texto_actual'){
+      const vNuevo=rec?(rec['texto_nuevo']||''):'';
+      return`<div class="form-field span2"><label>Texto actual (en SAP)</label><input id="f_texto_actual" type="text" value="${(v+'').replace(/"/g,'&quot;')}" placeholder="Descripción actual del material en SAP"></div><div class="form-field span2"><label>Texto nuevo (propuesto)</label><input id="f_texto_nuevo" type="text" value="${(vNuevo+'').replace(/"/g,'&quot;')}" placeholder="Nueva descripción propuesta"></div>`;
+    }
     return`<div class="form-field${span}"><label>${c.l}</label><input id="f_${c.k}" type="${c.date?'date':'text'}" value="${(v+'').replace(/"/g,'&quot;')}"></div>`;
   }).join('')+`<div class="form-field span2"><label>Enlace adjunto <span style="font-weight:400;color:var(--muted)">(OneDrive, Google Drive…)</span></label><input id="f_enlace" type="url" placeholder="https://…" value="${((rec&&rec.enlace)||'').replace(/"/g,'&quot;')}" style="font-family:var(--mono);font-size:13px"></div>`;
 }
 function openNew(){S.editId=null;document.getElementById('modal-title').textContent='Nuevo — '+S.tab;
-  const acCheck=S.tab==='planificadores'?'<div style="margin-top:12px;padding:12px 14px;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:9px;display:flex;align-items:center;gap:10px"><input type="checkbox" id="f_anulacion_codigo" style="width:20px;height:20px;cursor:pointer;accent-color:#DC2626"><label for="f_anulacion_codigo" style="font-size:15px;font-weight:600;color:#DC2626;cursor:pointer">⚠️ Anulación Código</label></div>':'';
+  const acCheck=S.tab==='planificadores'
+    ?'<div style="margin-top:12px;padding:12px 14px;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:9px;display:flex;align-items:center;gap:10px"><input type="checkbox" id="f_anulacion_codigo" style="width:20px;height:20px;cursor:pointer;accent-color:#DC2626"><label for="f_anulacion_codigo" style="font-size:15px;font-weight:600;color:#DC2626;cursor:pointer">⚠️ Anulación Código</label></div>'
+    :'';
   document.getElementById('modal-body').innerHTML='<div class="form-grid">'+buildForm(null)+'</div>'+acCheck;document.getElementById('modal-overlay').classList.add('open');}
 function openEdit(id,e){if(e)e.stopPropagation();S.editId=id;const rec=gr().find(r=>r.id===id);document.getElementById('modal-title').textContent='Editar registro';const _ie=rec&&rec.incluido_excel==='si';const _ac=rec&&rec.anulacion_codigo==='si';
-  const acCheck=S.tab==='planificadores'?'<div style="margin-top:12px;padding:12px 14px;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:9px;display:flex;align-items:center;gap:10px"><input type="checkbox" id="f_anulacion_codigo" style="width:20px;height:20px;cursor:pointer;accent-color:#DC2626"'+(_ac?' checked':'')+'>  <label for="f_anulacion_codigo" style="font-size:15px;font-weight:600;color:#DC2626;cursor:pointer">⚠️ Anulación Código</label></div>':'';
+  const acCheck=S.tab==='planificadores'
+    ?'<div style="margin-top:12px;padding:12px 14px;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:9px;display:flex;align-items:center;gap:10px"><input type="checkbox" id="f_anulacion_codigo" style="width:20px;height:20px;cursor:pointer;accent-color:#DC2626"'+(_ac?' checked':'')+'>  <label for="f_anulacion_codigo" style="font-size:15px;font-weight:600;color:#DC2626;cursor:pointer">⚠️ Anulación Código</label></div>'
+    :'';
   document.getElementById('modal-body').innerHTML='<div class="form-grid">'+buildForm(rec)+'</div>'+acCheck;document.getElementById('modal-overlay').classList.add('open');}
 function closeModal(){document.getElementById('modal-overlay').classList.remove('open');S.editId=null;}
 function saveRec(){
@@ -1202,6 +1266,7 @@ function saveRec(){
   });
   const acEl=document.getElementById('f_anulacion_codigo');obj.anulacion_codigo=acEl&&acEl.checked?'si':'no';
   const enEl=document.getElementById('f_enlace');obj.enlace=(enEl?enEl.value:'').trim();
+  const tnEl=document.getElementById('f_texto_nuevo');if(tnEl)obj.texto_nuevo=tnEl.value.trim();
   const now=new Date().toISOString();
   if(S.editId){S.data[S.tab]=S.data[S.tab].map(r=>r.id===S.editId?{...r,...obj,_updatedAt:now}:r);}
   else{obj.id=gid();obj._createdBy=currentUser||'Desconocido';obj._createdAt=now;obj._updatedAt=now;S.data[S.tab]=[obj,...S.data[S.tab]];}
@@ -1276,9 +1341,13 @@ function exportExcel() {
   // Pestaña Trabajos (solo filtrados) + Planificadores (todos)
   const wsT = buildSheet('trabajos', S.filtered.filter(()=>true));
   const wsP = buildSheet('planificadores', S.data.planificadores||[]);
+  const wsE = buildSheet('ediciones', S.data.ediciones||[]);
+  const wsA = buildSheet('anulaciones', S.data.anulaciones||[]);
 
   XLSX.utils.book_append_sheet(wb, wsT, 'Trabajos');
   XLSX.utils.book_append_sheet(wb, wsP, 'Planificadores');
+  XLSX.utils.book_append_sheet(wb, wsE, 'Ediciones');
+  XLSX.utils.book_append_sheet(wb, wsA, 'Anulaciones');
 
   XLSX.writeFile(wb, `ControlAltaMateriales_${date}.xlsx`, {bookSST:false, type:'binary', cellStyles:true});
 }
