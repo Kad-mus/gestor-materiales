@@ -1356,12 +1356,24 @@ function exportExcel() {
 // ── BACKUP LOCAL ──────────────────────────────────────────────────────────────
 function backupLocal(){
   const date=new Date().toISOString().slice(0,19).replace(/[T:]/g,'-');
-  const blob=new Blob([JSON.stringify(S.data,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download=`backup_AltaMateriales_${date}.json`;
-  document.body.appendChild(a);a.click();
-  document.body.removeChild(a);URL.revokeObjectURL(url);
+  const json=JSON.stringify(S.data,null,2);
+  const filename='backup_AltaMateriales_'+date+'.json';
+  try{
+    const blob=new Blob([json],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=filename;a.style.display='none';
+    document.body.appendChild(a);a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+  }catch(e){
+    // Fallback Safari: data URI
+    const a=document.createElement('a');
+    a.href='data:application/json;charset=utf-8,'+encodeURIComponent(json);
+    a.download=filename;a.style.display='none';
+    document.body.appendChild(a);a.click();
+    document.body.removeChild(a);
+  }
 }
 
 function restoreBackup(){
