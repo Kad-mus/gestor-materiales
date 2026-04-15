@@ -1014,7 +1014,6 @@ const COLS={
     {k:'fecha',l:'Fecha',w:105,date:1},
     {k:'ok',l:'OK TAM4',w:70,badge:1},
     {k:'ok_sap',l:'OK SAP',w:55,badge:1},
-    {k:'anulacion_codigo',l:'Anul. Código',w:85,anulcod:1},
     {k:'_createdBy',l:'Codificado por',w:140,author:1},
   ]
 };
@@ -1088,7 +1087,7 @@ function renderTable(){
   const start=S.page*S.pageSize;
   const pageRows=S.filtered.slice(start,start+S.pageSize);
   const tb=pageRows.map((r,ri)=>{
-    const cls=r.id===S.selId?'r-sel':(r.anulacion_codigo==='si')?'r-an':isAN(r.ok)?'r-an':(S.tab==='anulaciones')?'r-an':isPE(r.ok)?'r-pend':'r-ok';
+    const cls=r.id===S.selId?'r-sel':isAN(r.ok)?'r-an':(S.tab==='anulaciones')?'r-an':isPE(r.ok)?'r-pend':'r-ok';
     const cells=cols.map(c=>{
       const v=r[c.k]||'';
       let h;
@@ -1185,9 +1184,7 @@ function renderDetail(){
     return`<div class="df-group"><div class="df-label">${c.l}</div><div class="df-val${c.mono?' mono':''}${c.editext?' editext-val':''}">${c.badge?badge(r[c.k]):dv}</div></div>`;
   }).join('');
   const note=S.data.notes[r.id]||'';
-  const ac=S.tab==='planificadores'
-    ?`<div class="df-group"><div class="df-label">Anulación Código</div><div class="df-val">${r.anulacion_codigo==='si'?'<span style="color:#DC2626;font-weight:700">✕ Sí, anulado</span>':'No'}</div></div>`
-:'';
+  const ac='';
   const ie='';
   const isRuben=(currentUser||'').toLowerCase().includes('rub');
   const editAuthorBtn=isRuben?`<button onclick="editAuthor('${r.id}')" title="Corregir nombre" style="margin-left:auto;background:none;border:1px solid var(--line);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--muted);cursor:pointer;transition:all .15s;font-family:var(--sans)" onmouseover="this.style.borderColor='#F59E0B';this.style.color='#D97706'" onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--muted)'">✏ Corregir</button>`:'';
@@ -1217,7 +1214,7 @@ function saveNote(id){
 // ── MODAL ─────────────────────────────────────────────────────────────────────
 function buildForm(rec){
   // Para ediciones, texto_nuevo se muestra como campo separado
-  return gc().filter(c=>c.k!=='_createdBy'&&c.k!=='incluido_excel'&&c.k!=='anulacion_codigo'&&c.k!=='texto_nuevo').map(c=>{
+  return gc().filter(c=>c.k!=='_createdBy'&&c.k!=='incluido_excel'&&c.k!=='texto_nuevo').map(c=>{
     const v=rec?(rec[c.k]||''):'';
 
     const span=(c.k==='texto'||c.k==='descripcion')?' span2':'';
@@ -1243,14 +1240,10 @@ function buildForm(rec){
   }).join('')+`<div class="form-field span2"><label>Enlace adjunto <span style="font-weight:400;color:var(--muted)">(OneDrive, Google Drive…)</span></label><input id="f_enlace" type="url" placeholder="https://…" value="${((rec&&rec.enlace)||'').replace(/"/g,'&quot;')}" style="font-family:var(--mono);font-size:13px"></div>`;
 }
 function openNew(){S.editId=null;document.getElementById('modal-title').textContent='Nuevo — '+S.tab;
-  const acCheck=S.tab==='planificadores'
-    ?'<div style="margin-top:12px;padding:12px 14px;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:9px;display:flex;align-items:center;gap:10px"><input type="checkbox" id="f_anulacion_codigo" style="width:20px;height:20px;cursor:pointer;accent-color:#DC2626"><label for="f_anulacion_codigo" style="font-size:15px;font-weight:600;color:#DC2626;cursor:pointer">⚠️ Anulación Código</label></div>'
-    :'';
+  const acCheck='';
   document.getElementById('modal-body').innerHTML='<div class="form-grid">'+buildForm(null)+'</div>'+acCheck;document.getElementById('modal-overlay').classList.add('open');}
-function openEdit(id,e){if(e)e.stopPropagation();S.editId=id;const rec=gr().find(r=>r.id===id);document.getElementById('modal-title').textContent='Editar registro';const _ie=rec&&rec.incluido_excel==='si';const _ac=rec&&rec.anulacion_codigo==='si';
-  const acCheck=S.tab==='planificadores'
-    ?'<div style="margin-top:12px;padding:12px 14px;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:9px;display:flex;align-items:center;gap:10px"><input type="checkbox" id="f_anulacion_codigo" style="width:20px;height:20px;cursor:pointer;accent-color:#DC2626"'+(_ac?' checked':'')+'>  <label for="f_anulacion_codigo" style="font-size:15px;font-weight:600;color:#DC2626;cursor:pointer">⚠️ Anulación Código</label></div>'
-    :'';
+function openEdit(id,e){if(e)e.stopPropagation();S.editId=id;const rec=gr().find(r=>r.id===id);document.getElementById('modal-title').textContent='Editar registro';const _ie=rec&&rec.incluido_excel==='si';
+  const acCheck='';
   document.getElementById('modal-body').innerHTML='<div class="form-grid">'+buildForm(rec)+'</div>'+acCheck;document.getElementById('modal-overlay').classList.add('open');}
 function closeModal(){document.getElementById('modal-overlay').classList.remove('open');S.editId=null;}
 function saveRec(){
@@ -1264,7 +1257,6 @@ function saveRec(){
       const el=document.getElementById('f_'+c.k);obj[c.k]=el?el.value:'';
     }
   });
-  const acEl=document.getElementById('f_anulacion_codigo');obj.anulacion_codigo=acEl&&acEl.checked?'si':'no';
   const enEl=document.getElementById('f_enlace');obj.enlace=(enEl?enEl.value:'').trim();
   const tnEl=document.getElementById('f_texto_nuevo');if(tnEl)obj.texto_nuevo=tnEl.value.trim();
   const now=new Date().toISOString();
