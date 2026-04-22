@@ -711,7 +711,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">4.9</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">5.0</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -945,7 +945,7 @@ function pullCloud(){
         }
         // MERGE completo: nunca pierde registros locales no subidos aún
         S.data=mergeData(S.data, remote);
-        saveLocal();populateFilters();applyF(false);
+        saveLocal();S._lastSig=null;populateFilters();applyF(false);
         // Restaurar nota si el usuario sigue escribiendo
         if(S.selId){
           const wasEditing=notaEl&&document.activeElement===notaEl;
@@ -972,7 +972,7 @@ function saveAndSync(){
     .then(remote=>{
       if(remote&&(remote.trabajos||remote.planificadores||remote.ediciones||remote.anulaciones||remote.his)){
         S.data=mergeData(S.data,remote);
-        saveLocal();
+        saveLocal();S._lastSig=null;
       }
       applyF(false);
       const body=JSON.stringify({action:'write',data:S.data});
@@ -1078,6 +1078,12 @@ function populateFilters(){
 function dataSignature(list){
   return list.map(r=>r.id+'|'+(r._updatedAt||r._createdAt||'')).join(',');
 }
+function globalSignature(){
+  // Firma global de todos los datos — detecta cambios en cualquier pestaña
+  return ['trabajos','planificadores','ediciones','anulaciones','his']
+    .map(t=>(S.data[t]||[]).length+':'+(S.data[t]||[]).map(r=>r._updatedAt||r._createdAt||'').join('|'))
+    .join(';');
+}
 function applyF(resetPage=true){
   if(resetPage)S.page=0;
   const q=document.getElementById('qInput').value.toLowerCase();
@@ -1093,7 +1099,7 @@ function applyF(resetPage=true){
   });
   if(S.sc){list=[...list].sort((a,b)=>{const av=a[S.sc]||'',bv=b[S.sc]||'';if(!av&&!bv)return 0;if(!av)return 1;if(!bv)return -1;const primary=(av<bv?-1:av>bv?1:0)*S.sd;if(primary!==0)return primary;const at=a._createdAt||'',bt=b._createdAt||'';return at<bt?1:at>bt?-1:0;});}
   // Solo redibujar si los datos han cambiado realmente
-  const sig=dataSignature(list);
+  const sig=dataSignature(list)+'|'+globalSignature();
   if(sig===S._lastSig && !resetPage){updateStats();return;}
   S._lastSig=sig;
   S.filtered=list;renderTable();updateStats();
