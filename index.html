@@ -711,7 +711,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">5.0</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">5.1</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -876,7 +876,7 @@ function connect(){
   document.getElementById('setup-btn').disabled=true; setMsg('Probando conexión…','#FF6900');
   fetchGet(url+'?action=ping')
     .then(res=>{
-      if(res&&res.ok){SURL=url;localStorage.setItem(UK,url);document.getElementById('setup').classList.add('closed');setSY('ok','Conectado ✓');pushCloud(true);}
+      if(res&&res.ok){SURL=url;localStorage.setItem(UK,url);document.getElementById('setup').classList.add('closed');setSY('ok','Conectado ✓');startSync();}
       else{setMsg('El script respondió con error.','#FCA5A5');document.getElementById('setup-btn').disabled=false;}
     })
     .catch(()=>{setMsg('No se pudo conectar. Comprueba que el acceso es "Cualquier usuario".','#FCA5A5');document.getElementById('setup-btn').disabled=false;});
