@@ -722,7 +722,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">5.5</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">5.6</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -916,7 +916,14 @@ function mergeNotes(remoteNotes, localNotes){
 
 // ── MERGE DATA: combina local+remoto sin perder registros ────────────────────
 function mergeData(local, remote){
-  const deleted = Object.assign({}, remote.deleted||{}, local.deleted||{});
+  // Combinar deleted pero SIN incluir IDs de registros que existen localmente (están vivos)
+  const localAliveIds = new Set();
+  ['trabajos','planificadores','ediciones','anulaciones','his'].forEach(tab=>{
+    (local[tab]||[]).forEach(r=>{if(r&&r.id)localAliveIds.add(r.id);});
+  });
+  const deleted = {};
+  Object.keys(remote.deleted||{}).forEach(k=>{if(!localAliveIds.has(k))deleted[k]=remote.deleted[k];});
+  Object.keys(local.deleted||{}).forEach(k=>{if(!localAliveIds.has(k))deleted[k]=local.deleted[k];});
   function mergeTab(localArr, remoteArr){
     const map = {};
     (remoteArr||[]).forEach(r => { if(r&&r.id) map[r.id]=r; });
@@ -984,22 +991,43 @@ function forcePull(){
 }
 
 function forcePush(){
-  if(!SURL){alert('No hay URL de sincronización configurada');return;}
-  if(!confirm('⚠ Forzar subida al servidor\n\nEsto subirá TODOS tus datos locales al servidor. Continuar?'))return;
+  if(!SURL){alert('No hay URL configurada');return;}
+  const hiCount=(S.data.his||[]).length;
+  const tCount=(S.data.trabajos||[]).length;
+  const pCount=(S.data.planificadores||[]).length;
+  const eCount=(S.data.ediciones||[]).length;
+  const aCount=(S.data.anulaciones||[]).length;
+  if(!confirm('⚠ SUBIR al servidor:\n\n• '+tCount+' Trabajos\n• '+pCount+' Planificadores\n• '+eCount+' Ediciones\n• '+aCount+' Anulaciones\n• '+hiCount+' H.I.\'s\n\nTus datos locales NO se modifican. ¿Continuar?'))return;
   setSY('syncing','Subiendo…');
-  const body=JSON.stringify({action:'write',data:S.data});
+  // Limpiar el campo deleted de los registros que SÍ existen localmente
+  // (por si algún ID se marcó como eliminado por error)
+  const deleted=Object.assign({},S.data.deleted||{});
+  ['trabajos','planificadores','ediciones','anulaciones','his'].forEach(tab=>{
+    (S.data[tab]||[]).forEach(r=>{if(r&&r.id)delete deleted[r.id];});
+  });
+  const payload={
+    trabajos:S.data.trabajos||[],
+    planificadores:S.data.planificadores||[],
+    ediciones:S.data.ediciones||[],
+    anulaciones:S.data.anulaciones||[],
+    his:S.data.his||[],
+    notes:S.data.notes||{},
+    deleted:deleted
+  };
+  const body=JSON.stringify({action:'write',data:payload});
   fetch(SURL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:body})
     .then(r=>r.json())
     .then(r=>{
       if(r&&r.ok){
+        S.data.deleted=deleted;saveLocal();
         setSY('ok','Subido ✓');
-        alert('✅ Datos subidos correctamente al servidor:\n\n• '+(S.data.trabajos||[]).length+' Trabajos\n• '+(S.data.planificadores||[]).length+' Planificadores\n• '+(S.data.ediciones||[]).length+' Ediciones\n• '+(S.data.anulaciones||[]).length+' Anulaciones\n• '+(S.data.his||[]).length+' H.I.\'s');
+        alert('✅ Subida correcta:\n\n• '+tCount+' Trabajos\n• '+pCount+' Planificadores\n• '+eCount+' Ediciones\n• '+aCount+' Anulaciones\n• '+hiCount+' H.I.\'s');
       } else {
         setSY('error','Error');
-        alert('❌ Error al subir: '+JSON.stringify(r));
+        alert('❌ Error del servidor: '+JSON.stringify(r));
       }
     })
-    .catch(err=>{setSY('error','Error');alert('❌ Error: '+err.message);});
+    .catch(err=>{setSY('error','Error');alert('❌ Error de red: '+err.message);});
 }
 
 let _saving=false;
@@ -1016,6 +1044,13 @@ function saveAndSync(){
         saveLocal();S._lastSig=null;
       }
       applyF(false);
+      // Limpiar 'deleted' de registros que SÍ existen localmente antes de escribir
+      const cleanDeleted=Object.assign({},S.data.deleted||{});
+      ['trabajos','planificadores','ediciones','anulaciones','his'].forEach(tab=>{
+        (S.data[tab]||[]).forEach(r=>{if(r&&r.id)delete cleanDeleted[r.id];});
+      });
+      S.data.deleted=cleanDeleted;
+      saveLocal();
       const body=JSON.stringify({action:'write',data:S.data});
       return fetch(SURL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body});
     })
