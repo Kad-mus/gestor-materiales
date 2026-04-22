@@ -658,6 +658,7 @@ tr:hover .copy-btn { opacity:1; }
   <div class="topbar-right">
     <div class="sync-pill sp-idle" id="spill"><div class="sp-dot"></div><span id="stxt">Sin sync</span></div>
     <button class="btn btn-ghost hide-tablet" onclick="forcePull()">⟳ Actualizar</button>
+  <button class="btn btn-ghost hide-tablet" onclick="forcePush()" title="Forzar subida de datos locales al servidor" style="background:rgba(255,105,0,0.15);color:#FFAA55;border-color:rgba(255,105,0,0.3)">⬆ Subir</button>
     <button class="btn btn-ghost" onclick="exportExcel()" title="Exportar listado actual a Excel">⬇ Excel</button>
     <button class="btn btn-ghost hide-tablet" onclick="printView()" title="Imprimir listado actual">🖨 Imprimir</button>
     <button class="btn btn-ghost hide-tablet" onclick="backupLocal()" title="Copia de seguridad local">💾 Backup</button>
@@ -721,7 +722,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">5.4</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">5.5</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -971,6 +972,36 @@ function pullCloud(){
     })
     .catch(()=>setSY('error','Sin conexión'));
 }
+// ── FORCE PULL / PUSH ──────────────────────────────────────────────────
+function forcePull(){
+  if(!SURL){alert('No hay URL de sincronización configurada');return;}
+  setSY('syncing','Actualizando…');
+  fetchGet(SURL+'?action=read').then(remote=>{
+    if(!remote||remote.error){setSY('error','Error');alert('Error al leer del servidor');return;}
+    S.data=mergeData(S.data,remote);saveLocal();S._lastSig=null;populateFilters();applyF(false);
+    setSY('ok','Sincronizado ✓');
+  }).catch(()=>setSY('error','Sin conexión'));
+}
+
+function forcePush(){
+  if(!SURL){alert('No hay URL de sincronización configurada');return;}
+  if(!confirm('⚠ Forzar subida al servidor\n\nEsto subirá TODOS tus datos locales al servidor. Continuar?'))return;
+  setSY('syncing','Subiendo…');
+  const body=JSON.stringify({action:'write',data:S.data});
+  fetch(SURL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:body})
+    .then(r=>r.json())
+    .then(r=>{
+      if(r&&r.ok){
+        setSY('ok','Subido ✓');
+        alert('✅ Datos subidos correctamente al servidor:\n\n• '+(S.data.trabajos||[]).length+' Trabajos\n• '+(S.data.planificadores||[]).length+' Planificadores\n• '+(S.data.ediciones||[]).length+' Ediciones\n• '+(S.data.anulaciones||[]).length+' Anulaciones\n• '+(S.data.his||[]).length+' H.I.\'s');
+      } else {
+        setSY('error','Error');
+        alert('❌ Error al subir: '+JSON.stringify(r));
+      }
+    })
+    .catch(err=>{setSY('error','Error');alert('❌ Error: '+err.message);});
+}
+
 let _saving=false;
 function saveAndSync(){
   saveLocal();
