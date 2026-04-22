@@ -711,7 +711,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">5.2</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">5.3</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -856,7 +856,7 @@ function changeUser(){
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let S={tab:'trabajos',data:loadLocal(),filtered:[],selId:null,editId:null,sc:'solicitado',sd:-1,page:0,pageSize:16};
-function loadLocal(){try{const r=localStorage.getItem(LK);if(r)return JSON.parse(r);}catch(e){}return{trabajos:INIT_T,planificadores:INIT_P,ediciones:[],anulaciones:[],his:[],notes:{},deleted:{}};}
+function loadLocal(){try{const r=localStorage.getItem(LK);if(r)return JSON.parse(r);}catch(e){}return{trabajos:[],planificadores:[],ediciones:[],anulaciones:[],his:[],notes:{},deleted:{}};}
 function saveLocal(){try{localStorage.setItem(LK,JSON.stringify(S.data));}catch(e){}document.getElementById('lsv').textContent='Local: '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});}
 let _seq=Date.now();
 const gid=()=>String(++_seq);
@@ -937,7 +937,7 @@ function pullCloud(){
   fetchGet(SURL+'?action=read')
     .then(remote=>{
       if(!remote||remote.error){setSY('error','Error al sync');return;}
-      if(remote.trabajos||remote.planificadores||remote.ediciones||remote.anulaciones||remote.his){
+      {
         // Preservar nota en edición antes de sync
         const notaEl=document.getElementById('nota');
         if(notaEl&&S.selId&&document.activeElement===notaEl){
