@@ -711,7 +711,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">5.1</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">5.2</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -1497,7 +1497,18 @@ if(currentUser){
   _overlay.style.display='flex';
   setTimeout(()=>document.getElementById('um-input').focus(), 100);
 }
-localStorage.setItem(UK,SURL);document.getElementById('setup-input').value=SURL;document.getElementById('setup').classList.add('closed');startSync();
+// Cargar URL guardada o usar la hardcodeada como fallback
+if(!localStorage.getItem(UK)&&SURL){localStorage.setItem(UK,SURL);}
+const savedUrl=localStorage.getItem(UK)||'';
+if(savedUrl){
+  SURL=savedUrl;
+  document.getElementById('setup-input').value=savedUrl;
+  document.getElementById('setup').classList.add('closed');
+  startSync();
+} else {
+  // No hay URL configurada — mostrar banner de setup
+  setSY('idle','Sin configurar');
+}
 populateFilters();applyF();
 </script>
 </body>
