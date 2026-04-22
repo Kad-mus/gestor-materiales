@@ -722,7 +722,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">5.6</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">5.7</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -1032,30 +1032,55 @@ function forcePush(){
 
 let _saving=false;
 function saveAndSync(){
-  saveLocal();
-  if(!SURL){ applyF(false); return; }
-  if(_saving){ setTimeout(saveAndSync,600); return; }
+  saveLocal();applyF(false);
+  if(!SURL){return;}
+  if(_saving){setTimeout(saveAndSync,800);return;}
   _saving=true;
   setSY('syncing','Guardando…');
+  // PASO 1: Leer servidor
   fetchGet(SURL+'?action=read')
     .then(remote=>{
-      if(remote&&(remote.trabajos||remote.planificadores||remote.ediciones||remote.anulaciones||remote.his)){
-        S.data=mergeData(S.data,remote);
-        saveLocal();S._lastSig=null;
-      }
-      applyF(false);
-      // Limpiar 'deleted' de registros que SÍ existen localmente antes de escribir
-      const cleanDeleted=Object.assign({},S.data.deleted||{});
+      if(!remote||remote.error)remote={};
+      // PASO 2: Combinar — SIN perder ninguno de los nuevos locales
+      // Los IDs locales NUNCA se marcan como deleted
+      const localIds={};
       ['trabajos','planificadores','ediciones','anulaciones','his'].forEach(tab=>{
-        (S.data[tab]||[]).forEach(r=>{if(r&&r.id)delete cleanDeleted[r.id];});
+        (S.data[tab]||[]).forEach(r=>{if(r&&r.id)localIds[r.id]=1;});
       });
-      S.data.deleted=cleanDeleted;
-      saveLocal();
+      // Construir deleted limpio (sin IDs que están vivos en local)
+      const deleted={};
+      Object.keys(remote.deleted||{}).forEach(k=>{if(!localIds[k])deleted[k]=remote.deleted[k];});
+      Object.keys(S.data.deleted||{}).forEach(k=>{if(!localIds[k])deleted[k]=S.data.deleted[k];});
+      // Mezclar cada pestaña: union de remoto + local, local gana si más reciente
+      function unirPestaña(tab){
+        const map={};
+        (remote[tab]||[]).forEach(r=>{if(r&&r.id&&!deleted[r.id])map[r.id]=r;});
+        (S.data[tab]||[]).forEach(r=>{
+          if(!r||!r.id)return;
+          if(!map[r.id]){map[r.id]=r;return;}
+          const lTs=r._updatedAt||r._createdAt||'';
+          const rTs=map[r.id]._updatedAt||map[r.id]._createdAt||'';
+          if(lTs>=rTs)map[r.id]=r;
+        });
+        return Object.values(map);
+      }
+      const merged={
+        trabajos:unirPestaña('trabajos'),
+        planificadores:unirPestaña('planificadores'),
+        ediciones:unirPestaña('ediciones'),
+        anulaciones:unirPestaña('anulaciones'),
+        his:unirPestaña('his'),
+        notes:Object.assign({},remote.notes||{},S.data.notes||{}),
+        deleted:deleted
+      };
+      S.data=merged;
+      saveLocal();S._lastSig=null;applyF(false);
+      // PASO 3: Escribir al servidor
       const body=JSON.stringify({action:'write',data:S.data});
       return fetch(SURL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body});
     })
-    .then(()=>{ _saving=false; setSY('ok','Guardado ✓'); })
-    .catch(err=>{ _saving=false; console.error('saveAndSync error',err); setSY('error','Error al guardar'); });
+    .then(r=>{_saving=false;setSY('ok','Guardado ✓');})
+    .catch(err=>{_saving=false;console.error('saveAndSync',err);setSY('error','Error');});
 }
 
 // ── COLUMNS ───────────────────────────────────────────────────────────────────
