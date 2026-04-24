@@ -978,7 +978,6 @@ function mergeArr(local, remoto, deleted){
     if(!map[r.id]){map[r.id]=r;return;}
     const lt=r._updatedAt||r._createdAt||'';
     const rt=map[r.id]._updatedAt||map[r.id]._createdAt||'';
-    // Local gana si es igual o más reciente (en caso de empate, el local tiene razón)
     if(lt>=rt)map[r.id]=r;
   });
   return Object.values(map);
@@ -1012,13 +1011,8 @@ function pushCloud(silent){
   if(!SURL)return;
   if(!silent)setSY('syncing','Guardando…');
   const body=JSON.stringify({action:'write',data:S.data});
-  // Apps Script SIEMPRE requiere no-cors para POST desde un navegador (CORS bloqueado en redirects).
-  // Con no-cors el body SÍ llega al servidor. Luego verificamos con un GET (pullCloud).
   fetch(SURL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body})
-    .then(()=>{
-      // Esperar 2s para que Apps Script procese la escritura antes de leer
-      setTimeout(()=>{if(silent)startSync();else pullCloud();},2000);
-    })
+    .then(()=>setTimeout(()=>{if(silent)startSync();else pullCloud();},2000))
     .catch(()=>setSY('error','Error al guardar'));
 }
 
