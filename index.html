@@ -722,7 +722,7 @@ tr:hover .copy-btn { opacity:1; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
-          <span style="font-size:15px;font-weight:700;color:#0F1923;">5.8</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">5.9</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
           <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
@@ -981,56 +981,83 @@ function pullCloud(){
 }
 // ── FORCE PULL / PUSH ──────────────────────────────────────────────────
 function forcePull(){
-  if(!SURL){alert('No hay URL de sincronización configurada');return;}
-  setSY('syncing','Actualizando…');
-  fetchGet(SURL+'?action=read').then(remote=>{
-    if(!remote||remote.error){setSY('error','Error');alert('Error al leer del servidor');return;}
-    S.data=mergeData(S.data,remote);saveLocal();S._lastSig=null;populateFilters();applyF(false);
-    setSY('ok','Sincronizado ✓');
-  }).catch(()=>setSY('error','Sin conexión'));
+  pullCloud();
 }
 
 function forcePush(){
   if(!SURL){alert('No hay URL configurada');return;}
-  const hiCount=(S.data.his||[]).length;
-  const tCount=(S.data.trabajos||[]).length;
-  const pCount=(S.data.planificadores||[]).length;
-  const eCount=(S.data.ediciones||[]).length;
-  const aCount=(S.data.anulaciones||[]).length;
-  if(!confirm('⚠ SUBIR al servidor:\n\n• '+tCount+' Trabajos\n• '+pCount+' Planificadores\n• '+eCount+' Ediciones\n• '+aCount+' Anulaciones\n• '+hiCount+' H.I.\'s\n\nTus datos locales NO se modifican. ¿Continuar?'))return;
-  setSY('syncing','Subiendo…');
-  // Limpiar el campo deleted de los registros que SÍ existen localmente
-  // (por si algún ID se marcó como eliminado por error)
-  const deleted=Object.assign({},S.data.deleted||{});
-  ['trabajos','planificadores','ediciones','anulaciones','his'].forEach(tab=>{
-    (S.data[tab]||[]).forEach(r=>{if(r&&r.id)delete deleted[r.id];});
-  });
-  const payload={
-    trabajos:S.data.trabajos||[],
-    planificadores:S.data.planificadores||[],
-    ediciones:S.data.ediciones||[],
-    anulaciones:S.data.anulaciones||[],
-    his:S.data.his||[],
-    notes:S.data.notes||{},
-    deleted:deleted
-  };
-  const body=JSON.stringify({action:'write',data:payload});
-  fetch(SURL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:body})
-    .then(r=>r.json())
-    .then(r=>{
-      if(r&&r.ok){
-        S.data.deleted=deleted;saveLocal();
-        setSY('ok','Subido ✓');
-        alert('✅ Subida correcta:\n\n• '+tCount+' Trabajos\n• '+pCount+' Planificadores\n• '+eCount+' Ediciones\n• '+aCount+' Anulaciones\n• '+hiCount+' H.I.\'s');
-      } else {
-        setSY('error','Error');
-        alert('❌ Error del servidor: '+JSON.stringify(r));
-      }
-    })
-    .catch(err=>{setSY('error','Error');alert('❌ Error de red: '+err.message);});
+  if(!confirm('⚠ Subir datos locales al servidor. ¿Continuar?'))return;
+  pushCloud(false);
 }
 
-let _saving=false, _saveTimer=null;
+function startSync(){
+  setSY('syncing','Conectando…');
+  pullCloud();
+  if(syncTimer)clearInterval(syncTimer);
+  syncTimer=setInterval(pullCloud,INTERVAL);
+}
+
+function pullCloud(){
+  if(!SURL)return;
+  setSY('syncing','Actualizando…');
+  fetchGet(SURL+'?action=read').then(remote=>{
+    if(!remote||remote.error){setSY('error','Error al sync');return;}
+    if(remote.trabajos||remote.planificadores||remote.ediciones||remote.anulaciones||remote.his){
+      // Merge seguro — preservar datos locales nuevos no subidos
+      function mergeArr(local, remoto){
+        const map={};
+        (remoto||[]).forEach(r=>{if(r&&r.id)map[r.id]=r;});
+        (local||[]).forEach(r=>{
+          if(!r||!r.id)return;
+          if(!map[r.id]){map[r.id]=r;return;}
+          const lt=r._updatedAt||r._createdAt||'';
+          const rt=map[r.id]._updatedAt||map[r.id]._createdAt||'';
+          if(lt>=rt)map[r.id]=r;
+        });
+        return Object.values(map);
+      }
+      S.data={
+        trabajos:      mergeArr(S.data.trabajos,      remote.trabajos),
+        planificadores:mergeArr(S.data.planificadores, remote.planificadores),
+        ediciones:     mergeArr(S.data.ediciones,      remote.ediciones),
+        anulaciones:   mergeArr(S.data.anulaciones,    remote.anulaciones),
+        his:           mergeArr(S.data.his,            remote.his),
+        notes:Object.assign({},remote.notes||{},S.data.notes||{}),
+        deleted:Object.assign({},remote.deleted||{},S.data.deleted||{})
+      };
+      saveLocal();S._lastSig=null;populateFilters();applyF(false);
+      if(S.selId)renderDetail();
+    }
+    const t=new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    document.getElementById('lsy').textContent='Sync: '+t;
+    setSY('ok','Sincronizado ✓');
+  }).catch(()=>setSY('error','Sin conexión'));
+}
+
+function pushCloud(silent){
+  if(!SURL)return;
+  if(!silent)setSY('syncing','Guardando…');
+  const body=JSON.stringify({action:'write',data:S.data});
+  fetch(SURL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body})
+    .then(()=>{
+      setTimeout(()=>{if(silent)startSync();else pullCloud();},1500);
+    })
+    .catch(()=>{
+      // Fallback iframe
+      const ifr=document.createElement('iframe');
+      ifr.name='_pf';ifr.style.display='none';document.body.appendChild(ifr);
+      const frm=document.createElement('form');
+      frm.method='POST';frm.action=SURL;frm.target='_pf';
+      const inp=document.createElement('input');
+      inp.type='hidden';inp.name='payload';inp.value=body;
+      frm.appendChild(inp);document.body.appendChild(frm);frm.submit();
+      setTimeout(()=>{ifr.remove();frm.remove();if(silent)startSync();else pullCloud();},2500);
+    });
+}
+
+function saveAndSync(){saveLocal();pushCloud(false);}
+
+let _saving=false;
 function saveAndSync(){
   // PASO 1: Guardar local INMEDIATAMENTE (lo más importante)
   saveLocal();
