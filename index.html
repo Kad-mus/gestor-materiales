@@ -1015,10 +1015,19 @@ function pullCloud(){
 function pushCloud(silent){
   if(!SURL)return;
   if(!silent)setSY('syncing','Guardando…');
-  const body=JSON.stringify({action:'write',data:S.data});
-  fetch(SURL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body})
-    .then(()=>setTimeout(()=>{if(silent)startSync();else pullCloud();},2000))
-    .catch(()=>setSY('error','Error al guardar'));
+  // JSONP write: enviar datos como parámetro GET — único método que funciona con Apps Script sin CORS
+  const dataStr=encodeURIComponent(JSON.stringify({action:'write',data:S.data}));
+  const cb='_cb'+Date.now();
+  const url=SURL+'?callback='+cb+'&payload='+dataStr;
+  const script=document.createElement('script');
+  window[cb]=function(res){
+    delete window[cb]; document.body.removeChild(script);
+    if(res&&res.ok){ setSY('ok','Guardado ✓'); setTimeout(()=>{if(silent)startSync();else pullCloud();},500); }
+    else{ setSY('error','Error al guardar'); }
+  };
+  script.onerror=function(){ delete window[cb]; document.body.removeChild(script); setSY('error','Error al guardar'); };
+  script.src=url;
+  document.body.appendChild(script);
 }
 
 function saveAndSync(){saveLocal();pushCloud(false);}
