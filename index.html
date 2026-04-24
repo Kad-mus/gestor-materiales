@@ -1178,7 +1178,7 @@ const COLS={
   ]
 };
 function gc(){return COLS[S.tab];}
-function gr(){return S.data[S.tab]||[];}
+function gr(){if(!S.data[S.tab])S.data[S.tab]=[];return S.data[S.tab];}
 const isOK=v=>(v||'').toUpperCase()==='OK';
 const isAN=v=>(v||'').toUpperCase()==='ANULADO';
 const isPE=v=>{const u=(v||'').toUpperCase();return u!=='OK'&&u!=='ANULADO';};
@@ -1454,6 +1454,8 @@ function saveRec(){
   const enEl=document.getElementById('f_enlace');obj.enlace=(enEl?enEl.value:'').trim();
   const tnEl=document.getElementById('f_texto_nuevo');if(tnEl)obj.texto_nuevo=tnEl.value.trim();
   const now=new Date().toISOString();
+  // Asegurar que la pestaña existe en S.data
+  if(!S.data[S.tab])S.data[S.tab]=[];
   if(S.editId){S.data[S.tab]=S.data[S.tab].map(r=>r.id===S.editId?{...r,...obj,_updatedAt:now}:r);}
   else{obj.id=gid();obj._createdBy=currentUser||'Desconocido';obj._createdAt=now;obj._updatedAt=now;S.data[S.tab]=[obj,...S.data[S.tab]];}
   saveAndSync();closeModal();populateFilters();applyF();if(S.selId)renderDetail();
