@@ -967,11 +967,12 @@ function startSync(){
   syncTimer=setInterval(pullCloud,INTERVAL);
 }
 
-function mergeArr(local, remoto){
+function mergeArr(local, remoto, deleted){
+  const del=deleted||{};
   const map={};
-  (remoto||[]).forEach(r=>{if(r&&r.id)map[r.id]=r;});
+  (remoto||[]).forEach(r=>{if(r&&r.id&&!del[r.id])map[r.id]=r;});
   (local||[]).forEach(r=>{
-    if(!r||!r.id)return;
+    if(!r||!r.id||del[r.id])return;
     if(!map[r.id]){map[r.id]=r;return;}
     const lt=r._updatedAt||r._createdAt||'';
     const rt=map[r.id]._updatedAt||map[r.id]._createdAt||'';
@@ -986,14 +987,15 @@ function pullCloud(){
   fetchGet(SURL+'?action=read').then(remote=>{
     if(!remote||remote.error){setSY('error','Error al sync');return;}
     // SIEMPRE hacer merge — sin condición que pueda bloquear
+    const deleted=Object.assign({},remote.deleted||{},S.data.deleted||{});
     S.data={
-      trabajos:      mergeArr(S.data.trabajos,      remote.trabajos||[]),
-      planificadores:mergeArr(S.data.planificadores, remote.planificadores||[]),
-      ediciones:     mergeArr(S.data.ediciones,      remote.ediciones||[]),
-      anulaciones:   mergeArr(S.data.anulaciones,    remote.anulaciones||[]),
-      his:           mergeArr(S.data.his,            remote.his||[]),
+      trabajos:      mergeArr(S.data.trabajos,      remote.trabajos||[],     deleted),
+      planificadores:mergeArr(S.data.planificadores, remote.planificadores||[],deleted),
+      ediciones:     mergeArr(S.data.ediciones,      remote.ediciones||[],   deleted),
+      anulaciones:   mergeArr(S.data.anulaciones,    remote.anulaciones||[], deleted),
+      his:           mergeArr(S.data.his,            remote.his||[],         deleted),
       notes:Object.assign({},remote.notes||{},S.data.notes||{}),
-      deleted:Object.assign({},remote.deleted||{},S.data.deleted||{})
+      deleted:deleted
     };
     saveLocal();S._lastSig=null;populateFilters();applyF(false);
     if(S.selId)renderDetail();
