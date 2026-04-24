@@ -901,7 +901,6 @@ function fetchGet(url){
 }
 
 // ── CLOUD ─────────────────────────────────────────────────────────────────────
-function startSync(){setSY('syncing','Conectando…');pullCloud();if(syncTimer)clearInterval(syncTimer);syncTimer=setInterval(pullCloud,INTERVAL);}
 
 // ── MERGE NOTAS: gana la nota más larga ──────────────────────────────────────
 function mergeNotes(remoteNotes, localNotes){
@@ -950,35 +949,6 @@ function mergeData(local, remote){
   };
 }
 
-function pullCloud(){
-  if(!SURL)return; setSY('syncing','Actualizando…');
-  fetchGet(SURL+'?action=read')
-    .then(remote=>{
-      if(!remote||remote.error){setSY('error','Error al sync');return;}
-      {
-        // Preservar nota en edición antes de sync
-        const notaEl=document.getElementById('nota');
-        if(notaEl&&S.selId&&document.activeElement===notaEl){
-          S.data.notes[S.selId]=notaEl.value;
-        }
-        // MERGE completo: nunca pierde registros locales no subidos aún
-        S.data=mergeData(S.data, remote);
-        saveLocal();S._lastSig=null;populateFilters();applyF(false);
-        // Restaurar nota si el usuario sigue escribiendo
-        if(S.selId){
-          const wasEditing=notaEl&&document.activeElement===notaEl;
-          const draft=wasEditing?notaEl.value:null;
-          renderDetail();
-          if(wasEditing&&draft!==null){
-            const newNota=document.getElementById('nota');
-            if(newNota){newNota.value=draft;newNota.focus();}
-          }
-        }
-      }
-      setSY('ok','Sincronizado ✓');
-    })
-    .catch(()=>setSY('error','Sin conexión'));
-}
 // ── FORCE PULL / PUSH ──────────────────────────────────────────────────
 function forcePull(){
   pullCloud();
@@ -1056,74 +1026,6 @@ function pushCloud(silent){
 }
 
 function saveAndSync(){saveLocal();pushCloud(false);}
-
-let _saving=false;
-function saveAndSync(){
-  // PASO 1: Guardar local INMEDIATAMENTE (lo más importante)
-  saveLocal();
-  applyF(false);
-  if(!SURL)return;
-  
-  // PASO 2: Upload directo SIN merge (la sincronización periódica hará el pull)
-  // Debounce: si se llama múltiples veces seguidas, solo hace upload al final
-  if(_saveTimer)clearTimeout(_saveTimer);
-  _saveTimer=setTimeout(()=>{
-    _saveTimer=null;
-    if(_saving){_saveTimer=setTimeout(arguments.callee,500);return;}
-    _saving=true;
-    setSY('syncing','Subiendo…');
-    // Preparar datos limpios (sin deleted de IDs vivos)
-    const aliveIds={};
-    ['trabajos','planificadores','ediciones','anulaciones','his'].forEach(tab=>{
-      (S.data[tab]||[]).forEach(r=>{if(r&&r.id)aliveIds[r.id]=1;});
-    });
-    const cleanDeleted={};
-    Object.keys(S.data.deleted||{}).forEach(k=>{if(!aliveIds[k])cleanDeleted[k]=S.data.deleted[k];});
-    const payload={
-      trabajos:S.data.trabajos||[],
-      planificadores:S.data.planificadores||[],
-      ediciones:S.data.ediciones||[],
-      anulaciones:S.data.anulaciones||[],
-      his:S.data.his||[],
-      notes:S.data.notes||{},
-      deleted:cleanDeleted
-    };
-    // IMPORTANTE: Primero leer del servidor para MEZCLAR los datos de otros usuarios
-    fetchGet(SURL+'?action=read').then(remote=>{
-      if(remote&&!remote.error){
-        // Unir remoto + local (local gana por timestamp)
-        function unir(local,remoto){
-          const m={};
-          (remoto||[]).forEach(r=>{if(r&&r.id&&!cleanDeleted[r.id])m[r.id]=r;});
-          (local||[]).forEach(r=>{
-            if(!r||!r.id)return;
-            if(!m[r.id]){m[r.id]=r;return;}
-            const lt=r._updatedAt||r._createdAt||'';
-            const rt=m[r.id]._updatedAt||m[r.id]._createdAt||'';
-            if(lt>=rt)m[r.id]=r;
-          });
-          return Object.values(m);
-        }
-        payload.trabajos=unir(S.data.trabajos,remote.trabajos);
-        payload.planificadores=unir(S.data.planificadores,remote.planificadores);
-        payload.ediciones=unir(S.data.ediciones,remote.ediciones);
-        payload.anulaciones=unir(S.data.anulaciones,remote.anulaciones);
-        payload.his=unir(S.data.his,remote.his);
-        payload.notes=Object.assign({},remote.notes||{},S.data.notes||{});
-      }
-      // Actualizar estado local con el merge
-      S.data=payload;saveLocal();S._lastSig=null;applyF(false);
-      // Subir al servidor
-      return fetch(SURL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'write',data:payload})});
-    }).then(r=>r?r.json():null).then(res=>{
-      _saving=false;
-      if(res&&res.ok){setSY('ok','Guardado ✓');console.log('✓ Subido al servidor. HIs:',payload.his.length);}
-      else{setSY('error','Error');console.error('Respuesta del servidor:',res);}
-    }).catch(err=>{
-      _saving=false;setSY('error','Error de red');console.error('saveAndSync ERROR:',err);
-    });
-  },300);
-}
 
 // ── COLUMNS ───────────────────────────────────────────────────────────────────
 const COLS={
