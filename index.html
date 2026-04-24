@@ -998,8 +998,14 @@ function pullCloud(){
       notes:Object.assign({},remote.notes||{},S.data.notes||{}),
       deleted:deleted
     };
-    saveLocal();S._lastSig=null;populateFilters();applyF(false);
-    if(S.selId)renderDetail();
+    const newSig = JSON.stringify({t:S.data.trabajos.length,p:S.data.planificadores.length,e:S.data.ediciones.length,a:S.data.anulaciones.length});
+    if(newSig !== S._remoteSig){
+      S._remoteSig = newSig;
+      saveLocal(); S._lastSig=null; populateFilters(); applyF(false);
+      if(S.selId)renderDetail();
+    } else {
+      saveLocal();
+    }
     const t=new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     document.getElementById('lsy').textContent='Sync: '+t;
     setSY('ok','Sincronizado ✓');
@@ -1203,15 +1209,11 @@ function renderTable(){
     }).join('');
     const btnE=`<button class="act-btn act-edit" onclick="openEdit('${r.id}',event)" title="Editar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>`;
     const btnD=`<button class="act-btn act-del" onclick="delRec('${r.id}',event)" title="Eliminar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg></button>`;
-    return`<tr class="${cls} row-anim" style="animation-delay:${Math.min(ri*18,300)}ms" onclick="selRow('${r.id}')">${cells}<td class="mob-actions" style="white-space:nowrap;text-align:center;padding:4px 6px">${btnE}${btnD}</td></tr>`;
+    return`<tr class="${cls}" style="" onclick="selRow('${r.id}')">${cells}<td class="mob-actions" style="white-space:nowrap;text-align:center;padding:4px 6px">${btnE}${btnD}</td></tr>`;
   }).join('');
   const newHTML=`<table><thead><tr>${th}</tr></thead><tbody>${tb}</tbody></table>`;
   if(wrap.innerHTML!==newHTML){
-    wrap.style.opacity='0';
-    requestAnimationFrame(()=>{
-      wrap.innerHTML=newHTML;
-      wrap.style.opacity='1';
-    });
+    wrap.innerHTML=newHTML;
   }
   renderPagination();
 }
