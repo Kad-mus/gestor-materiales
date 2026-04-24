@@ -1009,24 +1009,14 @@ function pushCloud(silent){
   if(!SURL)return;
   if(!silent)setSY('syncing','Guardando…');
   const body=JSON.stringify({action:'write',data:S.data});
-  // Intentar con redirect:follow primero (confirma la escritura)
-  fetch(SURL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body})
-    .then(r=>r.json())
-    .then(res=>{
-      if(res&&res.ok){
-        setTimeout(()=>{if(silent)startSync();else pullCloud();},500);
-      } else {
-        // Fallback no-cors
-        fetch(SURL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body})
-          .then(()=>setTimeout(()=>{if(silent)startSync();else pullCloud();},1500));
-      }
+  // Apps Script siempre requiere no-cors para POST (redirect cross-origin bloqueado por navegador)
+  // Enviamos con no-cors y luego verificamos con un GET
+  fetch(SURL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body})
+    .then(()=>{
+      // POST enviado — verificar con GET que el servidor lo recibió
+      setTimeout(()=>{if(silent)startSync();else pullCloud();},2500);
     })
-    .catch(()=>{
-      // Fallback no-cors
-      fetch(SURL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body})
-        .then(()=>setTimeout(()=>{if(silent)startSync();else pullCloud();},1500))
-        .catch(()=>setSY('error','Error al guardar'));
-    });
+    .catch(()=>setSY('error','Error al guardar'));
 }
 
 function saveAndSync(){saveLocal();pushCloud(false);}
