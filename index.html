@@ -790,8 +790,9 @@ const INIT_P=[{"id":"p1","codigo_sap":"80158544","descripcion":"JUNTA PLANA 5,5/
 const LK='repsol_mat_v5', UK='repsol_sync_url_v2', UNKEY='repsol_username';
 const INTERVAL=30000;
 const DEFAULT_URL='https://script.google.com/macros/s/AKfycbwZtIHfK_n61TuOIBxFRBXBoWsk7D50NUKcMznQtjonJQ1VbBUr8PCi-CmLyGJExVEMPw/exec';
-let SURL=localStorage.getItem(UK)||DEFAULT_URL;
-if(!localStorage.getItem(UK)){localStorage.setItem(UK,DEFAULT_URL);}
+// Forzar siempre la URL correcta
+localStorage.setItem(UK,DEFAULT_URL);
+let SURL=DEFAULT_URL;
 let syncTimer=null, _cbIdx=0;
 
 
