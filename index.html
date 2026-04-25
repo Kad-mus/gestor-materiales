@@ -2,89 +2,775 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#FF6900">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <script>
+    if('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(()=>{});
+    }
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Control Alta Materiales · Repsol</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImcxIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6I0RBMjkxQyIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNGRjY5MDAiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImcyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6I0ZGNjkwMCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNEQTI5MUMiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDwhLS0gQmFja2dyb3VuZCAtLT4KICA8cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxMCIgZmlsbD0idXJsKCNnMSkiLz4KICA8IS0tIEdlb21ldHJpYyBhY2NlbnQgdG9wLXJpZ2h0IC0tPgogIDxwb2x5Z29uIHBvaW50cz0iNjQsMCA2NCwyMiA0MiwwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIi8+CiAgPCEtLSBHZW9tZXRyaWMgYWNjZW50IGJvdHRvbS1sZWZ0IC0tPgogIDxwb2x5Z29uIHBvaW50cz0iMCw2NCAyMiw2NCAwLDQyIiBmaWxsPSJyZ2JhKDAsMCwwLDAuMTUpIi8+CiAgPCEtLSAiQSIgbGV0dGVyZm9ybSAtLT4KICA8cGF0aCBkPSJNMTQgNDYgTDI0IDE4IEwzMiAxOCBMNDIgNDYgTDM2IDQ2IEwzNCA0MCBMMjIgNDAgTDIwIDQ2IFogTTI0IDM1IEwzNCAzNSBMMjkgMjAgWiIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuOTUiLz4KICA8IS0tICJNIiBsZXR0ZXJmb3JtIOKAlCBzbWFsbCwgYm90dG9tIHJpZ2h0IGFyZWEgYXMgYWNjZW50IC0tPgogIDxyZWN0IHg9IjEwIiB5PSI1MCIgd2lkdGg9IjQ0IiBoZWlnaHQ9IjIiIHJ4PSIxIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuNCkiLz4KPC9zdmc+">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* Los estilos CSS se mantienen igual que en tu versión original */
-/* ... (Estilos del Topbar, Sidebar, Tablas, etc.) ... */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  /* Repsol Corporate */
+  --repsol-red:    #DA291C;
+  --repsol-orange: #FF6900;
+  --repsol-dark:   #1A1A1A;
+  --repsol-black:  #0D0D0D;
+
+  /* UI Scale */
+  --navy:    #0F1923;
+  --navy2:   #1A2737;
+  --ink:     #1C2333;
+  --muted:   #64748B;
+  --line:    #E2E8F0;
+  --bg:      #F8F9FB;
+  --white:   #FFFFFF;
+  --orange-bg: #FFF4EE;
+  --green:   #166534;
+  --green-bg:#DCFCE7;
+  --blue:    #1E40AF;
+  --blue-bg: #DBEAFE;
+
+  --mono:  'JetBrains Mono', monospace;
+  --sans:  'Barlow', sans-serif;
+  --cond:  'Barlow Condensed', sans-serif;
+
+  --shadow-s: 0 1px 3px rgba(0,0,0,.08);
+  --shadow-m: 0 4px 16px rgba(0,0,0,.10);
+  --shadow-l: 0 20px 50px rgba(0,0,0,.18), 0 4px 12px rgba(0,0,0,.10);
+
+  --grad: linear-gradient(135deg, var(--repsol-red), var(--repsol-orange));
+}
+
+html, body { height:100%; overflow:hidden; }
+body { font-family:var(--sans); font-size:16px; background:var(--bg); color:var(--ink); display:flex; flex-direction:column; }
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:#CBD5E1; border-radius:99px; }
+
+/* ── TOPBAR ──────────────────────────────────────── */
+#topbar {
+  background: var(--navy);
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 16px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 100;
+  border-bottom: 2px solid var(--repsol-red);
+  box-shadow: 0 2px 20px rgba(0,0,0,.3);
+}
+/* Subtle gradient stripe across topbar bottom */
+#topbar::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0; right: 0;
+  height: 2px;
+  background: var(--grad);
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+@keyframes iconSpin { 0%{transform:rotate(0deg) scale(.7);opacity:0} 60%{transform:rotate(380deg) scale(1.1);opacity:1} 100%{transform:rotate(360deg) scale(1);opacity:1} }
+.app-icon {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 6px rgba(218,41,28,.4));
+  animation: iconSpin .9s cubic-bezier(.34,1.56,.64,1) both;
+}
+.app-title {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.app-name {
+  font-family: var(--cond);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: white;
+}
+.app-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: rgba(255,255,255,.35);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.topbar-divider { width:1px; height:30px; background:rgba(255,255,255,.1); margin:0 6px; flex-shrink:0; }
+
+
+#tabs-bar {
+  display: flex;
+  background: var(--navy);
+  border-bottom: 2px solid rgba(255,105,0,.25);
+  padding: 4px 16px;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.topbar-tabs {
+  display: flex;
+  gap: 3px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px;
+  padding: 3px;
+}
+.ttab {
+  padding: 6px 22px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255,255,255,.4);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: .02em;
+  transition: all .18s;
+  white-space: nowrap;
+}
+.ttab.on {
+  background: var(--grad);
+  color: white;
+  box-shadow: 0 2px 8px rgba(218,41,28,.35);
+}
+
+.topbar-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+
+/* SYNC PILL */
+.sync-pill { display:flex; align-items:center; gap:6px; padding:5px 13px; border-radius:99px; font-size:12px; font-weight:600; border:1px solid transparent; transition:all .3s; }
+.sp-idle    { background:rgba(255,255,255,.06); color:rgba(255,255,255,.38); border-color:rgba(255,255,255,.09); }
+.sp-syncing { background:rgba(255,105,0,.15);   color:#FFAA55;              border-color:rgba(255,105,0,.3); }
+.sp-ok      { background:rgba(22,101,52,.25);   color:#4ADE80;              border-color:rgba(74,222,128,.2); }
+.sp-error   { background:rgba(218,41,28,.2);    color:#FCA5A5;              border-color:rgba(218,41,28,.3); }
+.sp-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.sp-idle .sp-dot    { background:rgba(255,255,255,.25); }
+.sp-syncing .sp-dot { background:#FF6900; animation:blink .8s infinite; }
+.sp-ok .sp-dot      { background:#4ADE80; }
+.sp-error .sp-dot   { background:#FCA5A5; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.15} }
+
+/* ── ANIMACIONES ─────────────────────────────────────────────────── */
+@keyframes fadeInRow  { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+@keyframes slideInRight { from{opacity:0;transform:translateX(24px)} to{opacity:1;transform:none} }
+@keyframes fadeInModal { from{opacity:0;transform:scale(.95) translateY(12px)} to{opacity:1;transform:none} }
+@keyframes btnPress   { 0%{transform:scale(1)} 50%{transform:scale(.94)} 100%{transform:scale(1)} }
+@keyframes badgePop   { 0%{transform:scale(1)} 40%{transform:scale(1.15)} 100%{transform:scale(1)} }
+
+
+.btn { padding:6px 18px; border-radius:7px; font-family:var(--sans); font-size:14px; font-weight:600; cursor:pointer; border:none; transition:all .15s, transform .1s; white-space:nowrap; }
+.btn:active { animation:btnPress .15s ease; }
+.btn-ghost { background:rgba(255,255,255,.08); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.12); }
+.btn-ghost:hover { background:rgba(255,255,255,.14); color:white; }
+.btn-primary { background:var(--grad); color:white; box-shadow:0 2px 8px rgba(218,41,28,.3); }
+.btn-primary:hover { filter:brightness(1.1); box-shadow:0 4px 14px rgba(218,41,28,.4); }
+
+/* USER CHIP */
+.user-chip { display:flex; align-items:center; gap:8px; padding:4px 13px 4px 5px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.11); border-radius:99px; cursor:pointer; transition:all .15s; }
+.user-chip:hover { background:rgba(255,255,255,.13); }
+.user-avatar { width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-size:11px; font-weight:700; color:white; flex-shrink:0; }
+.user-name { font-size:14px; font-weight:600; color:rgba(255,255,255,.8); }
+
+/* ── SETUP BANNER ────────────────────────────────── */
+#setup { background:var(--navy2); border-bottom:1px solid rgba(255,105,0,.2); overflow:hidden; max-height:220px; transition:max-height .4s cubic-bezier(.4,0,.2,1); flex-shrink:0; }
+#setup.closed { max-height:0; }
+#setup-inner { padding:18px 28px; display:flex; align-items:flex-start; gap:18px; }
+.setup-heading { color:var(--repsol-orange); font-weight:700; font-size:14px; margin-bottom:7px; }
+.setup-steps { color:rgba(255,255,255,.62); font-size:13px; line-height:2; }
+.setup-steps b { color:rgba(255,255,255,.9); }
+.setup-steps a { color:var(--repsol-orange); text-decoration:none; }
+#setup-url-row { display:flex; gap:9px; margin-top:12px; align-items:center; }
+#setup-input { flex:1; padding:9px 13px; border-radius:7px; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.07); color:white; font-size:13px; font-family:var(--mono); outline:none; transition:border .2s; }
+#setup-input::placeholder { color:rgba(255,255,255,.28); }
+#setup-input.ok  { border-color:rgba(74,222,128,.5); }
+#setup-input.bad { border-color:rgba(252,165,165,.5); }
+#setup-btn { padding:9px 24px; background:var(--grad); border:none; border-radius:7px; color:white; font-family:var(--sans); font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; }
+#setup-btn:disabled { opacity:.4; cursor:not-allowed; }
+#setup-msg { font-size:12px; margin-top:7px; min-height:16px; }
+.setup-skip { color:rgba(255,255,255,.28); font-size:12px; cursor:pointer; margin-top:8px; display:inline-block; text-decoration:underline; }
+
+/* ── MAIN LAYOUT ─────────────────────────────────── */
+#main { display:flex; flex:1; overflow:hidden; }
+
+/* ── SIDEBAR ─────────────────────────────────────── */
+#sidebar { width:248px; background:var(--white); border-right:1px solid var(--line); display:flex; flex-direction:column; flex-shrink:0; overflow:hidden; }
+.sb-block { padding:16px 18px; border-bottom:1px solid var(--line); }
+.sb-label { font-size:10px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+.sb-input { width:100%; padding:8px 11px; border:1px solid var(--line); border-radius:7px; font-family:var(--sans); font-size:15px; color:var(--ink); background:var(--bg); outline:none; transition:border .15s; }
+.sb-input:focus { border-color:var(--repsol-orange); }
+.sb-select { width:100%; padding:7px 9px; border:1px solid var(--line); border-radius:7px; font-family:var(--sans); font-size:15px; color:var(--ink); background:var(--bg); margin-bottom:8px; outline:none; }
+
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.stat-tile { background:var(--bg); border:1px solid var(--line); border-radius:9px; padding:10px 12px; }
+.stat-num { font-family:var(--mono); font-size:26px; font-weight:500; line-height:1; }
+.stat-lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; margin-top:3px; }
+
+.leg-row { display:flex; align-items:center; gap:10px; font-size:15px; color:#4B5563; margin-bottom:7px; }
+.leg-swatch { width:14px; height:14px; border-radius:3px; flex-shrink:0; }
+.ts-footer { padding:14px 18px; font-size:11px; color:#94A3B8; line-height:1.7; flex:1; display:flex; flex-direction:column; justify-content:flex-end; }
+
+/* ── CONTENT ──────────────────────────────────────── */
+#content { flex:1; display:flex; flex-direction:column; overflow:hidden; min-width:0; }
+#content-bar { padding:10px 22px; border-bottom:1px solid var(--line); display:flex; align-items:center; background:var(--white); flex-shrink:0; }
+.rec-count { font-family:var(--mono); font-size:12px; color:var(--muted); }
+#table-wrap { flex:1; overflow:auto; transition:opacity .15s ease; }
+#pagination { display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px; border-top:1px solid var(--line); background:var(--white); flex-shrink:0; }
+.pg-btn { padding:5px 14px; border:1px solid var(--line); border-radius:7px; background:var(--bg); font-family:var(--sans); font-size:13px; font-weight:600; cursor:pointer; color:var(--ink); transition:all .15s; }
+.pg-btn:hover:not(:disabled) { background:var(--navy); color:white; border-color:var(--navy); }
+.pg-btn:disabled { opacity:.35; cursor:default; }
+.pg-btn.active { background:var(--grad); color:white; border-color:transparent; }
+.pg-info { font-size:13px; color:var(--muted); font-family:var(--mono); padding:0 8px; }
+table { width:100%; table-layout:auto; }
+td { overflow:hidden; text-overflow:ellipsis; max-width:0; }
+th { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* TABLE */
+table { width:100%; border-collapse:collapse; font-size:15px; }
+thead { position:sticky; top:0; z-index:10; }
+th {
+  background: var(--navy);
+  color: rgba(255,255,255,.7);
+  padding: 10px 14px;
+  text-align: left;
+  font-family: var(--cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 2px solid var(--repsol-red);
+  transition: color .12s;
+}
+th:hover { color:white; }
+td { padding:9px 14px; border-bottom:1px solid #F1F5F9; vertical-align:middle; }
+tr { transition:background .18s ease, box-shadow .18s ease; }
+tr.row-anim { animation:fadeInRow .22s ease both; }
+tr.r-ok { border-left:3px solid #86EFAC; }
+tr.r-ok td { background:#F0FDF4; }
+tr.r-ok:hover td { background:#DCFCE7; transition:background .18s; }
+tr.r-pend { border-left:3px solid var(--repsol-orange); }
+tr.r-pend td { background:#FFF7F0; }
+tr.r-pend:hover td { background:#FFE8D4; transition:background .18s; }
+tr.r-an { border-left:3px solid #FCA5A5; }
+tr.r-an td { background:#FEF2F2; }
+tr.r-an:hover td { background:#FEE2E2; transition:background .18s; }
+tr.r-sel td { background:#FFF7E6 !important; box-shadow:inset 0 1px 0 #F59E0B, inset 0 -1px 0 #F59E0B; }
+tr.r-sel { outline:2px solid #F59E0B; outline-offset:-2px; border-left:5px solid #D97706 !important; filter:brightness(0.97); }
+
+.mono-cell { font-family:var(--mono); font-size:14px; color:#6D28D9; }
+.date-cell { font-family:var(--mono); font-size:14px; color:var(--muted); white-space:nowrap; }
+.note-mark { margin-left:5px; font-size:11px; opacity:.65; }
+
+/* AUTHOR CELL */
+.author-cell { display:flex; align-items:center; gap:7px; }
+.author-dot { width:22px; height:22px; border-radius:50%; display:grid; place-items:center; font-size:9px; font-weight:700; color:white; flex-shrink:0; }
+.author-info { display:flex; flex-direction:column; line-height:1.2; }
+.author-nm { font-size:14px; font-weight:600; color:var(--ink); }
+.author-dt { font-size:10px; color:var(--muted); font-family:var(--mono); }
+
+/* BADGES */
+.badge { display:inline-flex; align-items:center; padding:2px 7px; border-radius:99px; font-size:11px; font-weight:600; font-family:var(--mono); letter-spacing:.2px; white-space:nowrap; animation:badgePop .25s cubic-bezier(.34,1.56,.64,1) both; transition:transform .15s; }
+.bOK { background:var(--green-bg);  color:var(--green); border:1px solid #86EFAC; }
+.bEX { background:var(--blue-bg);   color:var(--blue);  border:1px solid #93C5FD; }
+.bAN { background:#FEE2E2; color:#991B1B; border:1px solid #FCA5A5; }
+.bPE { background:#FFF4EE; color:#C2410C; border:1px solid #FED7AA; }
+
+.act-btn { width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; background:transparent; border:1px solid var(--line); border-radius:8px; cursor:pointer; font-size:16px; margin-right:3px; transition:all .15s; padding:0; flex-shrink:0; }
+.act-btn:hover { background:var(--bg); }
+.act-del { color:white; background:#EF4444; border-color:#DC2626; }
+.act-del:hover { background:#DC2626; border-color:#B91C1C; transform:scale(1.08); }
+.act-edit { color:white; background:#3B82F6; border-color:#2563EB; }
+.act-edit:hover { background:#2563EB; border-color:#1D4ED8; transform:scale(1.08); }
+
+/* ── DETAIL ──────────────────────────────────────── */
+#detail { width:350px; background:var(--white); border-left:1px solid var(--line); display:flex; flex-direction:column; flex-shrink:0; overflow:hidden; box-shadow:-4px 0 24px rgba(0,0,0,.06); transition:width .25s cubic-bezier(.4,0,.2,1); }
+#detail.open { animation:slideInRight .25s cubic-bezier(.4,0,.2,1) both; }
+#detail-head { padding:15px 20px; background:var(--navy); border-bottom:1px solid rgba(255,255,255,.07); display:flex; align-items:center; justify-content:space-between; }
+#detail-head span { font-family:var(--cond); font-size:13px; font-weight:700; color:rgba(255,255,255,.8); text-transform:uppercase; letter-spacing:.8px; }
+#detail-head button { background:none; border:none; color:rgba(255,255,255,.38); cursor:pointer; font-size:22px; line-height:1; transition:color .12s; }
+#detail-head button:hover { color:white; }
+#detail-body { flex:1; overflow-y:auto; padding:20px; }
+.df-group { margin-bottom:14px; }
+.df-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.9px; color:var(--muted); margin-bottom:5px; }
+.df-val { padding:8px 11px; background:var(--bg); border:1px solid var(--line); border-radius:7px; font-size:15px; line-height:1.45; }
+.df-val.mono { font-family:var(--mono); font-size:12px; }
+.d-divider { height:1px; background:var(--line); margin:18px 0; }
+.note-textarea { width:100%; min-height:95px; padding:10px 11px; border:1px solid var(--line); border-radius:7px; font-family:var(--sans); font-size:15px; resize:vertical; outline:none; background:var(--bg); line-height:1.5; box-sizing:border-box; transition:border .15s; }
+.note-textarea:focus { border-color:var(--repsol-orange); }
+.save-note-btn { width:100%; margin-top:8px; padding:9px; border:none; border-radius:7px; font-family:var(--sans); font-size:15px; font-weight:600; cursor:pointer; background:var(--grad); color:white; transition:filter .15s; }
+.save-note-btn:hover { filter:brightness(1.08); }
+.save-note-btn.saved { background:linear-gradient(135deg,#166534,#15803D); }
+.d-actions { display:flex; gap:9px; margin-top:11px; }
+.d-actions button { flex:1; padding:9px; border-radius:7px; font-family:var(--sans); font-size:15px; cursor:pointer; font-weight:600; transition:all .15s; }
+.d-edit { background:var(--bg); border:1px solid var(--line); }
+.d-edit:hover { background:var(--line); }
+.d-del  { background:#FEE2E2; border:1px solid #FCA5A5; color:var(--repsol-red); }
+.d-del:hover { background:#FECACA; }
+
+/* AUTHOR BOX IN DETAIL */
+.author-box { background:var(--bg); border:1px solid var(--line); border-radius:9px; padding:12px 14px; display:flex; align-items:center; gap:12px; }
+.author-box .author-dot { width:36px; height:36px; font-size:14px; }
+.author-box .author-nm { font-size:15px; font-weight:600; color:var(--ink); }
+.author-box .author-dt { font-size:12px; color:var(--muted); }
+
+/* ── USER MODAL ──────────────────────────────────── */
+#user-modal-overlay { position:fixed; inset:0; background:rgba(10,18,30,.82); backdrop-filter:blur(8px); z-index:500; display:flex; align-items:center; justify-content:center; padding:24px; }
+#user-modal { background:var(--white); border-radius:16px; width:420px; max-width:100%; box-shadow:var(--shadow-l); overflow:hidden; animation:modalIn .28s cubic-bezier(.34,1.56,.64,1); }
+.um-banner {
+  height: 6px;
+  background: var(--grad);
+}
+.um-head { padding:32px 32px 0; text-align:center; }
+.um-icon-wrap { margin:0 auto 18px; width:72px; height:72px; display:flex; align-items:center; justify-content:center; }
+.um-title { font-family:var(--cond); font-size:24px; font-weight:700; color:var(--navy); margin-bottom:8px; letter-spacing:.02em; text-transform:uppercase; }
+.um-sub { font-size:14px; color:var(--muted); line-height:1.6; }
+.um-body { padding:28px 32px 32px; }
+.um-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.9px; color:var(--muted); margin-bottom:9px; display:block; }
+.um-input { width:100%; padding:13px 16px; border:2px solid var(--line); border-radius:10px; font-family:var(--sans); font-size:15px; color:var(--ink); outline:none; transition:border .15s; background:var(--bg); font-weight:500; }
+.um-input:focus { border-color:var(--repsol-red); }
+.um-hint { font-size:12px; color:#94A3B8; margin-top:7px; line-height:1.5; }
+.um-btn { width:100%; margin-top:20px; padding:14px; background:var(--grad); border:none; border-radius:10px; font-family:var(--cond); font-size:16px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:white; cursor:pointer; transition:filter .15s, transform .1s; box-shadow:0 4px 16px rgba(218,41,28,.3); }
+.um-btn:active { animation:btnPress .15s ease; }
+.um-btn:hover { filter:brightness(1.08); }
+.um-btn:disabled { opacity:.38; cursor:not-allowed; filter:none; }
+
+/* ── RECORD MODAL ────────────────────────────────── */
+#modal-overlay { position:fixed; inset:0; background:rgba(10,18,30,.65); backdrop-filter:blur(5px); z-index:300; display:none; align-items:center; justify-content:center; padding:24px; }
+#modal-overlay.open { display:flex; }
+#modal { background:var(--white); border-radius:14px; width:640px; max-width:100%; max-height:88vh; overflow-y:auto; box-shadow:var(--shadow-l); animation:modalIn .28s cubic-bezier(.34,1.56,.64,1); }
+@keyframes modalIn { from{opacity:0;transform:scale(.95) translateY(14px)} to{opacity:1;transform:scale(1) translateY(0)} }
+.modal-banner { height:4px; background:var(--grad); border-radius:14px 14px 0 0; }
+#modal-head { padding:18px 26px; background:var(--navy); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; }
+#modal-head span { font-family:var(--cond); font-size:16px; font-weight:700; color:white; letter-spacing:.04em; text-transform:uppercase; }
+#modal-head button { background:none; border:none; color:rgba(255,255,255,.45); cursor:pointer; font-size:24px; line-height:1; transition:color .12s; }
+#modal-head button:hover { color:white; }
+#modal-body { padding:24px 26px; }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.form-field { display:flex; flex-direction:column; gap:6px; }
+.form-field.span2 { grid-column:1/-1; }
+.form-field label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.9px; color:var(--muted); }
+.form-field input, .form-field select { padding:9px 11px; border:1px solid var(--line); border-radius:8px; font-family:var(--sans); font-size:15px; color:var(--ink); background:var(--bg); outline:none; width:100%; transition:border .15s; }
+.form-field input:focus, .form-field select:focus { border-color:var(--repsol-orange); }
+#modal-foot { padding:16px 26px; border-top:1px solid var(--line); display:flex; gap:10px; justify-content:flex-end; position:sticky; bottom:0; background:var(--white); }
+.m-cancel { padding:8px 22px; background:var(--bg); border:1px solid var(--line); border-radius:8px; font-family:var(--sans); font-size:15px; cursor:pointer; font-weight:500; }
+.m-save   { padding:8px 22px; background:var(--grad); border:none; border-radius:8px; font-family:var(--sans); font-size:15px; font-weight:700; color:white; cursor:pointer; transition:filter .15s, transform .1s; }
+.m-save:active { animation:btnPress .15s ease; }
+
+.check-cell { display:flex; align-items:center; justify-content:center; }
+.copy-wrap { display:inline-flex; align-items:center; gap:5px; max-width:100%; }
+.copy-btn { opacity:0; flex-shrink:0; background:none; border:none; cursor:pointer; padding:2px 4px; border-radius:4px; color:var(--muted); transition:opacity .15s, color .15s; line-height:1; }
+.copy-btn:hover { color:var(--repsol-red); background:rgba(218,41,28,0.08); }
+.copy-btn svg { display:block; }
+tr:hover .copy-btn { opacity:1; }
+.copy-btn.copied { color:#16A34A !important; opacity:1; }
+.check-cell input[type=checkbox] { width:18px; height:18px; cursor:pointer; accent-color:var(--green); }
+.check-yes { font-size:16px; }
+.empty-state { text-align:center; padding:80px 20px; color:var(--muted); }
+.empty-state .ei { font-size:40px; margin-bottom:14px; opacity:.35; }
+.empty-state p { font-size:14px; }
+
+/* ── PRINT ───────────────────────────────────────── */
+
+/* ════════════════════════════════════════════════════════════════
+   RESPONSIVE — TABLET (≤900px) y MÓVIL (≤600px)
+   En PC/Mac (>900px) no se aplica ninguno de estos estilos
+   ════════════════════════════════════════════════════════════════ */
+
+
+
+/* ── PANTALLA 1920x1080 AL 125% (viewport ~1536px) ─────────────────
+   El 125% de zoom reduce el viewport efectivo a ~1536px
+   ─────────────────────────────────────────────────────────────────── */
+@media (max-width: 1600px) and (min-width: 1281px) {
+  #sidebar { width:220px; }
+  #detail { width:320px; }
+  body { font-size:15px; }
+  table { font-size:14px; }
+  th { font-size:13px; }
+  .btn { padding:5px 14px; font-size:13px; }
+  .app-name { font-size:15px; }
+}
+
+/* ── PANTALLA MEDIANA (1024px - 1280px) ─────────────────────────────
+   Para monitores más pequeños o con menos resolución
+   ─────────────────────────────────────────────────────────────────── */
+@media (max-width: 1280px) and (min-width: 901px) {
+  /* Sidebar más estrecho */
+  #sidebar { width:200px; }
+  .stat-num { font-size:22px; }
+
+  /* Panel detalle más estrecho */
+  #detail { width:300px; }
+
+  /* Fuentes ligeramente más pequeñas */
+  body { font-size:14px; }
+  table { font-size:13px; }
+  th { font-size:12px; }
+
+  /* Topbar más compacto */
+  .app-name { font-size:14px; }
+  .app-sub  { font-size:10px; }
+  .btn { padding:5px 12px; font-size:13px; }
+  .sync-pill { font-size:11px; padding:4px 10px; }
+
+  /* Columnas de tabla: reducir min-width via zoom suave */
+  #table-wrap { font-size:13px; }
+}
+
+/* ── PANTALLA PEQUEÑA PC (901px - 1024px) ───────────────────────── */
+@media (max-width: 1024px) and (min-width: 901px) {
+  #sidebar { width:180px; }
+  .stat-num { font-size:20px; }
+  .stat-lbl { font-size:9px; }
+  #detail { width:270px; }
+  .app-sub { display:none; }
+  .btn-ghost { padding:4px 10px; font-size:12px; }
+  #table-wrap { font-size:12px; }
+  th { font-size:11px; padding:8px 6px; }
+  td { padding:8px 6px; }
+  .df-label { font-size:11px; }
+  .df-val { font-size:13px; }
+}
+
+/* ── OCULTAR botón hamburguesa en PC ─── */
+@media (min-width: 901px) {
+  #mob-menu-btn { display:none !important; }
+}
+
+/* ── TABLET ──────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  /* Sidebar se oculta por defecto, se abre con botón */
+  #sidebar { position:fixed; left:-110%; top:0; bottom:0; z-index:300; width:82vw; max-width:300px; transition:left .3s cubic-bezier(.4,0,.2,1); box-shadow:4px 0 24px rgba(0,0,0,.18); overflow-y:auto; border-right:none; }
+  #sidebar.mob-open { left:0; }
+  #sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:299; }
+  #sidebar-overlay.visible { display:block; animation:overlayIn .2s ease; }
+
+  /* Botón hamburguesa para abrir sidebar */
+  #mob-menu-btn { display:none; align-items:center; justify-content:center; width:36px; height:36px; background:rgba(255,255,255,.1); border:none; border-radius:8px; cursor:pointer; color:white; font-size:20px; flex-shrink:0; }
+
+  /* Panel detalle: pantalla completa en tablet */
+  #detail { position:fixed; right:0; top:0; bottom:0; width:100% !important; max-width:420px; z-index:200; transform:translateX(100%); transition:transform .3s cubic-bezier(.4,0,.2,1); display:flex !important; }
+  #detail.open { transform:translateX(0); animation:none; }
+
+  /* Ocultar algunos botones de topbar para ahorrar espacio */
+  .btn-ghost.hide-tablet { display:none; }
+
+  /* Tabs más compactos */
+  .ttab { padding:6px 14px; font-size:13px; }
+
+  /* App name más corto */
+  .app-sub { display:none; }
+}
+
+/* ── MÓVIL ───────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  /* Topbar compacto */
+  #topbar { padding:0 10px; min-height:52px; flex-wrap:wrap; gap:0; overflow:visible; }
+  .app-brand { gap:8px; }
+  .app-name { font-size:14px; }
+  .app-icon { width:30px; height:30px; }
+  .topbar-divider { display:none; }
+  /* tabs-bar ocupa todo el ancho automáticamente */
+  .topbar-right { gap:6px; }
+
+  /* Ocultar botones extra, dejar solo + Nuevo */
+  .btn-ghost { display:none; }
+  .btn-primary { padding:7px 14px; font-size:13px; }
+
+  /* Usuario: solo avatar */
+  .user-name { display:none; }
+  .user-chip { padding:4px; }
+
+  /* Tabla → tarjetas en móvil */
+  #table-wrap { padding:10px; }
+  table, thead, tbody, th, td, tr { display:block; }
+  thead { display:none; }
+  tr.row-anim {
+    background:white;
+    border:1px solid var(--line);
+    border-radius:12px;
+    margin-bottom:10px;
+    padding:12px 14px;
+    box-shadow:0 2px 8px rgba(0,0,0,.06);
+    animation:fadeInRow .22s ease both;
+    cursor:pointer;
+  }
+  tr.r-ok  { border-left:4px solid #86EFAC !important; background:#F0FDF4 !important; }
+  tr.r-pend{ border-left:4px solid var(--repsol-orange) !important; background:#FFF7F0 !important; }
+  tr.r-an  { border-left:4px solid #FCA5A5 !important; background:#FEF2F2 !important; }
+  tr.r-sel td { background:#FFF7E6 !important; box-shadow:inset 0 1px 0 #F59E0B, inset 0 -1px 0 #F59E0B; }
+  tr.r-sel { border-left:5px solid #D97706 !important; outline:2px solid #F59E0B; outline-offset:-2px; }
+  td { border:none; padding:3px 0; font-size:14px; display:flex; align-items:flex-start; gap:6px; }
+  td::before { content:attr(data-label); font-size:11px; font-weight:700; text-transform:uppercase; color:var(--muted); letter-spacing:.7px; min-width:90px; flex-shrink:0; padding-top:2px; }
+  /* Ocultar columnas menos importantes en móvil */
+  td.hide-mobile { display:none; }
+  /* Columna acciones: botones grandes */
+  td:last-child { justify-content:flex-end; padding-top:8px; border-top:1px solid var(--line); margin-top:6px; }
+  td:last-child::before { display:none; }
+  .act-btn { padding:8px 12px; font-size:15px; }
+
+  /* Sidebar más ancho en móvil */
+  #sidebar { width:85vw; max-width:300px; }
+
+  /* Modal pantalla completa */
+  #modal { width:100% !important; max-width:100%; max-height:100vh; border-radius:0; margin:0; }
+  #modal-overlay { align-items:flex-end; }
+
+  /* Detail panel pantalla completa */
+  #detail { max-width:100%; }
+
+
+  /* Barra de tabs en móvil */
+  #tabs-bar { padding: 4px 8px; }
+  #tabs-bar .ttab { flex: 1; text-align: center; padding: 9px 4px; font-size: 13px; }
+
+  /* Stats más compactos */
+  .stat-tile { padding:8px 10px; }
+  .stat-num { font-size:20px; }
+}
+
+@media print {
+  @page { size: A4 landscape; margin: 12mm 10mm; }
+  body { overflow:visible !important; height:auto !important; font-size:11px; background:white; }
+  #topbar, #setup, #sidebar, #detail, #modal-overlay, #user-modal-overlay, #content-bar { display:none !important; }
+  #main { display:block !important; overflow:visible !important; }
+  #content { overflow:visible !important; display:block !important; }
+  #table-wrap { overflow:visible !important; }
+  .print-header { display:block !important; }
+  tr.r-ok td { background:#F0FDF4 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  tr.r-pend td { background:#FFF4EE !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  tr.r-pend { border-left:3px solid #FF6900 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  tr.r-an td { background:#FEF2F2 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  tr.r-an { border-left:3px solid #FCA5A5 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  th { background:#0F1923 !important; color:white !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; font-size:9px !important; padding:6px 8px !important; }
+  td { padding:5px 8px !important; font-size:10px !important; }
+  .act-btn { display:none !important; }
+  .author-dt { display:none; }
+}
+.print-header { display:none; }
+
+.link-btn { display:inline-flex; align-items:center; gap:8px; padding:9px 16px; background:linear-gradient(135deg,#1D4ED8,#2563EB); color:white; border-radius:8px; font-size:13px; font-weight:600; font-family:var(--sans); text-decoration:none; border:none; cursor:pointer; transition:all .15s; margin-top:4px; }
+.link-btn:hover { background:linear-gradient(135deg,#1E40AF,#1D4ED8); transform:translateY(-1px); box-shadow:0 4px 12px rgba(29,78,216,.35); }
+.link-btn svg { flex-shrink:0; }
+.link-input-hint { font-size:11px; color:var(--muted); margin-top:4px; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
+<div id="user-modal-overlay" onclick="if(event.target===this)confirmUser()">
+  <div id="user-modal">
+    <div class="um-banner"></div>
+    <div class="um-head">
+      <div class="um-icon-wrap">      <svg width="56" height="56" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))">
+        <defs>
+          <linearGradient id="ig3" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#FF7600"/>
+            <stop offset="100%" style="stop-color:#E65F00"/>
+          </linearGradient>
+        </defs>
+        <circle cx="32" cy="32" r="31" fill="url(#ig3)"/>
+        <ellipse cx="32" cy="18" rx="22" ry="12" fill="rgba(255,255,255,0.2)"/>
+        <circle cx="32" cy="32" r="30" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+        <image href="data:image/png;base64,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" x="7" y="7" width="50" height="50"/>
+      </svg></div>
+      <div class="um-title">Control Alta Materiales</div>
+      <div class="um-sub">Introduce tu nombre para que quede registrado en cada trabajo que añadas o edites.</div>
+    </div>
+    <div class="um-body">
+      <label class="um-label">Tu nombre completo</label>
+      <input class="um-input" id="um-input" placeholder="Ej: María García" onkeydown="if(event.key==='Enter')confirmUser()">
+      <div class="um-hint">Se guardará en este navegador. Puedes cambiarlo cuando quieras haciendo clic en tu nombre.</div>
+      <button class="um-btn" id="um-btn" onclick="confirmUser()">Acceder →</button>
+    </div>
+  </div>
+</div>
+
+<div id="topbar">
+  <button id="mob-menu-btn" onclick="toggleSidebar()">☰</button>
+  <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+  <div class="app-brand">
+    <svg class="app-icon" width="38" height="38" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="ig2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF7600"/>
+      <stop offset="100%" style="stop-color:#E65F00"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="31" fill="url(#ig2)"/>
+  <ellipse cx="32" cy="18" rx="22" ry="12" fill="rgba(255,255,255,0.18)"/>
+  <circle cx="32" cy="32" r="30" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+  <image href="data:image/png;base64,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" x="7" y="7" width="50" height="50"/>
+</svg>
+    <div class="app-title">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="app-name">Control Alta Materiales</span>
+        <button onclick="showAbout()" title="Acerca de la aplicación" style="width:22px;height:22px;border-radius:50%;border:none;cursor:pointer;background:rgba(255,255,255,0.18);color:white;font-size:12px;font-weight:700;font-family:Georgia,serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,transform .15s;line-height:1;" onmouseover="this.style.background='rgba(255,255,255,0.35)';this.style.transform='scale(1.15)'" onmouseout="this.style.background='rgba(255,255,255,0.18)';this.style.transform='scale(1)'">i</button>
+      </div>
+      <span class="app-sub">Repsol · SAP · TAM4</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="sync-pill sp-idle" id="spill"><div class="sp-dot"></div><span id="stxt">Sin sync</span></div>
+    <button class="btn btn-ghost hide-tablet" onclick="forcePull()">⟳ Actualizar</button>
+    <button class="btn btn-ghost" onclick="exportExcel()" title="Exportar listado actual a Excel">⬇ Excel</button>
+    <button class="btn btn-ghost hide-tablet" onclick="printView()" title="Imprimir listado actual">🖨 Imprimir</button>
+    <button class="btn btn-ghost hide-tablet" onclick="backupLocal()" title="Copia de seguridad local">💾 Backup</button>
+    <button class="btn btn-ghost hide-tablet" onclick="restoreBackup()" title="Restaurar copia de seguridad">📂 Restaurar</button>
+    <div class="user-chip" onclick="changeUser()" title="Cambiar nombre">
+      <div class="user-avatar" id="u-avatar">?</div>
+      <span class="user-name" id="u-name">—</span>
+    </div>
+    <button class="btn btn-primary" onclick="openNew()">+ Nuevo</button>
+  </div>
+</div>
+
+<div id="tabs-bar">
+  <button class="ttab on" onclick="switchTab('trabajos')">Trabajos</button>
+  <button class="ttab" onclick="switchTab('planificadores')">Planificadores</button>
+</div>
+
+<div id="setup">
+  <div id="setup-inner">
+    <div style="font-size:28px;flex-shrink:0;margin-top:2px">☁️</div>
+    <div style="flex:1">
+      <div class="setup-heading">Configurar sincronización automática (Google Sheets)</div>
+      <div class="setup-steps">
+        <b>1.</b> Ve a <a href="https://sheets.google.com" target="_blank">sheets.google.com</a> → crea una hoja nueva → copia el ID de la URL<br>
+        <b>2.</b> En esa hoja: <b>Extensiones → Apps Script</b> → borra todo → pega el archivo <b>AppsScript_Backend.js</b> → pon tu Sheet ID en la línea 7 → guarda<br>
+        <b>3.</b> <b>Implementar → Nueva implementación → Aplicación web</b> → Ejecutar como: Yo · Acceso: <b>Cualquier usuario</b> → copia la URL<br>
+        <b>4.</b> Pégala aquí:
+      </div>
+      <div id="setup-url-row">
+        <input id="setup-input" placeholder="https://script.google.com/macros/s/.../exec" oninput="onUrl(this)">
+        <button id="setup-btn" onclick="connect()" disabled>Conectar</button>
+      </div>
+      <div id="setup-msg"></div>
+      <span class="setup-skip" onclick="skipSetup()">Usar sin sincronización (solo local)</span>
+    </div>
+  </div>
+</div>
+
+
+<div id="about-overlay" onclick="closeAbout()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;align-items:center;justify-content:center;animation:overlayIn .2s ease;">
+  <div onclick="event.stopPropagation()" style="background:white;border-radius:16px;width:400px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden;animation:modalIn .28s cubic-bezier(.34,1.56,.64,1);">
+    <div style="background:linear-gradient(135deg,#DA291C,#FF6900);padding:28px 28px 24px;text-align:center;">
+      <svg width="56" height="56" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))">
+        <rect width="64" height="64" rx="14" fill="rgba(255,255,255,0.15)"/>
+        <image href="data:image/png;base64,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" x="6" y="6" width="52" height="52"/>
+      </svg>
+      <div style="color:white;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:12px;">Control Alta Materiales</div>
+      <div style="color:rgba(255,255,255,.75);font-size:12px;margin-top:4px;">Repsol · SAP · TAM4</div>
+    </div>
+    <div style="padding:24px 28px 28px;">
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
+          <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Creador</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">Rubén García</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
+          <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Versión</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">4.5</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
+          <span style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Tecnología</span>
+          <span style="font-size:15px;font-weight:700;color:#0F1923;">HTML · CSS · Google Sheets</span>
+        </div>
+      </div>
+      <button onclick="closeAbout()" style="width:100%;margin-top:20px;padding:12px;background:linear-gradient(135deg,#DA291C,#FF6900);border:none;border-radius:10px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:white;cursor:pointer;">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="print-header" id="print-header" style="padding:0 0 12px 0; border-bottom:2px solid #DA291C; margin-bottom:14px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#0F1923;">Control Alta Materiales · Repsol</div>
+      <div id="print-subtitle" style="font-size:12px;color:#64748B;margin-top:2px;"></div>
+    </div>
+    <div id="print-date" style="font-size:11px;color:#64748B;text-align:right;font-family:monospace;"></div>
+  </div>
+</div>
+
+<div id="main">
+  <div id="sidebar">
+    <div class="sb-block">
+      <div class="sb-label">Buscar</div>
+      <input class="sb-input" id="qInput" placeholder="Texto, código, solicitante…" oninput="applyF()">
+    </div>
+    <div class="sb-block">
+      <div class="sb-label">Filtros</div>
+      <select class="sb-select" id="fSol" onchange="applyF()"><option value="">Todos los solicitantes</option></select>
+      <select class="sb-select" id="fStat" onchange="applyF()">
+        <option value="">Todos los estados</option>
+        <option value="ok">✅ OK</option>
+        <option value="pend">🟠 Pendiente</option>
+        <option value="an">🔴 Anulado</option>
+      </select>
+      <select class="sb-select" id="fYear" onchange="applyF()"><option value="">Todos los años</option></select>
+      <select class="sb-select" id="fAuthor" onchange="applyF()"><option value="">Todos los autores</option></select>
+    </div>
+    <div class="sb-block">
+      <div class="sb-label">Resumen</div>
+      <div class="stats-grid">
+        <div class="stat-tile"><div class="stat-num" id="s0" style="color:var(--ink)">0</div><div class="stat-lbl">Total</div></div>
+        <div class="stat-tile"><div class="stat-num" id="s1" style="color:var(--green)">0</div><div class="stat-lbl">OK</div></div>
+        <div class="stat-tile"><div class="stat-num" id="s2" style="color:var(--repsol-orange)">0</div><div class="stat-lbl">Pendiente</div></div>
+        <div class="stat-tile"><div class="stat-num" id="s3" style="color:var(--repsol-red)">0</div><div class="stat-lbl">Con notas</div></div>
+      </div>
+    </div>
+    <div class="sb-block" style="flex:1;overflow:auto">
+      <div class="sb-label">Leyenda</div>
+      <div class="leg-row"><div class="leg-swatch" style="background:#FFF7F0;border:2px solid var(--repsol-orange)"></div>Pendiente</div>
+      <div class="leg-row"><div class="leg-swatch" style="background:#F0FDF4;border:2px solid #86EFAC"></div>OK / Completado</div>
+      <div class="leg-row"><div class="leg-swatch" style="background:#FEF2F2;border:2px solid #FCA5A5"></div>Anulado</div>
+    </div>
+    <div class="ts-footer"><div id="lsv"></div><div id="lsy"></div></div>
+  </div>
+
+  <div id="content">
+    <div id="content-bar"><span class="rec-count" id="rc">0 registros</span></div>
+    <div id="table-wrap"></div>
+<div id="pagination"></div>
+  </div>
+
+  <div id="detail" style="display:none">
+    <div id="detail-head"><span>Detalle del registro</span><button onclick="closeDetail()">×</button></div>
+    <div id="detail-body"></div>
+  </div>
+</div>
+
+<div id="modal-overlay">
+  <div id="modal">
+    <div class="modal-banner"></div>
+    <div id="modal-head"><span id="modal-title">Nuevo</span><button onclick="closeModal()">×</button></div>
+    <div id="modal-body"></div>
+    <div id="modal-foot">
+      <button class="m-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="m-save" onclick="saveRec()">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// --- CONFIGURACIÓN DE URL INTEGRADA ---
-const UK = 'repsol_sync_url_v2';
-const NEW_URL = 'https://script.google.com/macros/s/AKfycbwZtIHfK_n61TuOIBxFRBXBoWsk7D50NUKcMznQtjonJQ1VbBUr8PCi-CmLyGJExVEMPw/exec';
-
-// Priorizamos la nueva URL si se ha integrado manualmente
-let SURL = NEW_URL; 
-localStorage.setItem(UK, SURL); // Forzamos la actualización en el navegador
-
-// ... (Tus datos INIT_T e INIT_P aquí) ...
-
-// --- LÓGICA DE RED MEJORADA (SOLUCIÓN SYNC) ---
-
-function fetchGet(url) {
-  // Anti-Caché: Añadimos un timestamp para que el navegador pida datos frescos siempre
-  const noCacheUrl = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();
-  return fetch(noCacheUrl, { method: 'GET', redirect: 'follow' })
-    .then(r => r.json());
-}
-
-function pullCloud() {
-  if (!SURL) return;
-  setSY('syncing', 'Actualizando…');
-  fetchGet(SURL + '?action=read')
-    .then(remote => {
-      if (!remote || remote.error) { setSY('error', 'Error Servidor'); return; }
-      // Merge inteligente
-      S.data = mergeData(S.data, remote);
-      saveLocal(); 
-      applyF(false);
-      setSY('ok', 'Sincronizado');
-    }).catch(() => setSY('error', 'Sin conexión'));
-}
-
-function saveAndSync() {
-  saveLocal();
-  if (!SURL) { applyF(false); return; }
-  setSY('syncing', 'Guardando…');
-  
-  const body = JSON.stringify({ action: 'write', data: S.data });
-  
-  fetch(SURL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain' }, body })
-    .then(r => r.json())
-    .then(res => {
-      if (res && res.error) {
-        setSY('error', 'Error de Límite');
-      } else {
-        setSY('ok', 'Guardado ✓');
-      }
-    }).catch(() => setSY('error', 'Fallo Red'));
-}
-
-function setSY(state, msg) {
-  const pill = document.getElementById('spill');
-  const txt = document.getElementById('stxt');
-  if(pill && txt) {
-    pill.className = 'sync-pill sp-' + state;
-    txt.textContent = msg;
-  }
-}
-
-// Inicialización
-function init() {
-  loadLocal();
-  updateUserUI();
-  if (SURL) {
-    pullCloud();
-    setInterval(pullCloud, 30000); // Sincronización automática cada 30 segundos
-  }
-  applyF();
-}
-
-window.onload = init;
-</script>
-</body>
-</html>
+// ── DATOS ─────────────────────────────────────────────────────────────────────
+const INIT_T=[{"id":"t1","texto":"MODIFICAR STOCK DE SEGURIDAD DE 80137764 A 77","solicitante":"LAIA","codigo_seguimiento":"X-202506-00401","solicitado":"2025-06-03","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t2","texto":"MODIFICAR STOCK DE 80016544 A 8","solicitante":"JORDI GAVALDÀ (ESTRELLA)","codigo_seguimiento":"X-202506-01011","solicitado":"2025-06-05","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t3","texto":"CREAR ANILLOS RANURADOS LAPEADORA","solicitante":"RICARDO LOSA (ESTRELLA)","codigo_seguimiento":"C-202506-02650","solicitado":"2025-06-11","codigo_sap":"","extender_de":"","resuelto_sap":"80215620","ok":"OK","enlace":""},{"id":"t4","texto":"CORREA V 360524 (LAPEADORA)","solicitante":"RICARDO LOSA (ESTRELLA)","codigo_seguimiento":"C-202506-02688","solicitado":"2025-06-11","codigo_sap":"","extender_de":"","resuelto_sap":"80215060","ok":"OK","enlace":""},{"id":"t5","texto":"RODILLOS 360535-I (LAPEADORA)","solicitante":"RICARDO LOSA (ESTRELLA)","codigo_seguimiento":"C-202506-02711","solicitado":"2025-06-11","codigo_sap":"","extender_de":"","resuelto_sap":"80215059","ok":"OK","enlace":""},{"id":"t6","texto":"ACEITE ABRASIVO KEMOX O-400S 300111 (BIDON 5L) PARA LAPEADORA KEMET","solicitante":"RICARDO LOSA (ESTRELLA)","codigo_seguimiento":"C-202506-02718","solicitado":"2025-06-11","codigo_sap":"","extender_de":"","resuelto_sap":"80215058","ok":"OK","enlace":""},{"id":"t7","texto":"KIT DE RECTIFICADO ABRASIVO 360759","solicitante":"RICARDO LOSA (ESTRELLA)","codigo_seguimiento":"C-202506-02728","solicitado":"2025-06-11","codigo_sap":"","extender_de":"","resuelto_sap":"80218971","ok":"OK","enlace":""},{"id":"t8","texto":"CODO 90º RL BW SCH40 2\" A-420 GR. WPL6","solicitante":"JOSUÉ ROVIRA","codigo_seguimiento":"C-202506-02832","solicitado":"2025-06-11","codigo_sap":"80164241","extender_de":"","resuelto_sap":"EXISTENTE","ok":"EXISTENTE","enlace":""},{"id":"t9","texto":"SOCKOLET 3000# 2X3/4 A350 GR.LF2","solicitante":"JOSUÉ ROVIRA","codigo_seguimiento":"C-202506-03029","solicitado":"2025-06-12","codigo_sap":"","extender_de":"3213110381","resuelto_sap":"80215231","ok":"OK","enlace":""},{"id":"t10","texto":"CAP BW SCH30 3/4 A350 GR.LF2","solicitante":"JOSUÉ ROVIRA","codigo_seguimiento":"C-202506-03048","solicitado":"2025-06-12","codigo_sap":"","extender_de":"","resuelto_sap":"80215055","ok":"OK","enlace":""},{"id":"t11","texto":"NIPPLE PBE 3/4\" A333 GR.6 SMLS","solicitante":"JOSUÉ ROVIRA","codigo_seguimiento":"G-202506-03055","solicitado":"2025-06-12","codigo_sap":"","extender_de":"3171437117","resuelto_sap":"80215056","ok":"OK","enlace":""},{"id":"t12","texto":"MANGUITO 1 1/2 #3000 A350 GR.LF2","solicitante":"JOSUÉ ROVIRA","codigo_seguimiento":"X-202506-03078","solicitado":"2025-06-12","codigo_sap":"","extender_de":"4000022212","resuelto_sap":"4000022212","ok":"OK","enlace":""},{"id":"t13","texto":"TE SW 3000# 3/4\" A350 GR.LF2","solicitante":"JOSUÉ ROVIRA","codigo_seguimiento":"C-202506-03087","solicitado":"2025-06-12","codigo_sap":"","extender_de":"","resuelto_sap":"80215054","ok":"OK","enlace":""},{"id":"t14","texto":"DISCO EN OCHO 2\" #600 A516 GR.70","solicitante":"JOSUÉ ROVIRA","codigo_seguimiento":"G-202506-03131","solicitado":"2025-06-12","codigo_sap":"","extender_de":"120758309010","resuelto_sap":"80215057","ok":"OK","enlace":""},{"id":"t15","texto":"REDUCCION EXC BBE SCH40/SCH80 2X1 1/2\" A333 GR.6 SMLS","solicitante":"JOSUÉ ROVIRA","codigo_seguimiento":"C-202506-03334","solicitado":"2025-06-13","codigo_sap":"","extender_de":"","resuelto_sap":"80215052","ok":"OK","enlace":""},{"id":"t16","texto":"REDUCCION EXC BBE SCH40/SCH80 2X3/4\" A333 GR.6 SMLS","solicitante":"JOSUÉ ROVIRA","codigo_seguimiento":"C-202506-03350","solicitado":"2025-06-13","codigo_sap":"","extender_de":"","resuelto_sap":"80215053","ok":"OK","enlace":""},{"id":"t17","texto":"REDUCCION EXC BBE SCH80 1 1/2X1/2\" A333 GR.6 SMLS","solicitante":"JOSUÉ ROVIRA","codigo_seguimiento":"C-202506-03378","solicitado":"2025-06-13","codigo_sap":"","extender_de":"","resuelto_sap":"80215051","ok":"OK","enlace":""},{"id":"t18","texto":"BOMBA COMPLETA CPK 040-160 M.S","solicitante":"ESTRELLA","codigo_seguimiento":"C-202506-03537","solicitado":"2025-06-13","codigo_sap":"","extender_de":"","resuelto_sap":"80218551","ok":"OK","enlace":""},{"id":"t19","texto":"SOPORTE COJINETE CPK/EBWP 25/62 M. G (5134253901)","solicitante":"ESTRELLA","codigo_seguimiento":"C-202506-03790","solicitado":"2025-06-13","codigo_sap":"","extender_de":"","resuelto_sap":"80215082","ok":"OK","enlace":""},{"id":"t20","texto":"TAPA SOPORTE CPK/EBWP 25/62 M.G  (5134251001)","solicitante":"ESTRELLA","codigo_seguimiento":"C-202506-03837","solicitado":"2025-06-13","codigo_sap":"","extender_de":"","resuelto_sap":"80215081","ok":"OK","enlace":""},{"id":"t21","texto":"RED EXC BBE SCH80 3/4X1/2\" A333 GR.6","solicitante":"JOSUÉ ROVIRA","codigo_seguimiento":"C-202506-04103","solicitado":"2025-06-17","codigo_sap":"","extender_de":"","resuelto_sap":"80215131","ok":"OK","enlace":""},{"id":"t22","texto":"RED BC BBE SCH40/SCH80 2X1\" A333 GR.6 SMLS","solicitante":"JOSUÉ ROVIRA","codigo_seguimiento":"C-202506-04104","solicitado":"2025-06-17","codigo_sap":"","extender_de":"","resuelto_sap":"80215132","ok":"OK","enlace":""},{"id":"t23","texto":"CAMBIO UNIDAD A METRO TUBO SA-213 T91 S/S 41,3X4,2 MM","solicitante":"JUAN CARLOS CORTEJOSA","codigo_seguimiento":"C-202506-04162","solicitado":"2025-06-17","codigo_sap":"80213418","extender_de":"(CUELGA 70014072)","resuelto_sap":"80218553","ok":"OK","enlace":""},{"id":"t24","texto":"CAMBIO UNIDAD A METRO TUBO SA-213 T91 S/S 41,3X6,7 MM","solicitante":"JUAN CARLOS CORTEJOSA","codigo_seguimiento":"C-202506-04174","solicitado":"2025-06-17","codigo_sap":"80213420","extender_de":"(CUELGA 70014072)","resuelto_sap":"80218552","ok":"OK","enlace":""},{"id":"t25","texto":"VOLVER A CODIFICAR  MOTOBOMBA GRUNDFOS KP350 220V 0,7KW","solicitante":"ESTRELLA","codigo_seguimiento":"C-202506-04319","solicitado":"2025-06-18","codigo_sap":"80165194","extender_de":"","resuelto_sap":"80215252","ok":"OK","enlace":""},{"id":"t26","texto":"SOLICITAR MODIFICACIÓN DESCRIPCIÓN TUBERIA 1\" SCH160 A106GrB (SS) - L7800","solicitante":"FACUNDO","codigo_seguimiento":"E-202506-04402","solicitado":"2025-06-18","codigo_sap":"80150594","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t27","texto":"SOLICITAR MODIFICACIÓN DESCRIPCIÓN TUBERIA 1\" SCH160 A312 T316L (SS) - L7052","solicitante":"FACUNDO","codigo_seguimiento":"E-202506-04404","solicitado":"2025-06-18","codigo_sap":"80139772","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t28","texto":"SOLICITAR MODIFICACIÓN DESCRIPCIÓN TUBERIA 1\" SCH40 A106B (SS) - L7805","solicitante":"FACUNDO","codigo_seguimiento":"E-202506-04405","solicitado":"2025-06-18","codigo_sap":"80022063","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t29","texto":"SOLICITAR MODIFICACIÓN DESCRIPCIÓN TUBERIA 1\" SCH 10S A312 TP304/304L (SS) - L8161","solicitante":"FACUNDO","codigo_seguimiento":"E-202506-04407","solicitado":"2025-06-18","codigo_sap":"80018902","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t30","texto":"ALTA DE MATERIAL EXISTENTE EN SAP ESPIRO CR 1235x1224.03x1181,1x4.5mm 316+GRF","solicitante":"FACUNDO","codigo_seguimiento":"C-202506-04632","solicitado":"2025-06-19","codigo_sap":"80207996","extender_de":"","resuelto_sap":"80215471","ok":"OK","enlace":""},{"id":"t31","texto":"ALTA DE MATERIAL EXISTENTE EN SAP ESPIRO CR 820x806X780x3.2mm 316+GRF","solicitante":"FACUNDO","codigo_seguimiento":"C-202506-04635","solicitado":"2025-06-19","codigo_sap":"80207998","extender_de":"","resuelto_sap":"80215470","ok":"OK","enlace":""},{"id":"t32","texto":"ALTA DE BATERÍA MODELO A-6/24/40 (ALBARÁN 45849113)","solicitante":"LAIA","codigo_seguimiento":"C-202506-04694","solicitado":"2025-06-19","codigo_sap":"","extender_de":"","resuelto_sap":"80215257","ok":"OK","enlace":""},{"id":"t33","texto":"CODIFICAR JUNTA TORICA PIGNONE RAZ 13789/4","solicitante":"ESTRELLA","codigo_seguimiento":"C-202506-04716","solicitado":"2025-06-19","codigo_sap":"","extender_de":"","resuelto_sap":"80215253","ok":"OK","enlace":""},{"id":"t34","texto":"CODIFICAR BRIDA  1500# WN/RTJ 2\" SCH160 A182 F91","solicitante":"PAU/FACUNDO","codigo_seguimiento":"C-202506-04851","solicitado":"2025-06-20","codigo_sap":"","extender_de":"","resuelto_sap":"80215236","ok":"OK","enlace":""},{"id":"t35","texto":"STOCK SEGURIDAD CAMISA FLOWSERVE AUMENTADO A 3","solicitante":"ESTRELLA","codigo_seguimiento":"X-202506-04918","solicitado":"2025-06-20","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t36","texto":"SOLICITUD DE CODIFICACIÓN DE PANEL DE VENTEO 490X590","solicitante":"TONI QUERALT","codigo_seguimiento":"C-202506-05551","solicitado":"2025-06-25","codigo_sap":"","extender_de":"","resuelto_sap":"80215179","ok":"OK","enlace":""},{"id":"t37","texto":"KIT PULSATION DAMPENER","solicitante":"ESTRELLA","codigo_seguimiento":"C-202506-05579","solicitado":"2025-06-25","codigo_sap":"","extender_de":"","resuelto_sap":"80216311","ok":"OK","enlace":"ENLACE"},{"id":"t38","texto":"KIT RK125V125CR-TC bomba 125V/CERAM/TC","solicitante":"ESTRELLA","codigo_seguimiento":"C-202506-05591","solicitado":"2025-06-25","codigo_sap":"","extender_de":"","resuelto_sap":"80216310","ok":"OK","enlace":"ENLACE"},{"id":"t39","texto":"KIT JUEGO ASIENTOS 125V/TFE COMPOSITE","solicitante":"ESTRELLA","codigo_seguimiento":"C-202506-05594","solicitado":"2025-06-25","codigo_sap":"","extender_de":"","resuelto_sap":"80216313","ok":"OK","enlace":"ENLACE"},{"id":"t40","texto":"DAR DE ALTA CAJERA ORDEN 4213234","solicitante":"FACUNDO","codigo_seguimiento":"","solicitado":"","codigo_sap":"","extender_de":"","resuelto_sap":"60086172","ok":"OK","enlace":""},{"id":"t41","texto":"AUMENTAR STOCK SEGURIDAD CORREA TRAPECIAL SPZ 1900LW A 12 (80024416)","solicitante":"ESTRELLA","codigo_seguimiento":"X-202506-05847\nX-202507-01899","solicitado":"26/06/2025\n14/04/2025","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t42","texto":"AUMENTAR STOCK SEGURIDAD ACTUADOR BRAN+LUEBBE 429250 (80105752)","solicitante":"ESTRELLA","codigo_seguimiento":"X-202601-01548","solicitado":"2025-06-26","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t43","texto":"AÑADIR DESCRIPCIÓN JUNTAS KALREZ 4079 AL CÓDIGO 80213470","solicitante":"DIEGO MONGE","codigo_seguimiento":"E-202506-06013","solicitado":"2025-06-27","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t44","texto":"AÑADIR DESCRIPCIÓN JUNTAS KALREZ 4079 AL CÓDIGO 80213473","solicitante":"DIEGO MONGE","codigo_seguimiento":"E-202506-06015","solicitado":"2025-06-26","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t45","texto":"AÑADIR DESCRIPCIÓN JUNTAS KALREZ 4079 AL CÓDIGO 80213468","solicitante":"DIEGO MONGE","codigo_seguimiento":"E-202506-06016","solicitado":"2025-06-26","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t46","texto":"AÑADIR DESCRIPCIÓN JUNTAS KALREZ 4079 AL CÓDIGO 80213469","solicitante":"DIEGO MONGE","codigo_seguimiento":"E-202506-06017","solicitado":"2025-06-26","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t47","texto":"AÑADIR DESCRIPCIÓN JUNTAS KALREZ 4079 AL CÓDIGO 80213472","solicitante":"DIEGO MONGE","codigo_seguimiento":"E-202506-06019","solicitado":"2025-06-26","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t48","texto":"AÑADIR DESCRIPCIÓN JUNTAS KALREZ 4079 AL CÓDIGO 80213467","solicitante":"DIEGO MONGE","codigo_seguimiento":"E-202506-06020","solicitado":"2025-06-26","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t49","texto":"AÑADIR DESCRIPCIÓN JUNTAS KALREZ 4079 AL CÓDIGO 80213476","solicitante":"DIEGO MONGE","codigo_seguimiento":"E-202506-06021","solicitado":"2025-06-26","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t50","texto":"SOLICITUD AUMENTO STOCK SEGURIDAD A 1 DE RODETE GOULDS 760180670 (80165462)","solicitante":"ALBERT CABANÉ","codigo_seguimiento":"X-202507-01857","solicitado":"2025-07-14","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t51","texto":"CODIFICAR DISCO RUPTURA 1\" 60BAR@60ºC  ANTERIORMENTE CON CÓDIGO 80169761","solicitante":"LAIA","codigo_seguimiento":"C-202507-02187","solicitado":"2025-07-17","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t52","texto":"AUMENTAR STOCK SEGURIDAD/PUNTO/MAXIMO A 1 DE REDUCTOR 80199296","solicitante":"","codigo_seguimiento":"X-202507-02189","solicitado":"2025-07-17","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t53","texto":"EDITAR NOMBRE DE 80206472 RETEN 55/100X10 A WST.:NBR A RETEN BA 55X100X10 NBR","solicitante":"ALBERT CABANÉ","codigo_seguimiento":"E-202507-02245","solicitado":"2025-07-18","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t54","texto":"EXTENDER GR-7626 A SAP PARA SUSTITUIR CÓDIGO ANTIGUO 80201331 \nRODAMIENTO BOLAS 6210 2ZC3 SKF (A FECHA 03/09/2025) SE HA MODIFICADO \nPLANIFICADOR PARA DEJARLO COMO ANTERIOR CÓDIGO) 1/1/1 (EQUIPO 60079372)","solicitante":"ALBERT CABANÉ","codigo_seguimiento":"X-202507-02263","solicitado":"2025-07-18","codigo_sap":"","extender_de":"FALTA ACTIVAR\nEN SAP","resuelto_sap":"4000033817","ok":"","enlace":""},{"id":"t55","texto":"CODIFICAR PURGADOR SH1500 3/4\" SW","solicitante":"FACUNDO","codigo_seguimiento":"C-202507-02267","solicitado":"2025-07-18","codigo_sap":"","extender_de":"","resuelto_sap":"80215773","ok":"OK","enlace":""},{"id":"t56","texto":"CODIFICAR PURGADOR ARMSTRONG SH1600 1\" SW","solicitante":"FACUNDO","codigo_seguimiento":"C-202507-02269","solicitado":"2025-07-18","codigo_sap":"","extender_de":"","resuelto_sap":"80215951","ok":"OK","enlace":""},{"id":"t57","texto":"CODIFICAR ANILLO INFERIOR 300/08/72/1606 EXISTENTE EN SAP CON NÚMERO 80016934\n PARA AUMENTAR STOCK SEGURIDAD A 1 (CUELGA DE VARIAS LISTAS)","solicitante":"ESTRELLA/CRISTIAN","codigo_seguimiento":"C-202507-02289","solicitado":"2025-07-21","codigo_sap":"","extender_de":"","resuelto_sap":"80215880","ok":"OK","enlace":""},{"id":"t58","texto":"CODIFICAR ANILLO SUPERIOR 300/08/72/1607 EXISTENTE EN SAP CON NÚMERO 80015237\nPARA UMENTAR STOCK DE SEGURIDAD A 1 (CUELGA VARIAS LISTAS)","solicitante":"ESTRELLA/CRISTIAN","codigo_seguimiento":"C-202507-02294","solicitado":"2025-07-21","codigo_sap":"","extender_de":"","resuelto_sap":"80215882","ok":"OK","enlace":""},{"id":"t59","texto":"CODIFICAR ASIENTO VALVULA IP 1\" EXISTENTE EN SAP CON NÚMERO 80017101\nPARA AUMENTAR STOCK DE SEGURIDAD A 1 (CUELGA VARIAS LISTAS)","solicitante":"ESTRELLA/CRISTIAN","codigo_seguimiento":"C-202507-02297","solicitado":"2025-07-21","codigo_sap":"","extender_de":"","resuelto_sap":"80215881","ok":"OK","enlace":""},{"id":"t60","texto":"AUMENTAR STOCK DE SEGURIDAD A 1 DE CÓDIGO 80020173","solicitante":"ESTRELLA/CRISTIAN","codigo_seguimiento":"X-202507-02348","solicitado":"2025-07-21","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t61","texto":"CODIFICAR CASQUILLO VÁLVULA IP 1\" 300/08/72/1614  EXISTENTE EN SAP CON NÚMERO \n80018847 PARA AUMENTAR STOCK SEGURIDAD A 1","solicitante":"ESTRELLA/CRISTIAN","codigo_seguimiento":"C-202507-02306","solicitado":"2025-07-21","codigo_sap":"","extender_de":"","resuelto_sap":"80218565","ok":"OK","enlace":""},{"id":"t62","texto":"CODIFICAR EMPAQUETADURA IP 1\" 300/08/72/1634 (19) CON NÚMERO SAP 80015927\nPARA AUMENTAR STOCK SEGURIDAD A 1","solicitante":"ESTRELLA/CRISTIAN","codigo_seguimiento":"C-202507-02323","solicitado":"2025-07-21","codigo_sap":"","extender_de":"","resuelto_sap":"80215883","ok":"OK","enlace":""},{"id":"t63","texto":"AUMENTAR STOCK SEGURIDAD A 1 HUSILLO VALVULA IP 1\" 300/08/72/1637 \nCON NÚMERO 80016170","solicitante":"ESTRELLA/CRISTIAN","codigo_seguimiento":"X-202507-02325","solicitado":"2025-07-21","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t64","texto":"AUMENTAR STOCK SEGURIDAD JUNTA TORICA 1750-3-3-SPV 1,75\" PLATEADA A 2 80019153","solicitante":"ESTRELLA/CRISTIAN","codigo_seguimiento":"X-202507-02326","solicitado":"2025-07-21","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t65","texto":"CODIFICAR PASADOR ESTRIADO 8X20 CON NÚMERO EN SAP 80018631PARA \nAUMENTAR STOCK SEGURIDAD A 2 (EDITADA DESCRIPCIÓN DE NUEVO AL CODIGO NUEVO)","solicitante":"ESTRELLA/CRISTIAN","codigo_seguimiento":"C-202507-02329\nE-202508-01843","solicitado":"21/07/2025\n26/08/2025","codigo_sap":"","extender_de":"","resuelto_sap":"80215884","ok":"OK","enlace":""},{"id":"t66","texto":"AUMENTAR STOCK SEGURIDAD CÓDIGO SAP 80017553 PRENSA ICV 1\" 300/08/72/1638 A 2","solicitante":"ESTRELLA/CRISTIAN","codigo_seguimiento":"X-202507-02563","solicitado":"2025-07-21","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t67","texto":"CODIFICAR TE DE 2\" A403 SCH 10S","solicitante":"JUAN CARLOS CORTEJOSA","codigo_seguimiento":"C-202507-02356","solicitado":"2025-07-21","codigo_sap":"","extender_de":"","resuelto_sap":"80215781","ok":"OK","enlace":""},{"id":"t68","texto":"CAP BW SCH10 2\" A403 WP304 L-8054","solicitante":"JUAN CARLOS CORTEJOSA","codigo_seguimiento":"C-202507-02362","solicitado":"2025-07-21","codigo_sap":"","extender_de":"","resuelto_sap":"80215782","ok":"OK","enlace":""},{"id":"t69","texto":"EXTENDER 083440216012 NIPLE REDUCTOR CONC 3/4X1/2 304 TSE A312","solicitante":"JUAN CARLOS CORTEJOSA","codigo_seguimiento":"G-202507-02365","solicitado":"2025-07-21","codigo_sap":"","extender_de":"","resuelto_sap":"80215886","ok":"OK","enlace":""},{"id":"t70","texto":"CREAR TUBERÍA 1\" SCH40 A312 304","solicitante":"JUAN CARLOS CORTEJOSA","codigo_seguimiento":"C-202507-02388","solicitado":"2025-07-22","codigo_sap":"","extender_de":"","resuelto_sap":"80215785","ok":"OK","enlace":""},{"id":"t71","texto":"EXTENDER RED CONC 1X3/4 L-7181 DE 121375244122","solicitante":"JUAN CARLOS CORTEJOSA","codigo_seguimiento":"G-202507-02377","solicitado":"2025-07-21","codigo_sap":"","extender_de":"","resuelto_sap":"80215786","ok":"OK","enlace":""},{"id":"t72","texto":"MOYU ADDAX LR650 MECANIZADO A DIAM. 80H7 C/CHAVETERO S/ISO R773","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202507-02429","solicitado":"2025-07-22","codigo_sap":"","extender_de":"","resuelto_sap":"80218569","ok":"OK","enlace":""},{"id":"t73","texto":"MOYU ADDAX LR650 MECANIZADO A  DIAM. 60H7 C/CHAVETERO S/ISO R773","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202507-02467","solicitado":"2025-07-22","codigo_sap":"","extender_de":"","resuelto_sap":"80218568","ok":"OK","enlace":""},{"id":"t74","texto":"ESPACIADOR ADDAX LRX650_625 DBSE4333","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202507-02497","solicitado":"2025-07-22","codigo_sap":"","extender_de":"","resuelto_sap":"80218567","ok":"OK","enlace":""},{"id":"t75","texto":"ELEMENTO FLEXIBLE P/ACOPLAM.ADDAX 650","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202507-02538","solicitado":"2025-07-22","codigo_sap":"","extender_de":"","resuelto_sap":"80218571","ok":"OK","enlace":""},{"id":"t76","texto":"JUEGO TORNILLERIA P/ACOPLAM.ADDAX 650","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202507-02555","solicitado":"2025-07-22","codigo_sap":"","extender_de":"","resuelto_sap":"80215887","ok":"OK","enlace":""},{"id":"t77","texto":"ESPACIADOR ADDAX LRX650_425 DBSE4130","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202507-02601","solicitado":"2025-07-22","codigo_sap":"","extender_de":"","resuelto_sap":"80218570","ok":"OK","enlace":""},{"id":"t78","texto":"CAMBIAR STOCK A 3 DE TODO 80035199 PALA STORK 30PFT-6 (JUEGO 2)","solicitante":"ALBERT CABANE","codigo_seguimiento":"X-202507-02656","solicitado":"2025-07-22","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t79","texto":"CAMBIAR STOCK A 1 80109822 MOYU STORK QVRD-2 A VENTILADOR 30PFT-6","solicitante":"ALBERT CABANE","codigo_seguimiento":"X-202507-02657","solicitado":"2025-07-22","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t80","texto":"CAMBIAR STOCK 80052467 A 12 ABARCON STORK 30PTF-6","solicitante":"ALBERT CABANE","codigo_seguimiento":"X-202507-02661","solicitado":"2025-07-22","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t81","texto":"ELIMINAR EQUIPO  T-PD-1033-B Y CREAR el T-PD-1033-S con código 60086346","solicitante":"ESTRELLA","codigo_seguimiento":"","solicitado":"2025-07-23","codigo_sap":"","extender_de":"","resuelto_sap":"60086346","ok":"OK","enlace":""},{"id":"t82","texto":"ELIMINAR EQUIPO  60086346  Y CREAR el T-PD-1033-S con código T-PD-1033-S","solicitante":"ESTRELLA","codigo_seguimiento":"","solicitado":"2025-07-24","codigo_sap":"","extender_de":"","resuelto_sap":"T-PD-1033-S","ok":"OK","enlace":""},{"id":"t83","texto":"CREAR BOMBA JOCKEY DP DPVF 45-60-1 SUSTITUYENDO 80159522\nPARA MODIFICAR PLANIFICADOR PTO PEDIDO 1, S.S.0, S.M.1","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202507-03275","solicitado":"2025-07-25","codigo_sap":"","extender_de":"","resuelto_sap":"80218573","ok":"OK","enlace":"ENLACE"},{"id":"t84","texto":"CREAR CAMISA HIDROTECAR K07005103 INX SUSTITUYENDO 80062401\nPARA MODIFICAR PLANIFICADOR PTO PEDIDO 2, S.S0, S.M.2","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202507-03280","solicitado":"2025-07-25","codigo_sap":"","extender_de":"","resuelto_sap":"80218572","ok":"OK","enlace":"PENDIENTE"},{"id":"t85","texto":"CREAR COMPRESOR STAL R5 MK2","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202507-03323","solicitado":"2025-07-25","codigo_sap":"","extender_de":"","resuelto_sap":"80216353","ok":"OK","enlace":"ENLACE"},{"id":"t86","texto":"CODIFICAR ALIMENTADOR COMPLETO GDU 401 MARCA GERICKE","solicitante":"JOAN BIARNES","codigo_seguimiento":"C-202507-03333","solicitado":"2025-07-25","codigo_sap":"","extender_de":"","resuelto_sap":"80216354","ok":"OK","enlace":""},{"id":"t87","texto":"MARCAR COMO OBSOLETO 80105647 EN SAP Y SOLICITAR ACHATARRAR","solicitante":"ALBERT CABANE","codigo_seguimiento":"X-202507-03345","solicitado":"2025-07-28","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t88","texto":"MODIFICAR 70010417 Y CREAR 70021961 AÑADIENDO CÓDIGOS","solicitante":"ALBERT CABANE","codigo_seguimiento":"","solicitado":"2025-07-28","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t89","texto":"DAR DE BAJA CÓDIGO 80059192 KIT TURBOFLEX","solicitante":"ALBERT CABANE","codigo_seguimiento":"X-202507-03556","solicitado":"2025-07-29","codigo_sap":"","extender_de":"","resuelto_sap":"EN ESPERA BAJA SAP","ok":"OK","enlace":""},{"id":"t90","texto":"CODIFICAR KIT DE JUNTAS Y TORNILLOS TITANIO BREAKAWAY 3\"","solicitante":"DIEGO MONGE","codigo_seguimiento":"C-202508-00050","solicitado":"2025-08-04","codigo_sap":"","extender_de":"","resuelto_sap":"80216250","ok":"OK","enlace":""},{"id":"t91","texto":"CODIFICAR KIT JUNTAS PTFE GIRATORIAS  3\"","solicitante":"DIEGO MONGE","codigo_seguimiento":"C-202508-00051","solicitado":"2025-08-04","codigo_sap":"","extender_de":"","resuelto_sap":"80216321","ok":"OK","enlace":""},{"id":"t92","texto":"CODIFICAR KIT DE JUNTAS Y TORNILLOS TITANIO BREAKAWAY 2\"","solicitante":"DIEGO MONGE","codigo_seguimiento":"C-202508-00052","solicitado":"2025-08-04","codigo_sap":"","extender_de":"","resuelto_sap":"80216248","ok":"OK","enlace":""},{"id":"t93","texto":"CODIFICAR KIT JUNTAS PTFE GIRATORIAS  2\"","solicitante":"DIEGO MONGE","codigo_seguimiento":"C-202508-00053","solicitado":"2025-08-04","codigo_sap":"","extender_de":"","resuelto_sap":"80216247","ok":"OK","enlace":""},{"id":"t94","texto":"CREAR EQIPO P-4110: BRAZO DE CARGA DE OE LÍQUIDO","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-08-04","codigo_sap":"","extender_de":"","resuelto_sap":"60086476","ok":"OK","enlace":""},{"id":"t95","texto":"CREAR EQUIPO P-4111: BRAZO DE CARGA DE OE COMP. GASES","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-08-04","codigo_sap":"","extender_de":"","resuelto_sap":"60086477","ok":"OK","enlace":""},{"id":"t96","texto":"CAMBIO PLANIFICADOR 80213244 A BAJO RESERVA","solicitante":"ESTRELLA","codigo_seguimiento":"X-202508-00130","solicitado":"2025-08-05","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t97","texto":"CAMBIO PLANIFICADOR 80213412 A BAJO RESERVA","solicitante":"ESTRELLA","codigo_seguimiento":"X-202508-00132","solicitado":"2025-08-05","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t98","texto":"CAMBIO PLANIFICADOR 80213428 A BAJO RESERVA\nEDITADO CÓDIGO PARA PODER MODIFICAR PLANIFICADOR","solicitante":"ESTRELLA","codigo_seguimiento":"E-202509-01255 (EDIT)","solicitado":"2025-08-05","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":"CONTROLAR"},{"id":"t99","texto":"CAMBIO PLANIFICADOR 80213522 A BAJO RESERVA","solicitante":"ESTRELLA","codigo_seguimiento":"X-202508-00136","solicitado":"2025-08-05","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t100","texto":"CODIFICAR EJE UNION 11-011002","solicitante":"ESTRELLA","codigo_seguimiento":"C-202508-00159","solicitado":"2025-08-05","codigo_sap":"","extender_de":"","resuelto_sap":"80216305","ok":"OK","enlace":"x"},{"id":"t101","texto":"CODIFICAR BRIDA UNION 11-011003","solicitante":"ESTRELLA","codigo_seguimiento":"C-202508-00169","solicitado":"2025-08-05","codigo_sap":"","extender_de":"","resuelto_sap":"80216304","ok":"OK","enlace":"x"},{"id":"t102","texto":"CODIFICAR TUERCA DE SEGURIDAD","solicitante":"ESTRELLA","codigo_seguimiento":"C-202508-00176","solicitado":"2025-08-05","codigo_sap":"","extender_de":"","resuelto_sap":"80216303","ok":"OK","enlace":"x"},{"id":"t103","texto":"CODIFICAR TUERCA DE PRESIÓN","solicitante":"ESTRELLA","codigo_seguimiento":"C-202508-00181","solicitado":"2025-08-05","codigo_sap":"","extender_de":"","resuelto_sap":"80216301","ok":"OK","enlace":"x"},{"id":"t104","texto":"CODIFICAR TUERCA DE PRESIÓN DIN1816-W","solicitante":"ESTRELLA","codigo_seguimiento":"C-202508-00183","solicitado":"2025-08-05","codigo_sap":"","extender_de":"","resuelto_sap":"80216315","ok":"OK","enlace":"x"},{"id":"t105","texto":"CODIFICAR PIEZA DE CONEXIÓN 11-011004","solicitante":"ESTRELLA","codigo_seguimiento":"C-202508-00184","solicitado":"2025-08-05","codigo_sap":"","extender_de":"","resuelto_sap":"80216302","ok":"OK","enlace":"x"},{"id":"t106","texto":"CODIFICAR DISCO RUPTURA DN400 0,06BAR @80ºC PSE41619A/B","solicitante":"DIEGO MONGE","codigo_seguimiento":"C-202508-00189","solicitado":"2025-08-05","codigo_sap":"","extender_de":"","resuelto_sap":"80218577","ok":"OK","enlace":""},{"id":"t107","texto":"CODIFICAR TUERCA RANURADA M48x1,5","solicitante":"ESTRELLA","codigo_seguimiento":"C-202508-00194","solicitado":"2025-08-05","codigo_sap":"","extender_de":"","resuelto_sap":"80216400","ok":"OK","enlace":"x"},{"id":"t108","texto":"CODIFICAR TÓRICA VITON 60x3","solicitante":"ESTRELLA","codigo_seguimiento":"C-202509-01265","solicitado":"2025-09-15","codigo_sap":"","extender_de":"","resuelto_sap":"80216399","ok":"OK","enlace":"x"},{"id":"t109","texto":"CODIFICAR TÓRICA VITON 50x3","solicitante":"ESTRELLA","codigo_seguimiento":"C-202508-01798","solicitado":"2025-08-26","codigo_sap":"","extender_de":"","resuelto_sap":"80216314","ok":"OK","enlace":"x"},{"id":"t110","texto":"CODIFICAR TORNILLO ALLEN M10x60 12.9 DIN912","solicitante":"ESTRELLA","codigo_seguimiento":"C-202508-00305","solicitado":"2025-08-06","codigo_sap":"","extender_de":"","resuelto_sap":"80215891","ok":"OK","enlace":"ENLACE"},{"id":"t111","texto":"CODIFICAR TUERCA HEXAGONAL DIN936 M14x1.5","solicitante":"ESTRELLA","codigo_seguimiento":"C-202508-00313","solicitado":"2025-08-06","codigo_sap":"","extender_de":"","resuelto_sap":"80215890","ok":"OK","enlace":"ENLACE"},{"id":"t112","texto":"CODIFICAR MANGON DN45 LE100 POS. 13","solicitante":"ESTRELLA","codigo_seguimiento":"C-202508-00318","solicitado":"2025-08-06","codigo_sap":"","extender_de":"","resuelto_sap":"80215889","ok":"OK","enlace":"ENLACE"},{"id":"t113","texto":"CODIFICAR ABRAZADERA","solicitante":"ESTRELLA","codigo_seguimiento":"C-202508-00334","solicitado":"2025-08-06","codigo_sap":"","extender_de":"","resuelto_sap":"80215885","ok":"OK","enlace":"ENLACE"},{"id":"t114","texto":"CREAR EQUIPO MANGUERA 610-197","solicitante":"TONI","codigo_seguimiento":"","solicitado":"2025-08-06","codigo_sap":"","extender_de":"","resuelto_sap":"60086527","ok":"OK","enlace":""},{"id":"t115","texto":"CREAR EQUIPO MANGUERA 610-198","solicitante":"TONI","codigo_seguimiento":"","solicitado":"2025-05-06","codigo_sap":"","extender_de":"","resuelto_sap":"60086528","ok":"OK","enlace":""},{"id":"t116","texto":"CREAR EQUIPO MANGUERA 610-297","solicitante":"TONI","codigo_seguimiento":"","solicitado":"2025-08-06","codigo_sap":"","extender_de":"","resuelto_sap":"60086529","ok":"OK","enlace":""},{"id":"t117","texto":"CREAR EQUIPO MANGUERA 610-298","solicitante":"TONI","codigo_seguimiento":"","solicitado":"2025-08-06","codigo_sap":"","extender_de":"","resuelto_sap":"60086530","ok":"OK","enlace":""},{"id":"t118","texto":"CODIFICAR VEJIGA + BOTÓN REF. UO40V-AI","solicitante":"ESTRELLA","codigo_seguimiento":"C-202508-00358","solicitado":"2025-05-06","codigo_sap":"","extender_de":"","resuelto_sap":"80216309","ok":"OK","enlace":""},{"id":"t119","texto":"CODIFICAR VÁLVULA MARIPOSA 18\" \nWAFER 150#","solicitante":"FACUNDO","codigo_seguimiento":"C-202508-00553\nG-202508-01019","solicitado":"2025-08-08","codigo_sap":"","extender_de":"3368973180","resuelto_sap":"80216333","ok":"OK","enlace":""},{"id":"t120","texto":"CODIFICAR PASADOR  ESTRIADO 8X20 (5/16”x3/4” pos-10)","solicitante":"ESTRELLA","codigo_seguimiento":"C-202508-00556","solicitado":"2025-08-08","codigo_sap":"","extender_de":"","resuelto_sap":"80018631","ok":"OK","enlace":""},{"id":"t121","texto":"CODIFICAR CAMISA INFERIOR N147QK062 CAJERA  E INCLUÍRLO EN 70020991 QUEDA\n PENDIENTE CÓDIGO E INTRODUCIR EN ENTE EQUIPOS 60080973 - 60080974 CON\n CONCLASS 3400.3","solicitante":"ESTRELLA","codigo_seguimiento":"C-202508-00712","solicitado":"2025-08-11","codigo_sap":"","extender_de":"","resuelto_sap":"80216306","ok":"OK","enlace":""},{"id":"t122","texto":"SUBIR SS 80134275 A 4 DEL COMPRESOR C-301","solicitante":"ESTRELLA","codigo_seguimiento":"X-202508-00604","solicitado":"2025-08-11","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t123","texto":"SUBIR SS 80134271 A 2 DEL COMPRESOR C-301","solicitante":"ESTRELLA","codigo_seguimiento":"X-202508-00606","solicitado":"2025-08-11","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"","enlace":""},{"id":"t124","texto":"SUBIR SS 80134273 A 2 DEL COMPRESOR C-301","solicitante":"ESTRELLA","codigo_seguimiento":"X-202508-00607","solicitado":"2025-08-11","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t125","texto":"SUBIR SS 80134276 A 4 DEL COMPRESOR C-301","solicitante":"ESTRELLA","codigo_seguimiento":"X-202508-00608","solicitado":"2025-08-11","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t126","texto":"SUBIR SS 80134268 A 4 DEL COMPRESOR C-301","solicitante":"ESTRELLA","codigo_seguimiento":"X-202508-00609","solicitado":"2025-08-11","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t127","texto":"SUBIR SS 80134255 A 4 DEL COMPRESOR C-301","solicitante":"ESTRELLA","codigo_seguimiento":"X-202508-00610","solicitado":"2025-08-11","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t128","texto":"SUBIR SS 80134274 A 6  DEL COMPRESOR C-301","solicitante":"ESTRELLA","codigo_seguimiento":"X-202508-00611","solicitado":"2025-08-11","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"","enlace":""},{"id":"t129","texto":"SUBIR SS 80134272 A 4 DEL COMPRESOR C-301","solicitante":"ESTRELLA","codigo_seguimiento":"X-202508-00612","solicitado":"2025-08-11","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"","enlace":""},{"id":"t130","texto":"CODIFICAR CUERPO CRUCETA SOP147700056","solicitante":"ESTRELLA","codigo_seguimiento":"C-202508-00928","solicitado":"2025-08-18","codigo_sap":"","extender_de":"","resuelto_sap":"80216307","ok":"","enlace":"ENLACE"},{"id":"t131","texto":"BAJA EQUIPO 60040836","solicitante":"ESTRELLA","codigo_seguimiento":"","solicitado":"2025-08-18","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t132","texto":"BAJA EQUIPO 60040837","solicitante":"ESTRELLA","codigo_seguimiento":"","solicitado":"2025-08-18","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t133","texto":"BAJA EQUIPO 60040845","solicitante":"ESTRELLA","codigo_seguimiento":"","solicitado":"2025-08-18","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t134","texto":"BAJA EQUIPO 60040846","solicitante":"ESTRELLA","codigo_seguimiento":"","solicitado":"2025-08-18","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t135","texto":"BAJA EQUIPO 60040841","solicitante":"ESTRELLA","codigo_seguimiento":"","solicitado":"2025-08-18","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t136","texto":"BAJA EQUIPO 60040842","solicitante":"ESTRELLA","codigo_seguimiento":"","solicitado":"2025-08-18","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t137","texto":"BAJA EQUIPO 60040838","solicitante":"ESTRELLA","codigo_seguimiento":"","solicitado":"2025-08-18","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t138","texto":"BAJA EQUIPO 60040839","solicitante":"ESTRELLA","codigo_seguimiento":"","solicitado":"2025-08-18","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t139","texto":"CREAR EQUIPO F-809A: FILTRO SEPARADOR DE FINOS","solicitante":"LAIA","codigo_seguimiento":"","solicitado":"2025-08-21","codigo_sap":"","extender_de":"","resuelto_sap":"60086550","ok":"OK","enlace":""},{"id":"t140","texto":"CREAR EQUIPO F-809B: FILTRO SEPARADOR DE FINOS","solicitante":"LAIA","codigo_seguimiento":"","solicitado":"2025-08-21","codigo_sap":"","extender_de":"","resuelto_sap":"60086551","ok":"OK","enlace":""},{"id":"t141","texto":"CODIFICAR VÁLVULA BOLA 1129082 \nMODIFICADA DESCRIPCIÓN","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202508-01244\nE-202509-01242","solicitado":"2025-08-21","codigo_sap":"","extender_de":"","resuelto_sap":"80216312","ok":"OK","enlace":"ENLACE"},{"id":"t142","texto":"CODIFICAR CONJUNTO EMPAQUETADURA D-10247353","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202508-01248","solicitado":"2025-08-21","codigo_sap":"","extender_de":"","resuelto_sap":"80218582","ok":"OK","enlace":""},{"id":"t143","texto":"CAMBIAR PLANIFICADOR  80054614 A SS 2","solicitante":"ESTRELLA","codigo_seguimiento":"X-202508-01249","solicitado":"2025-08-21","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t144","texto":"CODIFICAR TORNILLO EXAGONAL DIN931/4 M22X70 AISI304","solicitante":"LAIA","codigo_seguimiento":"C-202508-01266","solicitado":"2025-08-21","codigo_sap":"","extender_de":"","resuelto_sap":"80216324","ok":"OK","enlace":"ENLACE"},{"id":"t145","texto":"TORNILLO EXAGONAL DIN931/4 M30X70 304","solicitante":"LAIA","codigo_seguimiento":"C-202508-01274","solicitado":"2025-08-21","codigo_sap":"","extender_de":"","resuelto_sap":"80216322","ok":"OK","enlace":"ENLACE"},{"id":"t146","texto":"TORNILLO EXAGONAL DIN931/4 M20X60 304 (EXTENDIDO DE 644314FHSOPO)","solicitante":"LAIA","codigo_seguimiento":"C-202508-01281","solicitado":"","codigo_sap":"","extender_de":"","resuelto_sap":"80216340","ok":"OK","enlace":"ENLACE"},{"id":"t147","texto":"CODIFICAR JUNTA PLANA BLANCO EPDM 16\"","solicitante":"LAIA","codigo_seguimiento":"C-202508-01325","solicitado":"2025-08-22","codigo_sap":"","extender_de":"","resuelto_sap":"80216327","ok":"OK","enlace":"ENLACE"},{"id":"t148","texto":"CODIFICAR JUNTA PLANA BLANCO EPDM 3\"","solicitante":"LAIA","codigo_seguimiento":"C-202508-01328","solicitado":"2025-08-22","codigo_sap":"","extender_de":"","resuelto_sap":"80216326","ok":"OK","enlace":"ENLACE"},{"id":"t149","texto":"CODIFICAR JUNTA PLANA BLANCO 8\"","solicitante":"LAIA","codigo_seguimiento":"C-202508-01329","solicitado":"2025-08-22","codigo_sap":"","extender_de":"","resuelto_sap":"80216325","ok":"OK","enlace":"ENLACE"},{"id":"t150","texto":"CAMBIAR PLANIFICADOR 80143284","solicitante":"ALBERT CABANE","codigo_seguimiento":"X-202508-01332","solicitado":"2025-08-21","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"","enlace":"ENLACE"},{"id":"t151","texto":"CODIFICAR MANGUERA DIMETILFORMAMIDA 9-25-2","solicitante":"TONI QUERALT","codigo_seguimiento":"C-202508-01810","solicitado":"2025-08-26","codigo_sap":"","extender_de":"","resuelto_sap":"80216328","ok":"OK","enlace":"ENLACE"},{"id":"t152","texto":"CODIFICAR TUBO 2” SCH-10 SIN SOLD. ASTM A240 Tipo 309","solicitante":"TONI QUERALT","codigo_seguimiento":"C-202508-02340","solicitado":"2025-08-29","codigo_sap":"","extender_de":"","resuelto_sap":"80216331","ok":"OK","enlace":""},{"id":"t153","texto":"CODIFICAR CODO 90 BW SCH10 2\" ASTM A240 TIPO 309","solicitante":"TONI QUERALT","codigo_seguimiento":"C-202508-02354","solicitado":"2025-08-29","codigo_sap":"","extender_de":"","resuelto_sap":"80216330","ok":"OK","enlace":""},{"id":"t154","texto":"CODIFICAR REDUCCIÓN 3”X2” ASTM A240 Tipo 309","solicitante":"TONI QUERALT","codigo_seguimiento":"C-202508-02387","solicitado":"2025-08-29","codigo_sap":"","extender_de":"","resuelto_sap":"80216323","ok":"OK","enlace":""},{"id":"t155","texto":"SEMIACOPLAMIENTO 111104000","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202509-00106","solicitado":"2025-09-01","codigo_sap":"","extender_de":"","resuelto_sap":"80218578","ok":"OK","enlace":""},{"id":"t156","texto":"SEMIACOPLAMIENTO 111204000","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202509-00107","solicitado":"2025-09-01","codigo_sap":"","extender_de":"","resuelto_sap":"80218579","ok":"OK","enlace":""},{"id":"t157","texto":"SOPORTE COJINETE INTERMEDIO 112164032","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202509-00108","solicitado":"2025-09-01","codigo_sap":"","extender_de":"","resuelto_sap":"80218580","ok":"OK","enlace":""},{"id":"t158","texto":"CAJA CIERRE MECANICO - 113164032","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202509-00110","solicitado":"2025-09-01","codigo_sap":"","extender_de":"","resuelto_sap":"80218581","ok":"OK","enlace":""},{"id":"t159","texto":"SE SOLICITA EXTENSIÓN CÓDIGO 80165713 PARA JUNTA TÓRICA - 000120275\nCODIFICADA COMO O-RING NBR CODIGO EGGER nº 316/3 BOMBA EO 7-50 H2 LB3B Ex\nEDITAR DENOMINACIÓN","solicitante":"ALBERT CABANE","codigo_seguimiento":"X-202509-00154\nE-202509-01259","solicitado":"2025-09-02","codigo_sap":"","extender_de":"","resuelto_sap":"80165713","ok":"OK","enlace":""},{"id":"t160","texto":"JUNTA TORICA 000120312","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202509-00153","solicitado":"2025-09-02","codigo_sap":"","extender_de":"","resuelto_sap":"80216308","ok":"","enlace":""},{"id":"t161","texto":"SOLICITAR CAMBIO DESCRIPCIÓN DE 80145996 JUNTA TURO 000132516 NBR (120/163X4)\nA JUNTA TURO 000132516","solicitante":"ALBERT CABANE","codigo_seguimiento":"E-202509-00156","solicitado":"2025-09-02","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t162","texto":"SOLICITAR CAMBIO DESCRIPCIÓN DE 80146003 JUNTA PLANA TURO 132758 (GYLON) 402/1\n JUNTA TURO 000132758","solicitante":"ALBERT CABANE","codigo_seguimiento":"E-202509-00157","solicitado":"2025-09-02","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t163","texto":"SOLICITAR CAMBIO DESCRIPCIÓN DE 80146002 JUNTA PLANA TURO 000131009    400/1\nA JUNTA PLANA TURO 000131009","solicitante":"ALBERT CABANE","codigo_seguimiento":"E-202509-00158","solicitado":"2025-09-02","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t164","texto":"SOLICITAR CAMBIO DESCRIPCIÓN DE 80145995 JUNTA TORICA 234.62X2.62 FKM\nA JUNTO TURO 000120352","solicitante":"ALBERT CABANE","codigo_seguimiento":"E-202509-00159","solicitado":"2025-09-02","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t165","texto":"SOLICITAR CAMBIO DESCRIPCIÓN DE 80146001 JUNTA PLANA TURO 132753 (GYLON) 403/1\nA JUNTA TURO 000132753","solicitante":"ALBERT CABANE","codigo_seguimiento":"E-202509-00160","solicitado":"2025-09-02","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t166","texto":"CODIFICADO TAPA CON ESPIGA 300/52/79/1216","solicitante":"CERRILLO","codigo_seguimiento":"C-202509-00495","solicitado":"2025-09-04","codigo_sap":"","extender_de":"","resuelto_sap":"80216350","ok":"OK","enlace":""},{"id":"t167","texto":"SUBIR STOCK SEGURIDAD A 1 80135067 TAMIZ GALA 22217 (2217X445)","solicitante":"JOAN BIARNES","codigo_seguimiento":"X-202509-00553","solicitado":"2025-09-05","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t168","texto":"SUBIR STOCK SEGURIDAD A 2 80135066 TAMIZ GALA MAG-23969 (2500X445)","solicitante":"JOAN BIARNES","codigo_seguimiento":"X-202509-00552","solicitado":"2025-09-05","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t169","texto":"CAMBIAR DESCRIPCIÓN MATERIAL 80191539 DE SINFÍN TUBULAR\n D65 SALIDA VERTIC.K2MT60 A CARCASA SINFÍN D65 SALIDA VERTIC. K2MT60","solicitante":"JOAN BIARNES","codigo_seguimiento":"E-202509-00565","solicitado":"2025-09-05","codigo_sap":"","extender_de":"","resuelto_sap":"OK","ok":"OK","enlace":""},{"id":"t170","texto":"CODIFICACIÓN FLOATING BRUSH SEAL 2144-ZA-103774-0 CW PARA TURBINA 18 ZS-1\nSENTIDO AGUJAS RELOJ","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202509-00739","solicitado":"2025-09-08","codigo_sap":"","extender_de":"DEBE COLGAR DE\n70022011","resuelto_sap":"80218587","ok":"OK","enlace":"ENLACE"},{"id":"t171","texto":"CODIFICACIÓN FLOATING BRUSH SEAL 2144-ZA-103774-0 CCW PARA TURBINA 18 ZS-1\nSENTIDO CONTRARIO AGUJAS RELOJ","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202509-00741","solicitado":"2025-09-08","codigo_sap":"","extender_de":"DEBE COLGAR DE\n70022011","resuelto_sap":"80218586","ok":"OK","enlace":"ENLACE"},{"id":"t172","texto":"CREAR COMPONENTE PARA 70022011 PARA EQUIPOS GT-4040C,4600B,4551B,4552B\n Y 5923B A FALTA DE INTRODUCIR EL ANILLO DRESSER DE LA LÍNEA SUPERIOR EN EL MISMO","solicitante":"ALBERT CABANE","codigo_seguimiento":"","solicitado":"2025-09-08","codigo_sap":"","extender_de":"ENTE","resuelto_sap":"","ok":"OK","enlace":"ENLACE"},{"id":"t173","texto":"SOLICITAR AUMENTO DE STOCK SEGURIDAD/MÁXIMO A 15 DE 80131273\nEMPAQUETADURA CPI BB27-124-5000","solicitante":"ALBERT CABANE","codigo_seguimiento":"X-202509-00719","solicitado":"2025-09-08","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t174","texto":"CAMBIAR PLANIFICADOR DE 80101887  A BAJO RESERVA","solicitante":"JOAN BIARNES","codigo_seguimiento":"X-202509-00722","solicitado":"2025-09-08","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t175","texto":"SUBIR STOCK SEGURIDAD DE 80141522 Y 80054518  A 1","solicitante":"JOAN BIARNES","codigo_seguimiento":"X-202509-00724\nX-202509-00724","solicitado":"2025-09-08","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t176","texto":"MODIFICAR DESCRIPCIÓN LARGA DE 80145545 PARA AÑADIR DATOS A \"TEXTO COMPRAS\"","solicitante":"JOAN BIARNES","codigo_seguimiento":"E-202509-00728","solicitado":"2025-09-08","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t177","texto":"MODIFICAR DESCRIPCIÓN LARGA DE 80145516 PARA AÑADIR DATOS A \"TEXTO COMPRAS\"","solicitante":"JOAN BIARNES","codigo_seguimiento":"E-202509-00731","solicitado":"2025-09-08","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t178","texto":"CAMBIAR PLANIFICADOR DE 80173789 SEGMENTO GEEPF A SS1-SM1-PP0","solicitante":"ALBERT CABANE","codigo_seguimiento":"X-202509-00872","solicitado":"2025-09-10","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t179","texto":"EDITAR 80121333 SEGMENTO GEEPF 234B8962G004 2ªET (36UN) PARA LUEGO PODER SUBIR\nPLANIFICADOR A SS1-SM1-PP0 QUE QUEDA PENDIENTE","solicitante":"ALBERT CABANE","codigo_seguimiento":"E-202509-00878","solicitado":"2025-09-10","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t180","texto":"DAR DE BAJA EQUIPO 60037506  EN SAP Y ELIMINAR LISTADOS QUE CUELGAN","solicitante":"LAIA","codigo_seguimiento":"","solicitado":"2025-09-15","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t181","texto":"CREAR ENTE 70022023 VISCOSEAL 50982-789 E INCLUIRLO EN ESTRUCTURA \n\"EXTRUSOR WERNER ZSK-240\"","solicitante":"JOAN BIARNES","codigo_seguimiento":"","solicitado":"2025-09-17","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t182","texto":"CODIFICAR VÁLVULA DE BOLA ECON FA7642 11408/316 RB 4\"","solicitante":"FACUNDO","codigo_seguimiento":"C-202509-01574","solicitado":"2025-09-18","codigo_sap":"","extender_de":"","resuelto_sap":"80216391","ok":"OK","enlace":""},{"id":"t183","texto":"COLGAR CÓDIGO 80206289 FILTRO DESECANTE SUNDYNE 25-007 DE LOS EQUIPOS\nP-301-A/B, 670-333/334, 670-395/396, 670-058, PY-3001-A/B","solicitante":"JOAN BIARNES","codigo_seguimiento":"","solicitado":"2025-09-18","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t184","texto":"CAMBIAR PLANIFICADOR 80121333 A SS1 SM1 PP0","solicitante":"ALBERT CABANE","codigo_seguimiento":"X-202509-01671","solicitado":"2025-09-19","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t185","texto":"CODIFICAR SWAGE NIPPLE A106 2x3/4\" L8780 SCH40x80","solicitante":"JUAN CARLOS CORTEJOSA","codigo_seguimiento":"C-202509-02091","solicitado":"2025-09-26","codigo_sap":"","extender_de":"","resuelto_sap":"80216541","ok":"OK","enlace":""},{"id":"t186","texto":"CODIFICADO CONJUNTO RASTRILLO C89+C62 E INCLUÍDO EN COMPONENTE 70012061","solicitante":"ALBERT CABANE","codigo_seguimiento":"C-202509-02237","solicitado":"2025-09-29","codigo_sap":"","extender_de":"","resuelto_sap":"80216566","ok":"OK","enlace":""},{"id":"t187","texto":"CODIFICACIÓN PARA ENTES CREADOS PARA TUBINGS","solicitante":"","codigo_seguimiento":"","solicitado":"","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"","enlace":""},{"id":"t188","texto":"70022032","solicitante":"","codigo_seguimiento":"","solicitado":"","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"","enlace":""},{"id":"t189","texto":"TUBO HP 3/8\" ESPECIFICACIÓN AE (POS.1)","solicitante":"CERRILLO","codigo_seguimiento":"C-202509-02637","solicitado":"2025-09-30","codigo_sap":"","extender_de":"","resuelto_sap":"80217408","ok":"OK","enlace":""},{"id":"t190","texto":"CUERPO TRANSICION 1/8\"ID ICI HP 3/8\"OD (POS.3)","solicitante":"CERRILLO","codigo_seguimiento":"C-202509-02608","solicitado":"2025-09-30","codigo_sap":"","extender_de":"","resuelto_sap":"80217409","ok":"OK","enlace":""},{"id":"t191","texto":"EXTENDER 80149284  MANGUITO ANTIVIBRATORIO 3/8\" OD KCL60 (POS.8)","solicitante":"CERRILLO","codigo_seguimiento":"X-202509-02602","solicitado":"2025-09-30","codigo_sap":"","extender_de":"","resuelto_sap":"80149284","ok":"OK","enlace":""},{"id":"t192","texto":"70022033","solicitante":"","codigo_seguimiento":"","solicitado":"","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"","enlace":""},{"id":"t193","texto":"TUBO HP 1\" OD AE KH4005-C PLANO KH083-C3 (POS.1)","solicitante":"CERRILLO","codigo_seguimiento":"C-202509-02634","solicitado":"2025-09-30","codigo_sap":"","extender_de":"","resuelto_sap":"80217407","ok":"OK","enlace":""},{"id":"t194","texto":"CUERPO TRANSICION 3/8\" ID ICI HP1\" OD (POS.4)","solicitante":"CERRILLO","codigo_seguimiento":"C-202509-02643","solicitado":"2025-09-30","codigo_sap":"","extender_de":"","resuelto_sap":"80217406","ok":"OK","enlace":""},{"id":"t195","texto":"COLLARIN 1\" OD CCLX160 (POS.6)","solicitante":"CERRILLO","codigo_seguimiento":"C-202510-00537","solicitado":"2025-10-03","codigo_sap":"","extender_de":"","resuelto_sap":"80217411","ok":"OK","enlace":""},{"id":"t196","texto":"MANGUITO CONEXION 1\" OD KCBLX160 (POS.8)","solicitante":"CERRILLO","codigo_seguimiento":"C-202510-00550","solicitado":"2025-10-03","codigo_sap":"","extender_de":"","resuelto_sap":"80217415","ok":"OK","enlace":""},{"id":"t197","texto":"TUERCA DE CONEXION 1\" OD KGLX160-316MC (POS.9)","solicitante":"CERRILLO","codigo_seguimiento":"C-202510-00552","solicitado":"2025-10-03","codigo_sap":"","extender_de":"","resuelto_sap":"80217414","ok":"OK","enlace":""},{"id":"t198","texto":"PINZA DE CONEXION 1\" OD KCCLX160-316MC","solicitante":"CERRILLO","codigo_seguimiento":"C-202510-00553","solicitado":"2025-10-03","codigo_sap":"","extender_de":"","resuelto_sap":"80217413","ok":"OK","enlace":""},{"id":"t199","texto":"70022041","solicitante":"","codigo_seguimiento":"","solicitado":"","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"","enlace":""},{"id":"t200","texto":"TUBO ADAPTADOR 7/8\" ID ICI HP 1\" OD (POS.4)","solicitante":"CERRILLO","codigo_seguimiento":"C-202510-00556","solicitado":"2025-10-03","codigo_sap":"","extender_de":"","resuelto_sap":"80217412","ok":"OK","enlace":""},{"id":"t201","texto":"MANGUITO CONEXION 1\" OD MS15-211 (POS.5)","solicitante":"CERRILLO","codigo_seguimiento":"C-202510-00564","solicitado":"2025-10-03","codigo_sap":"","extender_de":"","resuelto_sap":"80217416","ok":"OK","enlace":""},{"id":"t202","texto":"CREAR EQUIPO 613-S415: MANGUERA DESCARGA IBCS CON NÚMERO 60087179","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-10-03","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t203","texto":"CODIFICAR CAMISA HDM CS1D20AXA","solicitante":"ESTRELLA","codigo_seguimiento":"C-202510-00495","solicitado":"2025-10-03","codigo_sap":"","extender_de":"","resuelto_sap":"80217410","ok":"OK","enlace":""},{"id":"t204","texto":"CREAR PSE-7401: DISCO DE RUPTURA EN G-5755","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-10-07","codigo_sap":"","extender_de":"","resuelto_sap":"60087192","ok":"OK","enlace":""},{"id":"t205","texto":"CREAR PSE-7464: DISCO DE RUPTURA EN G-5755B","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-10-07","codigo_sap":"","extender_de":"","resuelto_sap":"60087193","ok":"OK","enlace":""},{"id":"t206","texto":"CREAR PSE-7465: DISCO DE RUPTURA EN G-5755B","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-10-07","codigo_sap":"","extender_de":"","resuelto_sap":"60087194","ok":"OK","enlace":""},{"id":"t207","texto":"CREAR PSE-7466: DISCO DE RUPTURA EN G-5755","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-10-07","codigo_sap":"","extender_de":"","resuelto_sap":"60087195","ok":"OK","enlace":""},{"id":"t208","texto":"CAMBIO DE TEXTO Y ADJUNTAR LOS PLANOS PARA EL CÓDIGO 80208434:\nJUNTA TORICA EOI-002600-03-03-1-SPB A  JUNTA TORICA EOI-002596-03-03-1-SPB","solicitante":"ESTRELLA","codigo_seguimiento":"E-202510-01353","solicitado":"2025-10-09","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t209","texto":"CABEZAL + BULÓN BOMBA VIKING (POS 40)","solicitante":"GUSTAVO AGÜERO","codigo_seguimiento":"C-202510-02027","solicitado":"2025-10-13","codigo_sap":"","extender_de":"","resuelto_sap":"80218946","ok":"OK","enlace":""},{"id":"t210","texto":"EXTENDER 1143400650 MANGUITO 3/4 NPT/SW 105","solicitante":"CORTEJOSA","codigo_seguimiento":"G-202510-02580","solicitado":"2025-10-15","codigo_sap":"","extender_de":"","resuelto_sap":"80217093","ok":"OK","enlace":""},{"id":"t211","texto":"EDITAR 80100570 CONJUNTO EJE SUNDYNE PARA MODIFICAR PLANIFICADORES","solicitante":"ALBERT CABANÉ","codigo_seguimiento":"X-202511-04280","solicitado":"2025-10-13","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t212","texto":"CODIFICAR TUBO SS 38,1 X 3MM SA-192","solicitante":"FACUNDO","codigo_seguimiento":"C-202510-02624","solicitado":"2025-10-15","codigo_sap":"","extender_de":"","resuelto_sap":"80217092","ok":"OK","enlace":""},{"id":"t213","texto":"CAMBIAR PLANIFICADOR DE 80017455 VASO MANZEL 1 1/4\" 16HILOS LG=65MM PARA \nMARCAR COMO OBSOLETO","solicitante":"CERRILLO","codigo_seguimiento":"X-202511-04634","solicitado":"2025-10-15","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t214","texto":"CREAR NUEVO EQUIPO 60087427","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-10-22","codigo_sap":"","extender_de":"","resuelto_sap":"60087427","ok":"OK","enlace":""},{"id":"t215","texto":"SE CODIFICA CONJUNTO ELECTRODO COMP 300-52-79-1440","solicitante":"CERRILLO","codigo_seguimiento":"C-202510-04070","solicitado":"2025-10-22","codigo_sap":"","extender_de":"","resuelto_sap":"80217420","ok":"OK","enlace":""},{"id":"t216","texto":"CREAR CONJUNTO 70022052 \"CONJUNTO ELECTRODO COMP. 300-52-79-1440\"","solicitante":"CERRILLO","codigo_seguimiento":"","solicitado":"2025-10-22","codigo_sap":"","extender_de":"","resuelto_sap":"70022052","ok":"OK","enlace":""},{"id":"t217","texto":"CODIFICAR FUELLE EXPANSION COMPLETO INCOLLOY DN50","solicitante":"TONI","codigo_seguimiento":"C-202510-04125","solicitado":"2025-10-22","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"","enlace":""},{"id":"t218","texto":"CODIFICAR ANILLO DE GOTEO 8\" #150 3/4","solicitante":"CORTEJOSA","codigo_seguimiento":"C-202510-04145","solicitado":"2025-10-22","codigo_sap":"","extender_de":"","resuelto_sap":"80217094","ok":"OK","enlace":""},{"id":"t219","texto":"CODIFICAR RETEN SCN BEL T44-154","solicitante":"CERRILLO","codigo_seguimiento":"C-202510-04290","solicitado":"2025-10-23","codigo_sap":"","extender_de":"","resuelto_sap":"80217421","ok":"OK","enlace":""},{"id":"t220","texto":"CODIFICAR WETTED KIT 476-171-635","solicitante":"GUSTAVO AGÜERO","codigo_seguimiento":"C-202510-04802","solicitado":"2025-10-24","codigo_sap":"","extender_de":"","resuelto_sap":"80217422","ok":"OK","enlace":""},{"id":"t221","texto":"CODIFICAR COJINETE HEMBRA 19886-01","solicitante":"GUSTAVO AGÜERO","codigo_seguimiento":"C-202510-04880","solicitado":"2025-10-24","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"","enlace":""},{"id":"t222","texto":"CODIFICAR COJINETE MACHO 19885-01","solicitante":"GUSTAVO AGÜERO","codigo_seguimiento":"C-202510-04885","solicitado":"2025-10-24","codigo_sap":"","extender_de":"","resuelto_sap":"80218952","ok":"OK","enlace":""},{"id":"t223","texto":"DAR DE BAJA 60020231","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-10-27","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t224","texto":"DAR DE BAJA 60020232","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-10-27","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t225","texto":"DAR DE BAJA 60020235","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-10-27","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t226","texto":"DAR DE BAJA 60020236","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-10-27","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t227","texto":"DAR DE BAJA 60020241","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-10-27","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t228","texto":"DAR DE BAJA 60020242","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-10-27","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t229","texto":"DAR DE BAJA 60020243","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-10-27","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t230","texto":"DAR DE BAJA 60020244","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-10-27","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t231","texto":"DAR DE BAJA 60020245","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-10-27","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t232","texto":"DAR DE BAJA 60020246","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-10-27","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t233","texto":"DAR DE BAJA 60020247","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-10-27","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t234","texto":"DAR DE BAJA 60020248","solicitante":"DIEGO MONGE","codigo_seguimiento":"","solicitado":"2025-10-27","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t235","texto":"CODIFICAR BASTIDOR RASQUETAS R120SAL001","solicitante":"ALBERT CABANÉ","codigo_seguimiento":"C-202510-05242","solicitado":"2025-10-27","codigo_sap":"","extender_de":"","resuelto_sap":"80217428","ok":"OK","enlace":""},{"id":"t236","texto":"CODIFICAR GOMAS RASQUETAS R120SAL002","solicitante":"ALBERT CABANÉ","codigo_seguimiento":"C-202510-05248","solicitado":"2025-10-27","codigo_sap":"","extender_de":"","resuelto_sap":"80217427","ok":"OK","enlace":""},{"id":"t237","texto":"CODIFICAR EJE RASQUETA R120SAL003","solicitante":"ALBERT CABANÉ","codigo_seguimiento":"C-202510-05249","solicitado":"2025-10-27","codigo_sap":"","extender_de":"","resuelto_sap":"80217426","ok":"OK","enlace":""},{"id":"t238","texto":"CODIFICAR REDUCTOR RASQUETA R120SAL004","solicitante":"ALBERT CABANÉ","codigo_seguimiento":"C-202510-05251","solicitado":"2025-10-27","codigo_sap":"","extender_de":"","resuelto_sap":"80217425","ok":"OK","enlace":""},{"id":"t239","texto":"CAMBIAR DESCRIPCIÓN CÓDIGO 80208381 JUNTA PLANA 1/2\"LG/LT 600# BRONCE BLANDO A\n JUNTA PLANA 1/2\"LG/LT 600# COBRE BLANDO","solicitante":"ANGEL GUTIÉRREZ","codigo_seguimiento":"E-202510-06244","solicitado":"2025-10-30","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t240","texto":"CODIFICAR PLACA DE CORTE DIE PLATE 23.44.0004","solicitante":"JOAN BIARNÉS","codigo_seguimiento":"C-202510-06484","solicitado":"2025-10-31","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"","enlace":""},{"id":"t241","texto":"EDITAR DESCRIPCIÓN Y TEXTO DE COMPRAS DE 80207133 REPLACEABLE DIE RING","solicitante":"JOAN BIARNÉS","codigo_seguimiento":"E-202510-06486","solicitado":"2025-10-31","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t242","texto":"CODIFICAR SOPORTE CARCASA 733/01/72/504","solicitante":"CERRILLO","codigo_seguimiento":"C-202510-06640","solicitado":"2025-10-31","codigo_sap":"","extender_de":"","resuelto_sap":"80217429","ok":"OK","enlace":""},{"id":"t243","texto":"CODIFICAR CIERRE AIR MIZER 9820-ACPG-103087-5","solicitante":"JOAN BIARNÉS","codigo_seguimiento":"C-202511-00528","solicitado":"2025-11-04","codigo_sap":"","extender_de":"","resuelto_sap":"80218958","ok":"OK","enlace":""},{"id":"t244","texto":"CODIFICAR CIERRE MECÁNICO FLOWSERVE 43264001","solicitante":"ALBERT CABANÉ","codigo_seguimiento":"C-202511-01294","solicitado":"2025-11-05","codigo_sap":"","extender_de":"","resuelto_sap":"80218961","ok":"OK","enlace":""},{"id":"t245","texto":"CODIFICAR IMPULSOR FLOWSERVE 20131152","solicitante":"ALBERT CABANÉ","codigo_seguimiento":"C-202511-00941","solicitado":"2025-11-05","codigo_sap":"","extender_de":"","resuelto_sap":"80218959","ok":"OK","enlace":""},{"id":"t246","texto":"CODIFICAR JUNTA TÓRICA 43167460","solicitante":"ALBERT CABANÉ","codigo_seguimiento":"C-202511-00976","solicitado":"2025-11-05","codigo_sap":"","extender_de":"","resuelto_sap":"80217431","ok":"OK","enlace":""},{"id":"t247","texto":"CODIFICAR EJE FLOWSERVE 43167471","solicitante":"ALBERT CABANÉ","codigo_seguimiento":"C-202511-01079","solicitado":"2025-11-05","codigo_sap":"","extender_de":"","resuelto_sap":"80217430","ok":"OK","enlace":""},{"id":"t248","texto":"CODIFICAR RODAMIENTO FLOWSERVE 43193941","solicitante":"ALBERT CABANÉ","codigo_seguimiento":"C-202511-01148","solicitado":"2025-11-05","codigo_sap":"","extender_de":"","resuelto_sap":"80217432","ok":"OK","enlace":""},{"id":"t249","texto":"CODIFICAR IMPULSOR FLOWSERVE 20110631","solicitante":"ALBERT CABANÉ","codigo_seguimiento":"C-202511-01165","solicitado":"2025-11-05","codigo_sap":"","extender_de":"","resuelto_sap":"80218960","ok":"OK","enlace":""},{"id":"t250","texto":"CODIFICAR FUELLE EXPANSION INCOLLOY DN50 (NO COMPLETO)","solicitante":"TONI QUERALT","codigo_seguimiento":"C-202511-02323","solicitado":"2025-11-07","codigo_sap":"","extender_de":"","resuelto_sap":"80217540","ok":"OK","enlace":""},{"id":"t251","texto":"FUELLE EXPANSION INCOLLOY DN80 (NO COMPLETO)","solicitante":"TONI QUERALT","codigo_seguimiento":"C-202511-02339","solicitado":"2025-11-07","codigo_sap":"","extender_de":"","resuelto_sap":"80217536","ok":"OK","enlace":""},{"id":"t252","texto":"FUELLE EXPANSION COMPLETO INCOLLOY DN80","solicitante":"TONI QUERALT","codigo_seguimiento":"C-202511-02378","solicitado":"2025-11-07","codigo_sap":"","extender_de":"","resuelto_sap":"80217513","ok":"OK","enlace":""},{"id":"t253","texto":"CODIFICAR TUBO SS DIAMETRO EXTERIOR 50,8x4,5 MM","solicitante":"FACUNDO","codigo_seguimiento":"C-202511-02406","solicitado":"2025-11-07","codigo_sap":"","extender_de":"","resuelto_sap":"80217534","ok":"OK","enlace":""},{"id":"t254","texto":"CREAR EQUIPO (MANGUERA)  612-8X01: MANGUERA CUBETO JUNTO PK-1108","solicitante":"GERMÁN","codigo_seguimiento":"","solicitado":"2025-11-07","codigo_sap":"","extender_de":"","resuelto_sap":"60088142","ok":"OK","enlace":""},{"id":"t255","texto":"CREAR EQUIPO (MANGUERA)  612-8X02: MANGUERA CUBETO JUNTO PK-1006","solicitante":"GERMÁN","codigo_seguimiento":"","solicitado":"2025-11-07","codigo_sap":"","extender_de":"","resuelto_sap":"60088143","ok":"OK","enlace":""},{"id":"t256","texto":"CREAR EQUIPO (MANGUERA)  612-8X03: MANGUERA CUBETO JUNTO PK-1104","solicitante":"GERMÁN","codigo_seguimiento":"","solicitado":"2025-11-07","codigo_sap":"","extender_de":"","resuelto_sap":"60088144","ok":"OK","enlace":""},{"id":"t257","texto":"CREAR EQUIPO (MANGUERA)  612-8X04: MANGUERA CUBETO JUNTO PK-1100","solicitante":"GERMÁN","codigo_seguimiento":"","solicitado":"2025-11-07","codigo_sap":"","extender_de":"","resuelto_sap":"60088145","ok":"OK","enlace":""},{"id":"t258","texto":"CREAR EQUIPO (MANGUERA)  612-8X05: MANGUERA CUBETO JUNTO PK-1102","solicitante":"GERMÁN","codigo_seguimiento":"","solicitado":"2025-11-07","codigo_sap":"","extender_de":"","resuelto_sap":"60088146","ok":"OK","enlace":""},{"id":"t259","texto":"CODIFICAR RODETE + ARO ROZANTE KLAUS P01137892","solicitante":"ESTRELLA","codigo_seguimiento":"C-202511-02712","solicitado":"2025-11-10","codigo_sap":"","extender_de":"","resuelto_sap":"80218962","ok":"OK","enlace":""},{"id":"t260","texto":"CODIFICAR ARO ROZANTE KLAUS P00977751","solicitante":"ESTRELLA","codigo_seguimiento":"C-202511-02714","solicitado":"2025-11-10","codigo_sap":"","extender_de":"","resuelto_sap":"80218425","ok":"OK","enlace":""},{"id":"t261","texto":"CODIFICAR (EXTENDER GR-13211) REDUCCION EXCENTRICA 14\"x12\"","solicitante":"JOSUÉ","codigo_seguimiento":"C-202511-03728","solicitado":"2025-11-12","codigo_sap":"","extender_de":"","resuelto_sap":"80217624","ok":"OK","enlace":""},{"id":"t262","texto":"CODIFICAR BRIDA WN/RF 250# 12\" A-234 SCH20","solicitante":"JOSUÉ","codigo_seguimiento":"C-202511-03896","solicitado":"2025-11-12","codigo_sap":"","extender_de":"","resuelto_sap":"80217581","ok":"OK","enlace":""},{"id":"t263","texto":"EDITAR NOMBRE A 80017835 VALVULA PISTON 800#SW 1 1/2\" AC A \nVAL. PISTON KVSN-VIII-KX-GT DN-40 PN-63 SW C/ANILLOS GRAFITO","solicitante":"ZAMORA","codigo_seguimiento":"E-202511-03907","solicitado":"2025-11-12","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t264","texto":"CODIFICAR CARCASA BOMBA 11-008946","solicitante":"ESTRELLA","codigo_seguimiento":"C-202511-03915","solicitado":"2025-11-12","codigo_sap":"","extender_de":"","resuelto_sap":"80218963","ok":"OK","enlace":""},{"id":"t265","texto":"CODIFICAR DISCO DE RUPTURA PSD-9380","solicitante":"ZAMORA","codigo_seguimiento":"C-202511-05298","solicitado":"2025-11-18","codigo_sap":"","extender_de":"","resuelto_sap":"80217731","ok":"OK","enlace":""},{"id":"t266","texto":"MARCAR COMO OBSOLETO CÓDIGO 80205182","solicitante":"CABANÉ","codigo_seguimiento":"X-202511-05311","solicitado":"2025-11-18","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t267","texto":"MARCAR COMO OBSOLETO CÓDIGO 80205183","solicitante":"CABANÉ","codigo_seguimiento":"X-202511-05312","solicitado":"2025-11-18","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t268","texto":"EDITAR 80217731 DESCRIPCIÓN CORRECTA","solicitante":"ZAMORA","codigo_seguimiento":"E-202511-05590","solicitado":"2025-11-19","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":"YA ESTÁ INLCUÍDO\nEN TEXTO"},{"id":"t269","texto":"CODIFICAR JUNTA JUNTA PLANA F/N DIN2691 DN200 GRAF. FLEX","solicitante":"JOSUÉ","codigo_seguimiento":"C-202511-05582","solicitado":"2025-11-19","codigo_sap":"","extender_de":"","resuelto_sap":"80217814","ok":"OK","enlace":""},{"id":"t270","texto":"VALVULA MACHO TUFFLINE ½” 600# RF A351","solicitante":"TONI","codigo_seguimiento":"C-202511-05739","solicitado":"2025-11-20","codigo_sap":"","extender_de":"","resuelto_sap":"80217834","ok":"OK","enlace":""},{"id":"t271","texto":"CREADO CONJUNTO 70022072 PLANO Nº21: RASQUETA BASTIDOR PARA 60079397","solicitante":"CABANÉ","codigo_seguimiento":"","solicitado":"2025-11-21","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t272","texto":"CREADO CONJUNTO 70022071 \"PLANO Nº20: EJE Y BASTIDOR DE RASQUETA PARA 60079397","solicitante":"CABANÉ","codigo_seguimiento":"","solicitado":"2025-11-21","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t273","texto":"CODIFICAR JUNTA CAMLOCK 2\" PTFE","solicitante":"MONGE","codigo_seguimiento":"C-202511-06309","solicitado":"2025-11-21","codigo_sap":"","extender_de":"","resuelto_sap":"80217883","ok":"OK","enlace":""},{"id":"t274","texto":"EDITAR \"K\" JUNTA PLANA ENCAPSULADA PARA RACOR CAMLOCK 3\"  80197001","solicitante":"MONGE","codigo_seguimiento":"E-202511-06310","solicitado":"2025-11-21","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t275","texto":"ENLACE TUBERÍA 678MM","solicitante":"CERRILLO","codigo_seguimiento":"C-202511-08403","solicitado":"2025-11-27","codigo_sap":"","extender_de":"","resuelto_sap":"80218966","ok":"OK","enlace":""},{"id":"t276","texto":"ENLACE TUBERÍA 707MM","solicitante":"CERRILLO","codigo_seguimiento":"C-202511-08404","solicitado":"2025-11-27","codigo_sap":"","extender_de":"","resuelto_sap":"80218967","ok":"OK","enlace":""},{"id":"t277","texto":"ENLACE TUBERIA 687MM","solicitante":"CERRILLO","codigo_seguimiento":"C-202511-08407","solicitado":"2025-11-27","codigo_sap":"","extender_de":"","resuelto_sap":"80218965","ok":"OK","enlace":""},{"id":"t278","texto":"CODIFICADO PURGADOR MAGNUS 61E 150#RF 2\" SUSTITUYE A 80173711","solicitante":"TONI","codigo_seguimiento":"C-202511-08457","solicitado":"2025-11-27","codigo_sap":"","extender_de":"","resuelto_sap":"80218964","ok":"OK","enlace":""},{"id":"t279","texto":"VEJIGA DE 20L ACUMULADOR PLAN API 53 B","solicitante":"AGÜERO","codigo_seguimiento":"C-202511-08522","solicitado":"2025-11-28","codigo_sap":"","extender_de":"","resuelto_sap":"80218422","ok":"OK","enlace":"INCLUÍDO  60040832"},{"id":"t280","texto":"EDITAR CÓDIGO 80204612 JUNTA TORICA 191,5X207,1X8mm SOFT ALUMINIO","solicitante":"TONI","codigo_seguimiento":"E-202511-08655","solicitado":"2025-11-28","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t281","texto":"AÑADIDO  TEXTO DE COMPRAS: \"Inlet Connection Lid incluido\"","solicitante":"BIARNES","codigo_seguimiento":"E-202511-08698","solicitado":"2025-11-28","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t282","texto":"AÑADIR CÓDIGO 80191105 A ESTRUCTURAS EQUIPOS P-4912 A Y P 4912-B","solicitante":"AGÜERO","codigo_seguimiento":"","solicitado":"2025-12-01","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t283","texto":"CODIFICAR BOMBA ALLWEILER AFI40 R54 D19US W228 A","solicitante":"BIARNES","codigo_seguimiento":"C-202512-00815","solicitado":"2025-12-01","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t284","texto":"ACOPLAMIENTO REXNORD REGAL500S54RDG","solicitante":"CERRILLO","codigo_seguimiento":"C-202512-00065","solicitado":"2025-12-01","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"","enlace":""},{"id":"t285","texto":"KIT DISCOS DPK AMR 500 HHS","solicitante":"CERRILLO","codigo_seguimiento":"C-202512-00073","solicitado":"2025-12-01","codigo_sap":"","extender_de":"","resuelto_sap":"80218424","ok":"OK","enlace":""},{"id":"t286","texto":"KIT TORNILLOS 500-S54RDG-ETO","solicitante":"CERRILLO","codigo_seguimiento":"C-202512-00078","solicitado":"2025-12-01","codigo_sap":"","extender_de":"","resuelto_sap":"80218423","ok":"OK","enlace":""},{"id":"t287","texto":"CODIFICAR  VALVULA RETENCION 3\" 300LBS L-7866","solicitante":"CORTEJOSA","codigo_seguimiento":"C-202512-00410","solicitado":"2025-12-02","codigo_sap":"","extender_de":"","resuelto_sap":"80218968","ok":"OK","enlace":""},{"id":"t288","texto":"BOMBA ALLWEILER AFI40 R54 D19US W228 A","solicitante":"BIARNES","codigo_seguimiento":"C-202512-00815","solicitado":"2025-12-03","codigo_sap":"","extender_de":"","resuelto_sap":"80218330","ok":"OK","enlace":""},{"id":"t289","texto":"JUNTA 191,5x207,1x8MM ARO SOFT ALUMINIO","solicitante":"TONI","codigo_seguimiento":"C-202512-01051","solicitado":"2025-12-04","codigo_sap":"","extender_de":"","resuelto_sap":"80218076","ok":"OK","enlace":""},{"id":"t290","texto":"CUERPO VALVULA GEHH-34-0001 2226437","solicitante":"CERRILLO","codigo_seguimiento":"C-202512-01052","solicitado":"2025-12-04","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"","enlace":""},{"id":"t291","texto":"ASIENTO D9,5 VS-68-0001 1218719","solicitante":"CERRILLO","codigo_seguimiento":"C-202512-01062","solicitado":"2025-12-04","codigo_sap":"","extender_de":"","resuelto_sap":"80219120","ok":"OK","enlace":""},{"id":"t292","texto":"OBTURADOR D16 VSP-16-0001 2219590","solicitante":"CERRILLO","codigo_seguimiento":"C-202512-01069","solicitado":"2025-12-04","codigo_sap":"","extender_de":"","resuelto_sap":"80218643","ok":"OK","enlace":""},{"id":"t293","texto":"EJE FLOWSERVE 21501734","solicitante":"AGÜERO","codigo_seguimiento":"C-202512-01127","solicitado":"2025-12-04","codigo_sap":"","extender_de":"","resuelto_sap":"80218341","ok":"OK","enlace":""},{"id":"t294","texto":"ACOPLAMIENTO CPL. D16 HA9200 1003583","solicitante":"CERRILLO","codigo_seguimiento":"C-202512-01146","solicitado":"2025-12-04","codigo_sap":"","extender_de":"","resuelto_sap":"80218531","ok":"OK","enlace":""},{"id":"t295","texto":"PRENSA EMPAQUETADURAS M36X2 2206678","solicitante":"CERRILLO","codigo_seguimiento":"C-202512-01151","solicitado":"2025-12-04","codigo_sap":"","extender_de":"","resuelto_sap":"80218421","ok":"OK","enlace":""},{"id":"t296","texto":"REDUCTOR SINCRON 2080-XR2 1/7, 1 10 B3","solicitante":"AGÜERO","codigo_seguimiento":"C-202512-02611","solicitado":"2025-12-12","codigo_sap":"","extender_de":"","resuelto_sap":"80218427","ok":"OK","enlace":""},{"id":"t297","texto":"BRIDA WN/RTJ A-105 1500# 4\" SCH120 1500#","solicitante":"PAU","codigo_seguimiento":"C-202512-01969","solicitado":"2025-12-11","codigo_sap":"","extender_de":"","resuelto_sap":"80218224","ok":"OK","enlace":""},{"id":"t298","texto":"CAMBIO DESCRIPCIÓN  A VISCOSEAL","solicitante":"CABANÉ","codigo_seguimiento":"E-202512-02168","solicitado":"2025-12-11","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t299","texto":"CREAR EQUIPOS FILTRO PULMONACIÓN FINOS DE M-1801-A","solicitante":"TONI","codigo_seguimiento":"","solicitado":"2025-12-12","codigo_sap":"","extender_de":"","resuelto_sap":"60088726","ok":"OK","enlace":""},{"id":"t300","texto":"CREAR EQUIPOS FILTRO PULMONACIÓN FINOS DE M-1801-B","solicitante":"TONI","codigo_seguimiento":"","solicitado":"2025-12-12","codigo_sap":"","extender_de":"","resuelto_sap":"60088727","ok":"OK","enlace":""},{"id":"t301","texto":"SOCKOLET 3000# 18\"x3/4\" L-343","solicitante":"CORTEJOSA","codigo_seguimiento":"C-202512-02802","solicitado":"2025-12-15","codigo_sap":"80185358","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t302","texto":"EDICIÓN CÓDIGO 80161535 A ACUMULADOR GPN89274567 ACU.10L VITON","solicitante":"AGÜERO","codigo_seguimiento":"E-202512-02803","solicitado":"2025-12-15","codigo_sap":"","extender_de":"","resuelto_sap":"RECHAZADO","ok":"OK","enlace":""},{"id":"t303","texto":"TORNILLO EXAGONAL DIN933/4 M30X70 304","solicitante":"TONI","codigo_seguimiento":"C-202512-02841","solicitado":"2025-12-15","codigo_sap":"","extender_de":"","resuelto_sap":"80218504","ok":"OK","enlace":""},{"id":"t304","texto":"VOLUTA CPK 040-160 M.G","solicitante":"AGÜERO","codigo_seguimiento":"C-202512-03234","solicitado":"2025-12-17","codigo_sap":"","extender_de":"","resuelto_sap":"80218428","ok":"OK","enlace":""},{"id":"t305","texto":"TAPA CIERRE CPK \"02\"","solicitante":"AGÜERO","codigo_seguimiento":"C-202512-03235","solicitado":"2025-12-17","codigo_sap":"","extender_de":"","resuelto_sap":"80218429","ok":"OK","enlace":""},{"id":"t306","texto":"VEJIGA 10 LITROS ACUMULADOR 89274567","solicitante":"AGÜERO","codigo_seguimiento":"C-202512-03408","solicitado":"2025-12-17","codigo_sap":"","extender_de":"","resuelto_sap":"80218343","ok":"OK","enlace":""},{"id":"t307","texto":"EXTENDER BRIDA CUELLO, 2\", 1500LBS,160,RTJ, L8547","solicitante":"PAU","codigo_seguimiento":"C-202512-03843","solicitado":"2025-12-18","codigo_sap":"","extender_de":"","resuelto_sap":"80218329","ok":"OK","enlace":""},{"id":"t308","texto":"COMPENSADOR GRUBER ASPIRACION Ø850 INT.","solicitante":"AGÜERO","codigo_seguimiento":"C-202601-00056","solicitado":"2026-01-02","codigo_sap":"","extender_de":"","resuelto_sap":"80218647","ok":"OK","enlace":""},{"id":"t309","texto":"COMPENSADOR GRUBER IMPULSION 924 X 634","solicitante":"AGÜERO","codigo_seguimiento":"C-202601-00064","solicitado":"2026-01-02","codigo_sap":"","extender_de":"","resuelto_sap":"80218972","ok":"OK","enlace":""},{"id":"t310","texto":"COMPENSADOR GRUBER ASPIRACION POS.YW","solicitante":"AGÜERO","codigo_seguimiento":"C-202601-00122","solicitado":"2026-01-02","codigo_sap":"","extender_de":"","resuelto_sap":"80218644","ok":"OK","enlace":""},{"id":"t311","texto":"COMPENSADOR GRUBER IMPULSION POS.ZL","solicitante":"AGÜERO","codigo_seguimiento":"C-202601-00124","solicitado":"2026-01-02","codigo_sap":"","extender_de":"","resuelto_sap":"80218645","ok":"OK","enlace":""},{"id":"t312","texto":"COMPENSADOR GRUBER IMPULSION POS.F","solicitante":"AGÜERO","codigo_seguimiento":"C-202601-00126","solicitado":"2026-01-02","codigo_sap":"","extender_de":"","resuelto_sap":"80218646","ok":"OK","enlace":""},{"id":"t313","texto":"EDITAR 80195153 ACOPLAMIENTO PIGNONE RG036632","solicitante":"CABANÉ","codigo_seguimiento":"E-202601-00001","solicitado":"2026-01-02","codigo_sap":"","extender_de":"","resuelto_sap":"","ok":"OK","enlace":""},{"id":"t314","texto":"PROTECTOR RODAMIENTOS BGC20513539SDBV","solicitante":"BIARNES","codigo_seguimiento":"C-202601-00890","solicitado":"2026-01-08","codigo_sap":"","extender_de":"","resuelto_sap":"80218649","ok":"OK","enlace":""},{"id":"t315","texto":"PROTECTOR RODAMIENTOS BGC23623539SDBV","solicitante":"BIARNES","codigo_seguimiento":"C-202601-00892","solicitado":"2026-01-08","codigo_sap":"","extender_de":"","resuelto_sap":"80218648","ok":"OK","enlace":""},{"id":"t316","texto":"JUNTA DE PTFE EXPANDIDO DN1200 S/PLANO","solicitante":"MONGE","codigo_seguimiento":"C-202601-01471","solicitado":"2026-
