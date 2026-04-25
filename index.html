@@ -1015,17 +1015,28 @@ function pullCloud(){
 function pushCloud(silent){
   if(!SURL)return;
   if(!silent)setSY('syncing','Guardando…');
-  // Enviar de 10 en 10 registros por tab via JSONP
+  const body=JSON.stringify({action:'write',data:S.data});
+  // Intentar fetch con cors (funciona si el Apps Script tiene cabeceras CORS)
+  fetch(SURL,{method:'POST',headers:{'Content-Type':'application/json'},body})
+    .then(r=>r.json())
+    .then(res=>{
+      if(res&&res.ok){setSY('ok','Guardado ✓');setTimeout(()=>{if(silent)startSync();else pullCloud();},500);}
+      else{setSY('error','Error: '+(res&&res.error||'?'));}
+    })
+    .catch(()=>{
+      // Fallback: JSONP de 2 en 2 registros
+      _pushJsonp(S.data, silent);
+    });
+}
+
+function _pushJsonp(data, silent){
   const tabs=['trabajos','planificadores','ediciones','anulaciones'];
-  const chunks=[];
-  // Notas y deleted en primer chunk
-  chunks.push({trabajos:[],planificadores:[],ediciones:[],anulaciones:[],his:[],notes:S.data.notes||{},deleted:S.data.deleted||{}});
+  const chunks=[{trabajos:[],planificadores:[],ediciones:[],anulaciones:[],his:[],notes:data.notes||{},deleted:data.deleted||{}}];
   tabs.forEach(tab=>{
-    const arr=S.data[tab]||[];
-    const SIZE=8;
-    for(let i=0;i<arr.length;i+=SIZE){
+    const arr=data[tab]||[];
+    for(let i=0;i<arr.length;i+=2){
       const c={trabajos:[],planificadores:[],ediciones:[],anulaciones:[],his:[],notes:{},deleted:{}};
-      c[tab]=arr.slice(i,i+SIZE);
+      c[tab]=arr.slice(i,i+2);
       chunks.push(c);
     }
   });
@@ -1034,12 +1045,12 @@ function pushCloud(silent){
     if(ci>=chunks.length){setSY('ok','Guardado ✓');setTimeout(()=>{if(silent)startSync();else pullCloud();},500);return;}
     const chunk=chunks[ci++];
     const cb='_jcb'+Date.now();
-    const encoded=encodeURIComponent(JSON.stringify({action:'write',data:chunk}));
-    const url=SURL+'?callback='+cb+'&payload='+encoded;
-    const script=document.createElement('script');
-    window[cb]=function(res){delete window[cb];document.body.removeChild(script);if(res&&res.ok){setTimeout(next,200);}else{setSY('error','Error al guardar');}};
-    script.onerror=function(){delete window[cb];document.body.removeChild(script);setSY('error','Error de red');};
-    script.src=url;document.body.appendChild(script);
+    const enc=encodeURIComponent(JSON.stringify({action:'write',data:chunk}));
+    const url=SURL+'?callback='+cb+'&payload='+enc;
+    const s=document.createElement('script');
+    window[cb]=function(r){delete window[cb];document.body.removeChild(s);if(r&&r.ok)setTimeout(next,150);else setSY('error','Error al guardar');};
+    s.onerror=function(){delete window[cb];document.body.removeChild(s);setSY('error','Error de red');};
+    s.src=url;document.body.appendChild(s);
   }
   next();
 }
