@@ -1015,19 +1015,55 @@ function pullCloud(){
 function pushCloud(silent){
   if(!SURL)return;
   if(!silent)setSY('syncing','Guardando…');
-  // JSONP write: enviar datos como parámetro GET — único método que funciona con Apps Script sin CORS
-  const dataStr=encodeURIComponent(JSON.stringify({action:'write',data:S.data}));
+  // Partir los datos en chunks si son muy grandes para la URL
+  _jsonpWrite(S.data, silent);
+}
+
+function _jsonpWrite(data, silent){
   const cb='_cb'+Date.now();
-  const url=SURL+'?callback='+cb+'&payload='+dataStr;
-  const script=document.createElement('script');
-  window[cb]=function(res){
-    delete window[cb]; document.body.removeChild(script);
-    if(res&&res.ok){ setSY('ok','Guardado ✓'); setTimeout(()=>{if(silent)startSync();else pullCloud();},500); }
-    else{ setSY('error','Error al guardar'); }
-  };
-  script.onerror=function(){ delete window[cb]; document.body.removeChild(script); setSY('error','Error al guardar'); };
-  script.src=url;
-  document.body.appendChild(script);
+  const payload=JSON.stringify({action:'write',data:data});
+  // Si el payload es demasiado grande para una URL, enviar en partes
+  const MAX=6000; // caracteres seguros en URL
+  const encoded=encodeURIComponent(payload);
+  if(encoded.length<=MAX){
+    // Envío normal en una sola llamada JSONP
+    const url=SURL+'?callback='+cb+'&payload='+encoded;
+    const script=document.createElement('script');
+    window[cb]=function(res){
+      delete window[cb]; document.body.removeChild(script);
+      if(res&&res.ok){ setSY('ok','Guardado ✓'); setTimeout(()=>{if(silent)startSync();else pullCloud();},500); }
+      else{ setSY('error','Error servidor: '+(res&&res.error||'?')); }
+    };
+    script.onerror=function(){ delete window[cb]; document.body.removeChild(script); setSY('error','Error de red'); };
+    script.src=url; document.body.appendChild(script);
+  } else {
+    // Datos grandes: enviar tab a tab en secuencia
+    _jsonpWriteChunked(data, silent);
+  }
+}
+
+function _jsonpWriteChunked(data, silent){
+  // Enviar primero solo notas+deleted+metadatos, luego cada tab
+  const tabs=['trabajos','planificadores','ediciones','anulaciones'];
+  let idx=0;
+  function next(){
+    if(idx>=tabs.length){ setSY('ok','Guardado ✓'); setTimeout(()=>{if(silent)startSync();else pullCloud();},500); return; }
+    const tab=tabs[idx++];
+    const chunk={trabajos:[],planificadores:[],ediciones:[],anulaciones:[],his:[],notes:idx===1?data.notes:{},deleted:idx===1?data.deleted:{}};
+    chunk[tab]=data[tab]||[];
+    const cb='_cb'+Date.now()+'_'+idx;
+    const encoded=encodeURIComponent(JSON.stringify({action:'write',data:chunk}));
+    const url=SURL+'?callback='+cb+'&payload='+encoded;
+    const script=document.createElement('script');
+    window[cb]=function(res){
+      delete window[cb]; document.body.removeChild(script);
+      if(res&&res.ok){ setTimeout(next,300); }
+      else{ setSY('error','Error al guardar chunk'); }
+    };
+    script.onerror=function(){ delete window[cb]; document.body.removeChild(script); setSY('error','Error de red'); };
+    script.src=url; document.body.appendChild(script);
+  }
+  next();
 }
 
 function saveAndSync(){saveLocal();pushCloud(false);}
