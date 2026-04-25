@@ -947,22 +947,22 @@ let _saving=false;
 function _pushJsonp(data){
   const tabs=['trabajos','planificadores','ediciones','anulaciones'];
   const chunks=[{trabajos:[],planificadores:[],ediciones:[],anulaciones:[],his:[],notes:data.notes||{},deleted:data.deleted||{}}];
-  tabs.forEach(tab=>{
-    const arr=data[tab]||[];
-    for(let i=0;i<arr.length;i+=2){
-      const c={trabajos:[],planificadores:[],ediciones:[],anulaciones:[],his:[],notes:{},deleted:{}};
+  tabs.forEach(function(tab){
+    var arr=data[tab]||[];
+    for(var i=0;i<arr.length;i+=2){
+      var c={trabajos:[],planificadores:[],ediciones:[],anulaciones:[],his:[],notes:{},deleted:{}};
       c[tab]=arr.slice(i,i+2);chunks.push(c);
     }
   });
-  let ci=0;
+  var ci=0;
   function next(){
     if(ci>=chunks.length){setSY('ok','Guardado ✓');setTimeout(pullCloud,500);return;}
-    const chunk=chunks[ci++];
-    const cb='_jcb'+Date.now();
-    const enc=encodeURIComponent(JSON.stringify({action:'write',data:chunk}));
-    const url=SURL+'?callback='+cb+'&payload='+enc;
-    const s=document.createElement('script');
-    window[cb]=function(r){delete window[cb];document.body.removeChild(s);if(r&&r.ok)setTimeout(next,150);else setSY('error','Error al guardar');};
+    var chunk=chunks[ci++];
+    var cb='_jcb'+Date.now();
+    var enc=encodeURIComponent(JSON.stringify({action:'write',data:chunk}));
+    var url=SURL+'?callback='+cb+'&payload='+enc;
+    var s=document.createElement('script');
+    window[cb]=function(r){delete window[cb];document.body.removeChild(s);if(r&&r.ok)setTimeout(next,200);else setSY('error','Error al guardar');};
     s.onerror=function(){delete window[cb];document.body.removeChild(s);setSY('error','Error de red');};
     s.src=url;document.body.appendChild(s);
   }
@@ -981,8 +981,6 @@ function saveAndSync(){
         saveLocal();
       }
       applyF(false);
-      const body=JSON.stringify({action:'write',data:S.data});
-      // JSONP: enviar de 2 en 2 registros (único método fiable con Apps Script)
       _saving=false;
       _pushJsonp(S.data);
     })
