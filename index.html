@@ -999,7 +999,18 @@ function pullCloud(){
       deleted:deleted
     };
     saveLocal();S._lastSig=null;populateFilters();applyF(false);
-    if(S.selId)renderDetail();
+    if(S.selId){
+      // No re-renderizar el detalle si el usuario está escribiendo en el textarea de notas
+      const notaEl=document.getElementById('nota');
+      const editando=notaEl&&document.activeElement===notaEl;
+      if(!editando){
+        renderDetail();
+      } else {
+        // Actualizar solo la nota en memoria sin destruir el textarea
+        const draft=notaEl.value;
+        S.data.notes[S.selId]=draft;
+      }
+    }
     const t=new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     document.getElementById('lsy').textContent='Sync: '+t;
     setSY('ok','Sincronizado ✓');
