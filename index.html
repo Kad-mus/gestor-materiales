@@ -957,8 +957,8 @@ function forcePull(){
 
 function forcePush(){
   if(!SURL){alert('No hay URL configurada');return;}
-  if(!confirm('⚠ Subir datos locales al servidor. ¿Continuar?'))return;
-  pushCloud(false);
+  if(!confirm('⚠ Subir datos locales al servidor (se fusionará con lo que haya en la nube). ¿Continuar?'))return;
+  saveAndSync();
 }
 
 function startSync(){
@@ -1018,19 +1018,41 @@ function pullCloud(){
 }
 
 let _saving=false;
-function saveAndSync(){
+function saveAndSync(forceOverwrite){
   saveLocal();
   if(!SURL){ applyF(false); return; }
-  if(_saving){ setTimeout(saveAndSync,600); return; }
+  if(_saving){ setTimeout(()=>saveAndSync(forceOverwrite),600); return; }
   _saving=true;
   setSY('syncing','Guardando…');
-  const body=JSON.stringify({action:'write',data:S.data});
-  fetch(SURL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body})
+  // Antes de escribir: leer el servidor y fusionar, para no perder registros
+  // que existan en la nube pero no en este S.data local (p.ej. tras un Clear site data).
+  // Excepción: forceOverwrite=true (p.ej. al restaurar un backup) — ahí el usuario
+  // quiere sustituir todo explícitamente, así que NO se fusiona con lo que haya en la nube.
+  const pull = forceOverwrite ? Promise.resolve(null) : fetchGet(SURL+'?action=read');
+  pull
+    .then(remote=>{
+      if(remote&&!remote.error){
+        const deleted=Object.assign({},remote.deleted||{},S.data.deleted||{});
+        S.data={
+          trabajos:      mergeArr(S.data.trabajos,      remote.trabajos||[],     deleted),
+          planificadores:mergeArr(S.data.planificadores, remote.planificadores||[],deleted),
+          ediciones:     mergeArr(S.data.ediciones,      remote.ediciones||[],   deleted),
+          anulaciones:   mergeArr(S.data.anulaciones,    remote.anulaciones||[], deleted),
+          his:           mergeArr(S.data.his,            remote.his||[],         deleted),
+          notes:Object.assign({},remote.notes||{},S.data.notes||{}),
+          deleted:deleted
+        };
+        saveLocal();
+      }
+      // Si el pull falla (o forceOverwrite), seguimos con el S.data local tal cual.
+      const body=JSON.stringify({action:'write',data:S.data});
+      return fetch(SURL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body});
+    })
     .then(r=>r.json())
     .then(res=>{
       _saving=false;
       if(res&&res.error){console.error('Error servidor:',res.error);setSY('error','Error al guardar');}
-      else{setSY('ok','Guardado ✓');}
+      else{setSY('ok','Guardado ✓');S._lastSig=null;populateFilters();applyF(false);if(S.selId)renderDetail();}
     })
     .catch(err=>{ _saving=false; console.error(err); setSY('error','Error de Red'); });
 }
@@ -1364,14 +1386,14 @@ function saveRec(){
   if(!S.data[S.tab])S.data[S.tab]=[];
   if(S.editId){S.data[S.tab]=S.data[S.tab].map(r=>r.id===S.editId?{...r,...obj,_updatedAt:now}:r);}
   else{obj.id=gid();obj._createdBy=currentUser||'Desconocido';obj._createdAt=now;obj._updatedAt=now;S.data[S.tab]=[obj,...S.data[S.tab]];}
-  saveAndSync();closeModal();populateFilters();applyF();if(S.selId)renderDetail();
+  saveAndSync();closeModal();populateFilters();applyF(false);if(S.selId)renderDetail();
 }
 function delRec(id,e){
   if(e)e.stopPropagation();if(!confirm('¿Eliminar este registro?'))return;
   S.data[S.tab]=S.data[S.tab].filter(r=>r.id!==id);delete S.data.notes[id];
   if(!S.data.deleted)S.data.deleted={};
   S.data.deleted[id]=new Date().toISOString();
-  saveAndSync();if(S.selId===id)closeDetail();populateFilters();applyF();
+  saveAndSync();if(S.selId===id)closeDetail();populateFilters();applyF(false);
 }
 
 // ── EXPORT EXCEL ─────────────────────────────────────────────────────────────
@@ -1500,7 +1522,7 @@ function restoreBackup(){
         saveLocal();
         populateFilters();applyF();
         if(S.selId)closeDetail();
-        saveAndSync();
+        saveAndSync(true);
         alert('✅ Backup restaurado correctamente.\n\nSe han cargado:\n• '+S.data.trabajos.length+' registros en Trabajos\n• '+S.data.planificadores.length+' registros en Planificadores\n• '+S.data.ediciones.length+' registros en Ediciones\n• '+S.data.anulaciones.length+' registros en Anulaciones\n• '+S.data.his.length+' H.I.\'s');
       }catch(err){
         alert('❌ Error al leer el archivo: '+err.message);
