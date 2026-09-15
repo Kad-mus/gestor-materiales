@@ -274,12 +274,12 @@ body { font-family:var(--sans); font-size:16px; background:var(--bg); color:var(
 #content-bar { padding:10px 22px; border-bottom:1px solid var(--line); display:flex; align-items:center; background:var(--white); flex-shrink:0; }
 .rec-count { font-family:var(--mono); font-size:12px; color:var(--muted); }
 #table-wrap { flex:1; overflow:auto; }
-#pagination { display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px; border-top:1px solid var(--line); background:var(--white); flex-shrink:0; }
-.pg-btn { padding:5px 14px; border:1px solid var(--line); border-radius:7px; background:var(--bg); font-family:var(--sans); font-size:13px; font-weight:600; cursor:pointer; color:var(--ink); transition:all .15s; }
+#pagination { display:flex; align-items:center; justify-content:center; justify-content:safe center; gap:8px; padding:10px 16px; border-top:1px solid var(--line); background:var(--white); flex-shrink:0; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:thin; }
+.pg-btn { padding:5px 14px; border:1px solid var(--line); border-radius:7px; background:var(--bg); font-family:var(--sans); font-size:13px; font-weight:600; cursor:pointer; color:var(--ink); transition:all .15s; flex-shrink:0; white-space:nowrap; }
 .pg-btn:hover:not(:disabled) { background:var(--navy); color:white; border-color:var(--navy); }
 .pg-btn:disabled { opacity:.35; cursor:default; }
 .pg-btn.active { background:var(--grad); color:white; border-color:transparent; }
-.pg-info { font-size:13px; color:var(--muted); font-family:var(--mono); padding:0 8px; }
+.pg-info { font-size:13px; color:var(--muted); font-family:var(--mono); padding:0 8px; flex-shrink:0; white-space:nowrap; }
 table { width:100%; table-layout:auto; }
 td { overflow:hidden; text-overflow:ellipsis; max-width:0; }
 th { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -451,6 +451,8 @@ tr:hover .copy-btn { opacity:1; }
   th { font-size:13px; }
   .btn { padding:5px 14px; font-size:13px; }
   .app-name { font-size:15px; }
+  .pg-btn { padding:5px 11px; font-size:12px; }
+  .pg-info { font-size:12px; }
 }
 
 /* ── PANTALLA MEDIANA (1024px - 1280px) ─────────────────────────────
@@ -477,6 +479,11 @@ tr:hover .copy-btn { opacity:1; }
 
   /* Columnas de tabla: reducir min-width via zoom suave */
   #table-wrap { font-size:13px; }
+
+  /* Paginación */
+  #pagination { gap:5px; padding:8px 10px; }
+  .pg-btn { padding:4px 9px; font-size:12px; }
+  .pg-info { font-size:11px; padding:0 4px; }
 }
 
 /* ── PANTALLA PEQUEÑA PC (901px - 1024px) ───────────────────────── */
@@ -492,6 +499,11 @@ tr:hover .copy-btn { opacity:1; }
   td { padding:8px 6px; }
   .df-label { font-size:11px; }
   .df-val { font-size:13px; }
+
+  /* Paginación aún más compacta */
+  #pagination { gap:4px; padding:7px 8px; }
+  .pg-btn { padding:4px 8px; font-size:11px; }
+  .pg-info { font-size:10px; padding:0 3px; }
 }
 
 /* ── OCULTAR botón hamburguesa en PC ─── */
@@ -589,6 +601,11 @@ tr:hover .copy-btn { opacity:1; }
   /* Stats más compactos */
   .stat-tile { padding:8px 10px; }
   .stat-num { font-size:20px; }
+
+  /* Paginación: compacta y con scroll horizontal si hace falta */
+  #pagination { gap:4px; padding:8px; justify-content:flex-start; justify-content:safe center; }
+  .pg-btn { padding:6px 10px; font-size:12px; }
+  .pg-info { font-size:10px; padding:0 4px; }
 }
 
 @media print {
